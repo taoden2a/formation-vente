@@ -33,7 +33,7 @@ export function Header({ authSlot }: { authSlot?: ReactNode }) {
           <div className="flex items-center gap-8">
             <Link href="/" className="flex items-center gap-2">
               <div className="font-bold text-xl text-pedagogy-blue-600">
-                L'Art de Convaincre
+                L&apos;Art de Convaincre
               </div>
             </Link>
 

@@ -12,7 +12,7 @@ export default function ProgrammePage() {
           <div className="max-w-4xl mx-auto text-center space-y-6">
             <h1>Programme détaillé de la formation</h1>
             <p className="text-xl text-gray-600">
-              7 modules complets • 45+ leçons détaillées • Exercices pratiques • Modèles prêts à l'emploi
+              7 modules complets • 45+ leçons détaillées • Exercices pratiques • Modèles prêts à l&apos;emploi
             </p>
           </div>
         </div>
@@ -43,7 +43,7 @@ export default function ProgrammePage() {
                     </div>
 
                     <div className="pt-4 border-t border-gray-200">
-                      <h4 className="font-semibold mb-3">Objectifs d'apprentissage :</h4>
+                      <h4 className="font-semibold mb-3">Objectifs d&apos;apprentissage :</h4>
                       <ul className="space-y-2">
                         {module.objectives.map((objective, i) => (
                           <li key={i} className="flex items-start gap-2">

@@ -64,7 +64,7 @@ export default function ExercicesPage() {
           <Card>
             <div className="flex flex-wrap gap-6">
               <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700">Type d'exercice</label>
+                <label className="text-sm font-medium text-gray-700">Type d&apos;exercice</label>
                 <select
                   value={filterType}
                   onChange={(e) => setFilterType(e.target.value)}

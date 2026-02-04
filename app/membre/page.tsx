@@ -111,7 +111,7 @@ export default function MembreHomePage() {
             <div>
               <h1 className="text-4xl font-bold mb-2">Bienvenue dans votre formation !</h1>
               <p className="text-pedagogy-blue-100 text-lg">
-                L'Art de Convaincre - Formation complète
+                L&apos;Art de Convaincre - Formation complète
               </p>
             </div>
 
@@ -151,7 +151,7 @@ export default function MembreHomePage() {
               </p>
               <p>
                 Nous vous proposons un <strong>parcours recommandé</strong> pour une progression optimale,
-                mais vous n'êtes jamais obligé de le suivre. C'est votre formation, votre rythme.
+                mais vous n&apos;êtes jamais obligé de le suivre. C&apos;est votre formation, votre rythme.
               </p>
             </PedagogyBox>
 
@@ -286,7 +286,7 @@ export default function MembreHomePage() {
                     <h4 className="font-semibold mb-1 group-hover:text-pedagogy-blue-600 transition">
                       Modèles
                     </h4>
-                    <p className="text-sm text-gray-600">Templates prêts à l'emploi</p>
+                    <p className="text-sm text-gray-600">Templates prêts à l&apos;emploi</p>
                   </div>
                 </Card>
               </Link>

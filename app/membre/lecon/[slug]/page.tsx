@@ -83,15 +83,15 @@ export default function LessonPage({ params }: { params: { slug: string } }) {
             <div className="prose prose-lg max-w-none space-y-6">
               {/* Introduction */}
               <div>
-                <h2>Qu'est-ce que le biais de rareté ?</h2>
+                <h2>Qu&apos;est-ce que le biais de rareté ?</h2>
                 <p>
-                  Le biais de rareté (ou "scarcity bias" en anglais) est un biais cognitif qui nous pousse à accorder
-                  plus de valeur à quelque chose quand nous percevons qu'il est rare, limité ou en voie de disparition.
+                  Le biais de rareté (ou &quot;scarcity bias&quot; en anglais) est un biais cognitif qui nous pousse à accorder
+                  plus de valeur à quelque chose quand nous percevons qu&apos;il est rare, limité ou en voie de disparition.
                 </p>
                 <p>
                   Ce biais trouve son origine dans notre évolution : nos ancêtres devaient rapidement saisir les
-                  opportunités rares (nourriture, eau, abri) sous peine de les perdre définitivement. Aujourd'hui,
-                  ce mécanisme subsiste et influence nos décisions d'achat.
+                  opportunités rares (nourriture, eau, abri) sous peine de les perdre définitivement. Aujourd&apos;hui,
+                  ce mécanisme subsiste et influence nos décisions d&apos;achat.
                 </p>
               </div>
 
@@ -106,8 +106,8 @@ export default function LessonPage({ params }: { params: { slug: string } }) {
                     de perdre quelque chose), nous voulons encore plus cette chose pour restaurer notre liberté.
                   </li>
                   <li>
-                    <strong>L'heuristique de rareté :</strong> Notre cerveau utilise un raccourci mental simple :
-                    "Si c'est rare, c'est probablement précieux." C'est souvent vrai, mais pas toujours.
+                    <strong>L&apos;heuristique de rareté :</strong> Notre cerveau utilise un raccourci mental simple :
+                    &quot;Si c&apos;est rare, c&apos;est probablement précieux.&quot; C&apos;est souvent vrai, mais pas toujours.
                   </li>
                 </ul>
               </PedagogyBox>
@@ -115,7 +115,7 @@ export default function LessonPage({ params }: { params: { slug: string } }) {
               {/* Point clé / Attention */}
               <PedagogyBox color="yellow" title="⚠️ Point critique : Rareté réelle vs artificielle">
                 <p>
-                  C'est ici que se joue la frontière entre éthique et manipulation.
+                  C&apos;est ici que se joue la frontière entre éthique et manipulation.
                 </p>
                 <div className="grid md:grid-cols-2 gap-4 mt-4">
                   <div className="p-3 bg-pedagogy-green-50 border-l-4 border-pedagogy-green-500 rounded">
@@ -130,10 +130,10 @@ export default function LessonPage({ params }: { params: { slug: string } }) {
                   <div className="p-3 bg-red-50 border-l-4 border-red-500 rounded">
                     <p className="font-semibold text-red-800 mb-2">✗ Rareté manipulatrice (artificielle)</p>
                     <ul className="text-sm space-y-1">
-                      <li>• "Plus que 3 places" qui se renouvellent</li>
+                      <li>• &quot;Plus que 3 places&quot; qui se renouvellent</li>
                       <li>• Faux compte à rebours qui recommence</li>
-                      <li>• "Offre expire dans 10 minutes" sans raison</li>
-                      <li>• Stock "limité" mais illimité</li>
+                      <li>• &quot;Offre expire dans 10 minutes&quot; sans raison</li>
+                      <li>• Stock &quot;limité&quot; mais illimité</li>
                     </ul>
                   </div>
                 </div>
@@ -150,7 +150,7 @@ export default function LessonPage({ params }: { params: { slug: string } }) {
                     </h4>
                     <p className="text-sm">
                       Les marques comme Nike ou Adidas sortent des modèles en vraie édition limitée. Elles
-                      annoncent clairement la quantité produite (ex: 1000 paires), expliquent pourquoi c'est
+                      annoncent clairement la quantité produite (ex: 1000 paires), expliquent pourquoi c&apos;est
                       limité (collaboration unique avec un artiste), et ne reproduisent pas le modèle ensuite.
                       La rareté est réelle et transparente.
                     </p>
@@ -161,8 +161,8 @@ export default function LessonPage({ params }: { params: { slug: string } }) {
                       ✗ Exemple manipulateur : Les fausses urgences e-commerce
                     </h4>
                     <p className="text-sm">
-                      Un site affiche "Plus que 2 en stock !" mais cette mention apparaît toujours, peu importe
-                      quand vous visitez. Un compte à rebours "L'offre expire dans 15:00" recommence à chaque
+                      Un site affiche &quot;Plus que 2 en stock !&quot; mais cette mention apparaît toujours, peu importe
+                      quand vous visitez. Un compte à rebours &quot;L&apos;offre expire dans 15:00&quot; recommence à chaque
                       visite. Ces techniques créent une fausse urgence pour forcer la décision.
                     </p>
                   </div>
@@ -178,16 +178,16 @@ export default function LessonPage({ params }: { params: { slug: string } }) {
                     valable (votre temps, votre capacité de production, exclusivité voulue).
                   </li>
                   <li>
-                    <strong>2. Soyez transparent</strong> : Expliquez pourquoi c'est limité. Les gens apprécient
-                    l'honnêteté.
+                    <strong>2. Soyez transparent</strong> : Expliquez pourquoi c&apos;est limité. Les gens apprécient
+                    l&apos;honnêteté.
                   </li>
                   <li>
                     <strong>3. Donnez du temps</strong> : Évitez les urgences de dernière minute. Prévenez à
-                    l'avance quand une offre va se terminer.
+                    l&apos;avance quand une offre va se terminer.
                   </li>
                   <li>
-                    <strong>4. Tenez parole</strong> : Si vous dites "édition limitée", ne reproduisez pas
-                    l'offre la semaine suivante. Votre crédibilité en dépend.
+                    <strong>4. Tenez parole</strong> : Si vous dites &quot;édition limitée&quot;, ne reproduisez pas
+                    l&apos;offre la semaine suivante. Votre crédibilité en dépend.
                   </li>
                 </ol>
               </PedagogyBox>
@@ -198,7 +198,7 @@ export default function LessonPage({ params }: { params: { slug: string } }) {
                   <li>✓ Le biais de rareté nous fait valoriser ce qui est limité ou rare</li>
                   <li>✓ Il vient de notre évolution et de deux mécanismes : réactance et heuristique</li>
                   <li>✓ La différence éthique cruciale : rareté réelle vs artificielle</li>
-                  <li>✓ Pour l'utiliser éthiquement : vraie limitation + transparence + temps + parole tenue</li>
+                  <li>✓ Pour l&apos;utiliser éthiquement : vraie limitation + transparence + temps + parole tenue</li>
                 </ul>
               </PedagogyBox>
             </div>

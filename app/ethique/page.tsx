@@ -36,7 +36,7 @@ export default function EthiquePage() {
                   <li className="flex items-start gap-3">
                     <span className="text-pedagogy-green-600 font-bold">•</span>
                     <div>
-                      <strong>Transparence :</strong> Le client comprend clairement ce qu'on lui propose et pourquoi
+                      <strong>Transparence :</strong> Le client comprend clairement ce qu&apos;on lui propose et pourquoi
                     </div>
                   </li>
                   <li className="flex items-start gap-3">
@@ -54,13 +54,13 @@ export default function EthiquePage() {
                   <li className="flex items-start gap-3">
                     <span className="text-pedagogy-green-600 font-bold">•</span>
                     <div>
-                      <strong>Long terme :</strong> L'objectif est de créer une relation durable
+                      <strong>Long terme :</strong> L&apos;objectif est de créer une relation durable
                     </div>
                   </li>
                   <li className="flex items-start gap-3">
                     <span className="text-pedagogy-green-600 font-bold">•</span>
                     <div>
-                      <strong>Win-win :</strong> Les deux parties gagnent dans l'échange
+                      <strong>Win-win :</strong> Les deux parties gagnent dans l&apos;échange
                     </div>
                   </li>
                 </ul>
@@ -80,7 +80,7 @@ export default function EthiquePage() {
                   <li className="flex items-start gap-3">
                     <span className="text-red-600 font-bold">•</span>
                     <div>
-                      <strong>Promesses vides :</strong> On survend ou promet l'impossible
+                      <strong>Promesses vides :</strong> On survend ou promet l&apos;impossible
                     </div>
                   </li>
                   <li className="flex items-start gap-3">
@@ -98,7 +98,7 @@ export default function EthiquePage() {
                   <li className="flex items-start gap-3">
                     <span className="text-red-600 font-bold">•</span>
                     <div>
-                      <strong>Win-lose :</strong> Un seul gagne, généralement au détriment de l'autre
+                      <strong>Win-lose :</strong> Un seul gagne, généralement au détriment de l&apos;autre
                     </div>
                   </li>
                 </ul>
@@ -107,16 +107,16 @@ export default function EthiquePage() {
 
             <PedagogyBox color="yellow" title="Le test de l'éthique">
               <p className="mb-3">
-                Avant d'utiliser une technique de persuasion, posez-vous ces questions :
+                Avant d&apos;utiliser une technique de persuasion, posez-vous ces questions :
               </p>
               <ul className="space-y-2">
-                <li>• Serais-je à l'aise si cette technique était utilisée sur moi ou mes proches ?</li>
+                <li>• Serais-je à l&apos;aise si cette technique était utilisée sur moi ou mes proches ?</li>
                 <li>• Le client a-t-il toutes les informations pour décider en connaissance de cause ?</li>
                 <li>• Est-ce que je crois sincèrement que mon offre lui apportera de la valeur ?</li>
                 <li>• Serais-je fier de raconter cette vente publiquement ?</li>
               </ul>
               <p className="mt-3 font-semibold">
-                Si vous répondez "oui" à toutes ces questions, vous êtes dans l'influence éthique.
+                Si vous répondez &quot;oui&quot; à toutes ces questions, vous êtes dans l&apos;influence éthique.
               </p>
             </PedagogyBox>
           </div>
@@ -128,9 +128,9 @@ export default function EthiquePage() {
         <div className="container-width">
           <div className="max-w-4xl mx-auto space-y-8">
             <div className="text-center">
-              <h2>Ce que cette formation refuse d'enseigner</h2>
+              <h2>Ce que cette formation refuse d&apos;enseigner</h2>
               <p className="text-lg text-gray-600 mt-4">
-                Nous avons fait des choix conscients sur ce que nous n'enseignerons jamais
+                Nous avons fait des choix conscients sur ce que nous n&apos;enseignerons jamais
               </p>
             </div>
 
@@ -140,7 +140,7 @@ export default function EthiquePage() {
                   ✗ Les fausses urgences et la rareté artificielle
                 </h4>
                 <p className="text-gray-600">
-                  "Plus que 3 places !" alors qu'il n'y a aucune limite réelle. "Offre qui expire dans 10 minutes"
+                  &quot;Plus que 3 places !&quot; alors qu&apos;il n&apos;y a aucune limite réelle. &quot;Offre qui expire dans 10 minutes&quot;
                   avec un compte à rebours qui redémarre. Ces techniques créent du stress inutile et érodent la confiance.
                   <strong className="text-gray-900 block mt-2">
                     Ce que nous enseignons à la place : Comment communiquer une vraie rareté ou urgence quand elle existe,
@@ -154,8 +154,8 @@ export default function EthiquePage() {
                   ✗ Les promesses irréalistes et le sensationnalisme
                 </h4>
                 <p className="text-gray-600">
-                  "Gagnez 10 000€ par mois en travaillant 2h par jour !" "Cette méthode secrète que les millionnaires
-                  ne veulent pas que vous sachiez !" Ces promesses attirent mais déçoivent systématiquement.
+                  &quot;Gagnez 10 000€ par mois en travaillant 2h par jour !&quot; &quot;Cette méthode secrète que les millionnaires
+                  ne veulent pas que vous sachiez !&quot; Ces promesses attirent mais déçoivent systématiquement.
                   <strong className="text-gray-900 block mt-2">
                     Ce que nous enseignons à la place : Comment présenter des bénéfices réalistes et vérifiables,
                     comment gérer les attentes et créer de la vraie crédibilité.
@@ -168,21 +168,21 @@ export default function EthiquePage() {
                   ✗ La manipulation émotionnelle
                 </h4>
                 <p className="text-gray-600">
-                  Jouer sur la peur, la culpabilité ou l'insécurité pour forcer une vente. "Si vous n'achetez pas,
-                  vous allez rester pauvre toute votre vie." "Vos enfants méritent mieux que ça."
+                  Jouer sur la peur, la culpabilité ou l&apos;insécurité pour forcer une vente. &quot;Si vous n&apos;achetez pas,
+                  vous allez rester pauvre toute votre vie.&quot; &quot;Vos enfants méritent mieux que ça.&quot;
                   <strong className="text-gray-900 block mt-2">
                     Ce que nous enseignons à la place : Comment créer une connexion émotionnelle authentique,
-                    comment parler aux aspirations plutôt qu'aux peurs.
+                    comment parler aux aspirations plutôt qu&apos;aux peurs.
                   </strong>
                 </p>
               </Card>
 
               <Card>
                 <h4 className="font-semibold text-lg mb-3 text-red-700">
-                  ✗ Les dark patterns et l'exploitation des failles
+                  ✗ Les dark patterns et l&apos;exploitation des failles
                 </h4>
                 <p className="text-gray-600">
-                  Cacher le bouton d'annulation, rendre le désabonnement intentionnellement compliqué, ajouter des
+                  Cacher le bouton d&apos;annulation, rendre le désabonnement intentionnellement compliqué, ajouter des
                   produits au panier sans consentement clair.
                   <strong className="text-gray-900 block mt-2">
                     Ce que nous enseignons à la place : Comment créer une expérience utilisateur fluide qui
@@ -200,23 +200,23 @@ export default function EthiquePage() {
         <div className="container-width">
           <div className="max-w-4xl mx-auto space-y-8">
             <div className="text-center">
-              <h2>Notre vision : Le marketing éthique est l'avenir</h2>
+              <h2>Notre vision : Le marketing éthique est l&apos;avenir</h2>
             </div>
 
             <Card>
               <div className="space-y-6 text-lg">
                 <p>
-                  Nous croyons que <strong>le marketing éthique n'est pas un handicap, c'est un avantage compétitif</strong>.
+                  Nous croyons que <strong>le marketing éthique n&apos;est pas un handicap, c&apos;est un avantage compétitif</strong>.
                 </p>
 
                 <p className="text-gray-700">
-                  À l'ère de la transparence totale et des réseaux sociaux, les pratiques manipulatrices sont rapidement
+                  À l&apos;ère de la transparence totale et des réseaux sociaux, les pratiques manipulatrices sont rapidement
                   exposées et punies. Les marques qui durent sont celles qui construisent la confiance, créent de la
                   vraie valeur et respectent leur audience.
                 </p>
 
                 <p className="text-gray-700">
-                  L'influence éthique demande plus de réflexion et de travail que la manipulation. Il faut vraiment
+                  L&apos;influence éthique demande plus de réflexion et de travail que la manipulation. Il faut vraiment
                   comprendre son audience, créer un produit de qualité, communiquer clairement... Mais les résultats
                   sont durables : des clients satisfaits, du bouche-à-oreille positif, une réputation solide.
                 </p>
@@ -238,7 +238,7 @@ export default function EthiquePage() {
       <section className="section-spacing">
         <div className="container-width">
           <div className="max-w-2xl mx-auto text-center space-y-6">
-            <h2>Prêt à apprendre l'influence éthique ?</h2>
+            <h2>Prêt à apprendre l&apos;influence éthique ?</h2>
             <Button variant="action" size="lg" asChild>
               <Link href="/#prix">Accéder à la formation</Link>
             </Button>

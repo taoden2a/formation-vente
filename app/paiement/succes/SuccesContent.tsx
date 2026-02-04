@@ -77,7 +77,7 @@ export function SuccesContent({ initialAccess }: { initialAccess: boolean }) {
     <main className="mx-auto max-w-lg p-6 text-center space-y-6 py-24">
       <h1 className="text-3xl font-bold">Paiement réussi</h1>
       <p className="text-gray-600 text-lg">
-        Votre paiement a bien été reçu. L'activation de votre accès peut
+        Votre paiement a bien été reçu. L&apos;activation de votre accès peut
         prendre quelques minutes. Rechargez cette page ou contactez-nous si
         le problème persiste.
       </p>

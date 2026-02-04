@@ -10,16 +10,16 @@ export default function AffiliationPage() {
       <section className="section-spacing bg-gradient-to-b from-white to-gray-50">
         <div className="container-width">
           <div className="max-w-4xl mx-auto text-center space-y-6">
-            <h1>Programme d'affiliation</h1>
+            <h1>Programme d&apos;affiliation</h1>
             <p className="text-xl text-gray-600">
               Recommandez la formation et recevez 20% de commission sur chaque vente
             </p>
             <PedagogyBox color="yellow" className="text-left">
               <p className="font-semibold">
-                ⚠️ Le programme d'affiliation est exclusivement réservé aux clients de la formation.
+                ⚠️ Le programme d&apos;affiliation est exclusivement réservé aux clients de la formation.
               </p>
               <p className="mt-2">
-                Nous voulons que nos affiliés connaissent réellement le contenu qu'ils recommandent
+                Nous voulons que nos affiliés connaissent réellement le contenu qu&apos;ils recommandent
                 et puissent en parler avec authenticité.
               </p>
             </PedagogyBox>
@@ -43,7 +43,7 @@ export default function AffiliationPage() {
                 <h3 className="text-xl font-semibold">Suivez la formation</h3>
                 <p className="text-gray-600">
                   Une fois que vous avez acheté la formation, vous accédez automatiquement
-                  au programme d'affiliation dans votre espace membre.
+                  au programme d&apos;affiliation dans votre espace membre.
                 </p>
               </Card>
 
@@ -53,7 +53,7 @@ export default function AffiliationPage() {
                 </div>
                 <h3 className="text-xl font-semibold">Partagez votre lien</h3>
                 <p className="text-gray-600">
-                  Vous recevez un lien d'affiliation unique. Partagez-le sur vos réseaux,
+                  Vous recevez un lien d&apos;affiliation unique. Partagez-le sur vos réseaux,
                   votre blog, vos newsletters ou directement avec vos contacts.
                 </p>
               </Card>
@@ -100,8 +100,8 @@ export default function AffiliationPage() {
                   <li className="flex items-start gap-3">
                     <span className="text-pedagogy-green-500">✓</span>
                     <div>
-                      Cookie de <strong>60 jours</strong> : si quelqu'un clique sur votre lien, vous êtes crédité
-                      même s'il achète 2 mois plus tard
+                      Cookie de <strong>60 jours</strong> : si quelqu&apos;un clique sur votre lien, vous êtes crédité
+                      même s&apos;il achète 2 mois plus tard
                     </div>
                   </li>
                   <li className="flex items-start gap-3">
@@ -131,13 +131,13 @@ export default function AffiliationPage() {
                   <li className="flex items-start gap-3">
                     <span className="text-pedagogy-blue-500">→</span>
                     <div>
-                      Accédez à des <strong>ressources marketing</strong> prêtes à l'emploi
+                      Accédez à des <strong>ressources marketing</strong> prêtes à l&apos;emploi
                     </div>
                   </li>
                   <li className="flex items-start gap-3">
                     <span className="text-pedagogy-blue-500">→</span>
                     <div>
-                      Consultez l'<strong>historique</strong> de vos paiements
+                      Consultez l&apos;<strong>historique</strong> de vos paiements
                     </div>
                   </li>
                 </ul>
@@ -152,7 +152,7 @@ export default function AffiliationPage() {
         <div className="container-width">
           <div className="max-w-4xl mx-auto space-y-8">
             <div className="text-center">
-              <h2>Charte de l'affilié éthique</h2>
+              <h2>Charte de l&apos;affilié éthique</h2>
               <p className="text-lg text-gray-600 mt-4">
                 En devenant affilié, vous vous engagez à respecter ces principes
               </p>
@@ -183,7 +183,7 @@ export default function AffiliationPage() {
                     <li>• Créer de faux témoignages ou de fausses critiques</li>
                     <li>• Spammer vos contacts ou utiliser des pratiques intrusives</li>
                     <li>• Cacher que vous êtes affilié</li>
-                    <li>• Utiliser le spam, l'achat de trafic frauduleux ou tout moyen déloyal</li>
+                    <li>• Utiliser le spam, l&apos;achat de trafic frauduleux ou tout moyen déloyal</li>
                   </ul>
                 </div>
               </div>
@@ -191,8 +191,8 @@ export default function AffiliationPage() {
 
             <PedagogyBox color="yellow" title="Violation de la charte">
               <p>
-                Toute violation de cette charte éthique entraînera la suspension immédiate de votre compte d'affilié
-                et la perte de vos commissions non payées. Nous prenons l'éthique très au sérieux.
+                Toute violation de cette charte éthique entraînera la suspension immédiate de votre compte d&apos;affilié
+                et la perte de vos commissions non payées. Nous prenons l&apos;éthique très au sérieux.
               </p>
             </PedagogyBox>
           </div>
@@ -226,7 +226,7 @@ export default function AffiliationPage() {
               </Card>
 
               <Card>
-                <h4 className="font-semibold mb-2">💬 Templates d'emails</h4>
+                <h4 className="font-semibold mb-2">💬 Templates d&apos;emails</h4>
                 <p className="text-gray-600 text-sm">
                   Emails à envoyer à votre liste pour présenter la formation
                 </p>
@@ -269,7 +269,7 @@ export default function AffiliationPage() {
           <div className="max-w-2xl mx-auto text-center space-y-6">
             <h2>Prêt à devenir affilié ?</h2>
             <p className="text-lg text-gray-600">
-              Commencez par suivre la formation, puis accédez au programme d'affiliation
+              Commencez par suivre la formation, puis accédez au programme d&apos;affiliation
             </p>
             <Button variant="action" size="lg" asChild>
               <Link href="/#prix">Accéder à la formation</Link>

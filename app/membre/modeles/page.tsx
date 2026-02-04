@@ -47,7 +47,7 @@ export default function ModelesPage() {
           <div className="space-y-4">
             <h1 className="text-4xl font-bold">Modèles et templates</h1>
             <p className="text-pedagogy-blue-100 text-lg">
-              Des ressources prêtes à l'emploi pour appliquer immédiatement
+              Des ressources prêtes à l&apos;emploi pour appliquer immédiatement
             </p>
           </div>
         </div>

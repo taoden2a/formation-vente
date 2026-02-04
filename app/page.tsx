@@ -12,7 +12,7 @@ export default function HomePage() {
         <div className="container-width">
           <div className="max-w-4xl mx-auto text-center space-y-6">
             <h1 className="text-5xl md:text-6xl font-bold tracking-tight text-gray-900">
-              Apprenez l'art de convaincre{' '}
+              Apprenez l&apos;art de convaincre{' '}
               <span className="text-pedagogy-blue-500">sans manipuler</span>
             </h1>
             <p className="text-xl text-gray-600 leading-relaxed">
@@ -41,7 +41,7 @@ export default function HomePage() {
               <Card>
                 <h3 className="text-xl font-semibold mb-3">Vous êtes entrepreneur ou freelance</h3>
                 <p className="text-gray-600">
-                  Vous devez vendre vos services ou produits, mais vous détestez l'idée de "faire du commercial"
+                  Vous devez vendre vos services ou produits, mais vous détestez l&apos;idée de &quot;faire du commercial&quot;
                   de manière agressive ou manipulatrice.
                 </p>
               </Card>
@@ -57,7 +57,7 @@ export default function HomePage() {
               <Card>
                 <h3 className="text-xl font-semibold mb-3">Vous créez du contenu ou communiquez</h3>
                 <p className="text-gray-600">
-                  Vous souhaitez comprendre comment capter l'attention, engager votre audience et créer
+                  Vous souhaitez comprendre comment capter l&apos;attention, engager votre audience et créer
                   du contenu qui résonne vraiment avec vos lecteurs ou spectateurs.
                 </p>
               </Card>
@@ -66,7 +66,7 @@ export default function HomePage() {
                 <h3 className="text-xl font-semibold mb-3">Vous êtes curieux de psychologie humaine</h3>
                 <p className="text-gray-600">
                   Vous voulez comprendre comment fonctionnent les biais cognitifs, la prise de décision
-                  et les mécanismes d'influence dans les interactions quotidiennes.
+                  et les mécanismes d&apos;influence dans les interactions quotidiennes.
                 </p>
               </Card>
             </div>
@@ -88,8 +88,8 @@ export default function HomePage() {
             <div className="grid md:grid-cols-2 gap-6">
               <PedagogyBox color="blue" title="Comprendre la psychologie de l'achat">
                 <p>
-                  Identifier les véritables motivations d'achat, comprendre le processus de décision
-                  et anticiper les objections avant qu'elles n'apparaissent.
+                  Identifier les véritables motivations d&apos;achat, comprendre le processus de décision
+                  et anticiper les objections avant qu&apos;elles n&apos;apparaissent.
                 </p>
               </PedagogyBox>
 
@@ -125,7 +125,7 @@ export default function HomePage() {
             <div className="text-center space-y-4">
               <h2>Un programme complet et structuré</h2>
               <p className="text-lg text-gray-600">
-                7 modules, 45+ leçons détaillées, des exercices pratiques et des modèles prêts à l'emploi
+                7 modules, 45+ leçons détaillées, des exercices pratiques et des modèles prêts à l&apos;emploi
               </p>
             </div>
 
@@ -169,7 +169,7 @@ export default function HomePage() {
         <div className="container-width">
           <div className="max-w-4xl mx-auto space-y-12">
             <div className="text-center space-y-4">
-              <h2>Une pédagogie pensée pour l'apprentissage</h2>
+              <h2>Une pédagogie pensée pour l&apos;apprentissage</h2>
               <p className="text-lg text-gray-600">
                 Pas de vidéos interminables. Du contenu texte structuré, détaillé et facile à revisiter.
               </p>
@@ -183,7 +183,7 @@ export default function HomePage() {
                 <h3 className="text-xl font-semibold">Contenu texte approfondi</h3>
                 <p className="text-gray-600">
                   Chaque leçon est rédigée avec soin, structurée de manière claire, et va en profondeur
-                  sur chaque concept. Vous pouvez lire à votre rythme et revenir facilement sur n'importe quelle partie.
+                  sur chaque concept. Vous pouvez lire à votre rythme et revenir facilement sur n&apos;importe quelle partie.
                 </p>
               </div>
 
@@ -258,7 +258,7 @@ export default function HomePage() {
                       <li>• Les fausses urgences et la pression artificielle</li>
                       <li>• Les promesses irréalistes et le sensationnalisme</li>
                       <li>• Les techniques de manipulation émotionnelle</li>
-                      <li>• Tout ce qui ne sert pas l'intérêt du client</li>
+                      <li>• Tout ce qui ne sert pas l&apos;intérêt du client</li>
                     </ul>
                   </div>
                 </div>
@@ -301,7 +301,7 @@ export default function HomePage() {
                   </li>
                   <li className="flex items-start gap-3">
                     <span className="text-pedagogy-green-500">✓</span>
-                    <span>Exercices pratiques et modèles prêts à l'emploi</span>
+                    <span>Exercices pratiques et modèles prêts à l&apos;emploi</span>
                   </li>
                   <li className="flex items-start gap-3">
                     <span className="text-pedagogy-green-500">✓</span>
@@ -317,7 +317,7 @@ export default function HomePage() {
                   </li>
                   <li className="flex items-start gap-3">
                     <span className="text-pedagogy-green-500">✓</span>
-                    <span>Accès au programme d'affiliation</span>
+                    <span>Accès au programme d&apos;affiliation</span>
                   </li>
                 </ul>
               </div>
@@ -356,7 +356,7 @@ export default function HomePage() {
       <section className="section-spacing bg-gradient-to-b from-pedagogy-blue-50 to-white">
         <div className="container-width">
           <div className="max-w-3xl mx-auto text-center space-y-8">
-            <h2 className="text-4xl">Prêt à maîtriser l'art de convaincre ?</h2>
+            <h2 className="text-4xl">Prêt à maîtriser l&apos;art de convaincre ?</h2>
             <p className="text-xl text-gray-600">
               Rejoignez la formation dès maintenant et apprenez à vendre avec intégrité
             </p>

@@ -99,7 +99,7 @@ export default function ModulePage({ params }: { params: { slug: string } }) {
           <div className="lg:col-span-2 space-y-8">
             {/* Objectifs */}
             <Card>
-              <h2 className="text-2xl font-bold mb-4">Objectifs d'apprentissage</h2>
+              <h2 className="text-2xl font-bold mb-4">Objectifs d&apos;apprentissage</h2>
               <PedagogyBox color="green">
                 <p className="font-semibold mb-3">À la fin de ce module, vous saurez :</p>
                 <ul className="space-y-2">

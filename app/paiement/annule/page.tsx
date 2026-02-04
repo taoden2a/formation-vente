@@ -7,7 +7,7 @@ export default function PaiementAnnulePage() {
       <div className="text-5xl">&#10007;</div>
       <h1 className="text-3xl font-bold">Paiement annulé</h1>
       <p className="text-gray-600 text-lg">
-        Aucun débit n'a été effectué. Vous pouvez retenter le paiement à tout
+        Aucun débit n&apos;a été effectué. Vous pouvez retenter le paiement à tout
         moment.
       </p>
       <Button variant="action" size="lg" asChild>

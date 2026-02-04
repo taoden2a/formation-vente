@@ -117,7 +117,7 @@ export default function ComptePage() {
             <div className="space-y-4">
               <div className="flex items-center justify-between py-3 border-b border-gray-200">
                 <div>
-                  <p className="font-medium">Type d'accès</p>
+                  <p className="font-medium">Type d&apos;accès</p>
                   <p className="text-sm text-gray-600">Accès à vie</p>
                 </div>
                 <span className="px-3 py-1 bg-pedagogy-green-100 text-pedagogy-green-700 rounded-full text-sm font-medium">
@@ -128,7 +128,7 @@ export default function ComptePage() {
               <div className="flex items-center justify-between py-3">
                 <div>
                   <p className="font-medium">Facture</p>
-                  <p className="text-sm text-gray-600">Téléchargez votre facture d'achat</p>
+                  <p className="text-sm text-gray-600">Téléchargez votre facture d&apos;achat</p>
                 </div>
                 <Button variant="secondary" size="sm" asChild>
                   <a href={mockUser.invoiceUrl} download>
@@ -142,12 +142,12 @@ export default function ComptePage() {
           {/* Programme d'affiliation */}
           <Card className="bg-gradient-to-br from-pedagogy-orange-50 to-white border-2 border-pedagogy-orange-200">
             <div className="space-y-4">
-              <h3 className="text-xl font-semibold">Programme d'affiliation</h3>
+              <h3 className="text-xl font-semibold">Programme d&apos;affiliation</h3>
               <p className="text-gray-600">
                 Recommandez la formation et gagnez 20% de commission sur chaque vente.
               </p>
               <Button variant="action" asChild>
-                <a href="/membre/affiliation">Accéder au programme d'affiliation</a>
+                <a href="/membre/affiliation">Accéder au programme d&apos;affiliation</a>
               </Button>
             </div>
           </Card>
