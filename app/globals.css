@@ -1,0 +1,140 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 98%;
+    --foreground: 222.2 84% 4.9%;
+
+    /* Couleurs pédagogiques */
+    --pedagogy-blue: 217 91% 60%;
+    --pedagogy-yellow: 45 93% 47%;
+    --pedagogy-green: 142 71% 45%;
+    --pedagogy-orange: 25 95% 53%;
+  }
+
+  * {
+    @apply border-gray-200;
+  }
+
+  body {
+    @apply bg-gray-50 text-gray-900 font-sans antialiased;
+  }
+
+  /* Typographie claire et lisible */
+  h1 {
+    @apply text-4xl font-bold tracking-tight;
+  }
+
+  h2 {
+    @apply text-3xl font-bold tracking-tight;
+  }
+
+  h3 {
+    @apply text-2xl font-semibold;
+  }
+
+  h4 {
+    @apply text-xl font-semibold;
+  }
+
+  p {
+    @apply text-base leading-relaxed;
+  }
+
+  a {
+    @apply underline-offset-4 hover:underline;
+  }
+}
+
+@layer components {
+  /* Cartes arrondies */
+  .card {
+    @apply bg-white rounded-2xl shadow-sm border border-gray-100 p-6;
+  }
+
+  /* Encadrés pédagogiques colorés */
+  .pedagogy-box {
+    @apply rounded-xl p-6 border-l-4;
+  }
+
+  .pedagogy-box-blue {
+    @apply pedagogy-box bg-pedagogy-blue-50 border-pedagogy-blue-500;
+  }
+
+  .pedagogy-box-yellow {
+    @apply pedagogy-box bg-pedagogy-yellow-50 border-pedagogy-yellow-400;
+  }
+
+  .pedagogy-box-green {
+    @apply pedagogy-box bg-pedagogy-green-50 border-pedagogy-green-500;
+  }
+
+  .pedagogy-box-orange {
+    @apply pedagogy-box bg-pedagogy-orange-50 border-pedagogy-orange-500;
+  }
+
+  /* Boutons */
+  .btn {
+    @apply inline-flex items-center justify-center rounded-xl px-6 py-3 font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2;
+  }
+
+  .btn-primary {
+    @apply btn bg-pedagogy-blue-500 text-white hover:bg-pedagogy-blue-600 focus:ring-pedagogy-blue-500;
+  }
+
+  .btn-secondary {
+    @apply btn bg-gray-100 text-gray-900 hover:bg-gray-200 focus:ring-gray-400;
+  }
+
+  .btn-action {
+    @apply btn bg-pedagogy-orange-500 text-white hover:bg-pedagogy-orange-600 focus:ring-pedagogy-orange-500;
+  }
+
+  .btn-success {
+    @apply btn bg-pedagogy-green-500 text-white hover:bg-pedagogy-green-600 focus:ring-pedagogy-green-500;
+  }
+
+  /* Badge de statut */
+  .badge {
+    @apply inline-flex items-center rounded-full px-3 py-1 text-sm font-medium;
+  }
+
+  .badge-not-started {
+    @apply badge bg-gray-100 text-gray-700;
+  }
+
+  .badge-in-progress {
+    @apply badge bg-pedagogy-blue-100 text-pedagogy-blue-700;
+  }
+
+  .badge-completed {
+    @apply badge bg-pedagogy-green-100 text-pedagogy-green-700;
+  }
+
+  /* Barre de progression */
+  .progress-bar {
+    @apply w-full h-3 bg-gray-100 rounded-full overflow-hidden;
+  }
+
+  .progress-fill {
+    @apply h-full bg-gradient-to-r from-pedagogy-blue-500 to-pedagogy-green-500 transition-all duration-500;
+  }
+}
+
+@layer utilities {
+  /* Espacements cohérents */
+  .section-spacing {
+    @apply py-16 md:py-24;
+  }
+
+  .container-width {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  /* États hover doux */
+  .hover-lift {
+    @apply transition-transform duration-200 hover:-translate-y-1;
+  }
+}
