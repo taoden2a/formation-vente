@@ -124,6 +124,7 @@ app/
 | Vercel build ancien commit | ✅ Résolu | Webhook cache, résolu par redeploy |
 | `PrismaClientInitializationError` Vercel | ✅ Résolu | `postinstall` + `prisma generate` dans build |
 | 500 prod sans env vars | ✅ Résolu | Guards ajoutés dans `lib/prisma.ts` et `lib/auth.ts` |
+| 500 prod Prisma/Vercel cache | ✅ Résolu | Ajout `directUrl` dans schema + `DIRECT_URL` sur Vercel |
 
 ---
 
@@ -154,3 +155,4 @@ app/
 | 2025-02-12 | Ajout `postinstall` + `prisma generate` dans build pour Vercel |
 | 2025-02-12 | Guards env vars dans `lib/prisma.ts` et `lib/auth.ts` |
 | 2025-02-12 | Création `/docs/PROJECT_MEMORY.md` |
+| 2025-02-12 | Ajout `directUrl` dans `prisma/schema.prisma` + `DIRECT_URL` sur Vercel |
