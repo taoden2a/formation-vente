@@ -113,6 +113,7 @@ app/
 | Guard env vars avec `throw` | Erreurs explicites au lieu de 500 opaques |
 | `prisma generate` dans build + postinstall | Vercel cache les node_modules, Prisma Client doit être regénéré |
 | Apostrophes échappées `&apos;` | ESLint `react/no-unescaped-entities` strict |
+| `bcryptjs` au lieu de `bcrypt` | `bcrypt` natif casse sur Vercel (binaire Linux incompatible) |
 
 ---
 
@@ -125,6 +126,7 @@ app/
 | `PrismaClientInitializationError` Vercel | ✅ Résolu | `postinstall` + `prisma generate` dans build |
 | 500 prod sans env vars | ✅ Résolu | Guards ajoutés dans `lib/prisma.ts` et `lib/auth.ts` |
 | 500 prod Prisma/Vercel cache | ✅ Résolu | Ajout `directUrl` dans schema + `DIRECT_URL` sur Vercel |
+| 500 prod bcrypt native build | ✅ Résolu | Remplacement `bcrypt` par `bcryptjs` (pure JS) |
 
 ---
 
@@ -156,3 +158,4 @@ app/
 | 2025-02-12 | Guards env vars dans `lib/prisma.ts` et `lib/auth.ts` |
 | 2025-02-12 | Création `/docs/PROJECT_MEMORY.md` |
 | 2025-02-12 | Ajout `directUrl` dans `prisma/schema.prisma` + `DIRECT_URL` sur Vercel |
+| 2025-02-12 | Fix bcrypt natif → `bcryptjs` pour compatibilité Vercel serverless |
