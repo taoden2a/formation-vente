@@ -1,10 +1,36 @@
-# PROJECT MEMORY - L'Art de Convaincre
+# PROJECT MEMORY - Comprendre pour Vendre
 
 > Source de vérité du projet. Maintenu par Claude.
 
 ---
 
-## 1. Stack actuelle
+## 1. Positionnement stratégique
+
+### Nom de la formation
+**Comprendre pour Vendre**
+
+### Thèse centrale
+La vente est la compétence mère. Sans savoir vendre, aucun projet ne tient. On n'enseigne pas des scripts agressifs mais la compréhension du cerveau humain et des mécanismes réels de décision.
+
+### Audience universelle
+- Commercial (augmenter ses résultats)
+- Étudiant (lancer son projet)
+- Entrepreneur (structurer son discours)
+- Freelance (présenter sa valeur)
+- Indépendant (développer son activité)
+
+### Ton éditorial
+- Sobre, maîtrisé, structuré, intelligent
+- Pas de marketing agressif
+- Pas de promesses irréalistes
+- Pas de clichés type "liberté financière rapide"
+
+### Statut
+✅ Homepage v1 structurée et déployée
+
+---
+
+## 2. Stack actuelle
 
 | Composant | Technologie | Version |
 |-----------|-------------|---------|
@@ -18,12 +44,12 @@
 
 ---
 
-## 2. Architecture globale
+## 3. Architecture globale
 
 ### Structure App Router
 ```
 app/
-├── page.tsx                    # Homepage (public)
+├── page.tsx                    # Homepage "Comprendre pour Vendre" (8 sections)
 ├── layout.tsx                  # Root layout (Header + Footer + AuthStatus)
 ├── connexion/page.tsx          # Login page
 ├── programme/page.tsx          # Programme détaillé (public)
@@ -60,7 +86,7 @@ app/
 
 ---
 
-## 3. Flows critiques
+## 4. Flows critiques
 
 ### Authentification
 1. User → `/connexion` → form email/password
@@ -89,7 +115,7 @@ app/
 
 ---
 
-## 4. Variables d'environnement requises
+## 5. Variables d'environnement requises
 
 | Variable | Obligatoire | Description |
 |----------|-------------|-------------|
@@ -103,7 +129,7 @@ app/
 
 ---
 
-## 5. Décisions techniques importantes
+## 6. Décisions techniques importantes
 
 | Décision | Justification |
 |----------|---------------|
@@ -117,7 +143,7 @@ app/
 
 ---
 
-## 6. Problèmes connus
+## 7. Problèmes connus
 
 | Problème | Statut | Notes |
 |----------|--------|-------|
@@ -130,15 +156,15 @@ app/
 
 ---
 
-## 7. Prochaine priorité
+## 8. Prochaine priorité
 
-- Vérifier que toutes les env vars sont configurées sur Vercel
+- ~~Vérifier que toutes les env vars sont configurées sur Vercel~~ ✅ Fait
 - Tester le flow complet en production (inscription → paiement → accès membre)
 - Configurer le webhook Stripe en production (`https://formation-vente.vercel.app/api/stripe/webhook`)
 
 ---
 
-## 8. Historique des changements
+## 9. Historique des changements
 
 | Date | Changement |
 |------|------------|
@@ -159,3 +185,52 @@ app/
 | 2025-02-12 | Création `/docs/PROJECT_MEMORY.md` |
 | 2025-02-12 | Ajout `directUrl` dans `prisma/schema.prisma` + `DIRECT_URL` sur Vercel |
 | 2025-02-12 | Fix bcrypt natif → `bcryptjs` pour compatibilité Vercel serverless |
+| 2026-02-12 | **Résolution complète incident déploiement production Vercel** |
+| 2026-02-13 | **Homepage v1 "Comprendre pour Vendre"** – Structure complète avec 8 sections |
+
+---
+
+## 10. 🔥 Incident Déploiement Production – Résolu (2026-02-12)
+
+### Problèmes rencontrés
+
+1. **Erreur 500 en production** (Server Components render)
+2. **bcrypt natif incompatible** avec environnement serverless Vercel
+3. **Erreur Prisma** : `DATABASE_URL is not defined`
+4. **Mauvaise configuration des variables d'environnement** (ajoutées au mauvais niveau)
+5. **Node version mismatch** (24.x → 20.x)
+
+### Causes techniques
+
+| Cause | Explication |
+|-------|-------------|
+| `bcrypt` binaire natif | Nécessite compilation Linux → incompatible avec runtime Vercel serverless |
+| Variables d'environnement | Ajoutées dans **Team** au lieu du **Project** sur Vercel |
+| Prisma build | `DATABASE_URL` doit être accessible au moment du build |
+| Node 24.x | Incompatibilité avec certaines dépendances natives |
+
+### Correctifs appliqués
+
+| Correctif | Fichier(s) impacté(s) |
+|-----------|----------------------|
+| Remplacement `bcrypt` → `bcryptjs` (pure JS) | `lib/auth.ts`, `scripts/create-user.mjs` |
+| Suppression `bcrypt` et `@types/bcrypt` | `package.json` |
+| Ajout `DATABASE_URL` + `DIRECT_URL` | Vercel Project Settings |
+| Ajout `NEXTAUTH_SECRET`, `NEXTAUTH_URL`, `STRIPE_*` | Vercel Project Settings |
+| Node version fixée à 20.x | Vercel Project Settings |
+| Ajout `directUrl` dans schema Prisma | `prisma/schema.prisma` |
+| Ajout `prisma generate` dans build + postinstall | `package.json` |
+| Guards env vars avec `throw` explicite | `lib/prisma.ts`, `lib/auth.ts` |
+| Redéploiement complet | Vercel Dashboard |
+
+### État actuel
+
+| Composant | Statut |
+|-----------|--------|
+| Build | ✅ Success |
+| Prisma | ✅ OK |
+| Supabase | ✅ OK |
+| Auth (NextAuth) | ✅ OK |
+| Site accessible | ✅ OK |
+
+**URL production active** : https://formation-vente.vercel.app
