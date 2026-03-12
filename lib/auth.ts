@@ -30,18 +30,31 @@ export const authOptions: NextAuthOptions = {
         const ok = await bcrypt.compare(credentials.password, user.passwordHash);
         if (!ok) return null;
 
-        return { id: user.id, email: user.email, name: user.name ?? null };
+        // Inclure le role dans l'objet user retourne
+        return {
+          id: user.id,
+          email: user.email,
+          name: user.name ?? null,
+          role: user.role,
+        };
       },
     }),
   ],
   callbacks: {
     async jwt({ token, user }) {
-      if (user) token.id = user.id;
+      if (user) {
+        token.id = user.id;
+        // Stocker le role dans le token JWT
+        token.role = (user as { role?: string }).role;
+      }
       return token;
     },
     async session({ session, token }) {
       if (session.user && token.id) {
-        (session.user as { id?: string }).id = token.id as string;
+        (session.user as { id?: string; role?: string }).id = token.id as string;
+        // Propager le role dans la session
+        // Note: Le role est informatif cote client, la securite reste cote serveur
+        (session.user as { id?: string; role?: string }).role = token.role as string;
       }
       return session;
     },

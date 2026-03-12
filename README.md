@@ -1,4 +1,4 @@
-# 🎯 L'Art de Convaincre - Plateforme de Formation
+# 🎯 Comprendre pour Vendre - Plateforme de Formation
 
 Site web complet de formation en ligne pour apprendre l'art de vendre et de convaincre de manière éthique.
 
@@ -278,4 +278,4 @@ Pour toute question ou problème :
 
 ## 📄 Licence
 
-Tous droits réservés © 2024 L'Art de Convaincre
+Tous droits réservés © 2024 Comprendre pour Vendre

@@ -66,7 +66,6 @@ Le site est maintenant accessible sur **http://localhost:3000** ! 🎉
 
 - **Accueil** : http://localhost:3000
 - **Programme** : http://localhost:3000/programme
-- **Éthique** : http://localhost:3000/ethique
 - **Affiliation** : http://localhost:3000/affiliation
 - **Connexion** : http://localhost:3000/connexion
 
@@ -124,7 +123,7 @@ const prisma = new PrismaClient()
 async function main() {
   const course = await prisma.course.create({
     data: {
-      title: "L'Art de Convaincre",
+      title: "Comprendre pour Vendre",
       slug: 'art-convaincre',
       description: '...',
       price: 8500, // 85€

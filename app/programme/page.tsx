@@ -1,244 +1,336 @@
-import { Card } from '@/components/ui/Card'
-import { Badge } from '@/components/ui/Badge'
-import { Button } from '@/components/ui/Button'
-import Link from 'next/link'
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { userHasAccess } from "@/lib/acces";
+import Link from "next/link";
+import { programPreview, templatesPreview, programStats } from "@/lib/programme-preview";
+import { getAllExercises, templates as serverTemplates } from "@/lib/server/programme-content";
+import { PageTransition } from "@/components/ui/PageTransition";
+import { BackgroundAnimated } from "@/components/ui/BackgroundAnimated";
+import { ScrollReveal } from "@/components/ui/ScrollReveal";
 
-export default function ProgrammePage() {
+/**
+ * PAGE PROGRAMME - HUB GLOBAL DE LA FORMATION
+ *
+ * Vue d'ensemble du programme, servant de hub pour les 4 sections :
+ *   - Modules & Leçons
+ *   - Exercices
+ *   - Templates & Ressources
+ *
+ * Comportement :
+ * - Visiteur / Connecté sans accès  → preview marketing + overlay paywall
+ * - Connecté avec accès             → contenu complet + liens actifs vers /membre/*
+ *
+ * Sécurité :
+ * - Page Server Component : import lib/server/programme-content.ts est sûr (jamais bundlé côté client)
+ * - Pour non-membres : seules les données de lib/programme-preview.ts sont utilisées
+ * - Aucune redirection automatique vers /membre/*
+ */
+
+export const metadata = {
+  title: "Programme | Comprendre pour Vendre",
+  description: "Decouvrez le programme complet : 9 modules, 27 lecons, exercices pratiques et templates exclusifs.",
+};
+
+export default async function ProgrammePage() {
+  const session = await getServerSession(authOptions);
+  let hasAccess = false;
+
+  if (session?.user) {
+    const userId = (session.user as { id?: string }).id;
+    if (userId) {
+      hasAccess = await userHasAccess(userId);
+    }
+  }
+
+  // Données serveur uniquement pour les membres
+  const exercises = hasAccess ? getAllExercises() : [];
+  const fullTemplates = hasAccess ? serverTemplates : [];
+
   return (
-    <div className="bg-gray-50">
-      {/* Header */}
-      <section className="section-spacing bg-gradient-to-b from-white to-gray-50">
-        <div className="container-width">
-          <div className="max-w-4xl mx-auto text-center space-y-6">
-            <h1>Programme détaillé de la formation</h1>
-            <p className="text-xl text-gray-600">
-              7 modules complets • 45+ leçons détaillées • Exercices pratiques • Modèles prêts à l&apos;emploi
-            </p>
+    <div className="min-h-screen bg-[#0a0a0f] text-white relative">
+
+      {/* ─── Overlay paywall (fixed) — non-membres uniquement ─── */}
+      {!hasAccess && (
+        <div className="fixed inset-0 z-50 pointer-events-none">
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#0a0a0f]/60 to-[#0a0a0f]" />
+          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 pointer-events-auto">
+            <div className="bg-[#12141a]/95 backdrop-blur-xl border border-white/10 rounded-2xl p-6 md:p-8 max-w-md mx-4 text-center shadow-2xl shadow-black/50">
+              <div className="w-14 h-14 mx-auto mb-4 rounded-full bg-orange-500/10 flex items-center justify-center">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-orange-400">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                </svg>
+              </div>
+              <h2 className="text-xl md:text-2xl font-bold text-white mb-2">
+                Acces complet a la formation
+              </h2>
+              <p className="text-gray-400 text-sm mb-6">
+                {programStats.modules} modules · {programStats.lessons} lecons · {programStats.exercises} exercices · {programStats.templates} templates
+              </p>
+              <div className="mb-6">
+                <div className="text-4xl font-bold text-white">59 EUR</div>
+                <div className="text-sm text-gray-500">Paiement unique · Acces a vie</div>
+              </div>
+              <div className="space-y-3">
+                <Link
+                  href="/#prix"
+                  className="block w-full px-6 py-4 rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 text-white font-semibold text-lg hover:from-orange-600 hover:to-orange-700 transition-all shadow-lg shadow-orange-500/25 hover:-translate-y-0.5"
+                >
+                  Commencer maintenant
+                </Link>
+                {!session && (
+                  <Link
+                    href="/connexion"
+                    className="block w-full px-6 py-3 rounded-xl bg-white/5 border border-white/10 text-gray-300 font-medium hover:bg-white/10 transition-colors"
+                  >
+                    Deja membre ? Se connecter
+                  </Link>
+                )}
+              </div>
+            </div>
           </div>
         </div>
-      </section>
+      )}
 
-      {/* Modules détaillés */}
-      <section className="section-spacing">
-        <div className="container-width">
-          <div className="max-w-5xl mx-auto space-y-12">
-            {programModules.map((module, moduleIndex) => (
-              <Card key={moduleIndex} className="space-y-6">
-                <div className="flex items-start gap-6">
-                  <div className="flex-shrink-0 w-16 h-16 rounded-xl bg-pedagogy-blue-100 flex items-center justify-center">
-                    <span className="text-2xl font-bold text-pedagogy-blue-600">
-                      {String(moduleIndex + 1).padStart(2, '0')}
-                    </span>
+      <PageTransition>
+        {/* ─── Bannière membre sticky — membres uniquement ─── */}
+        {hasAccess && (
+          <header className="sticky top-0 z-40 border-b border-white/10 bg-[#0a0a0f]/90 backdrop-blur-xl">
+            <div className="max-w-5xl mx-auto px-6 h-14 flex items-center justify-between gap-4">
+              <span className="text-sm text-green-400 flex items-center gap-2 flex-shrink-0">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                  <path d="M20 6 9 17l-5-5" />
+                </svg>
+                Acces debloque
+              </span>
+              <nav className="flex items-center gap-1 overflow-x-auto">
+                <Link href="/formation" className="flex-shrink-0 px-3 py-1.5 rounded-lg text-sm text-gray-400 hover:text-white hover:bg-white/5 transition-colors">
+                  Formation
+                </Link>
+                <Link href="/exercices" className="flex-shrink-0 px-3 py-1.5 rounded-lg text-sm text-gray-400 hover:text-white hover:bg-white/5 transition-colors">
+                  Exercices
+                </Link>
+                <Link href="/membre" className="flex-shrink-0 ml-2 px-3 py-1.5 rounded-lg bg-orange-500/10 border border-orange-500/20 text-sm text-orange-400 hover:bg-orange-500/20 transition-colors">
+                  Tableau de bord
+                </Link>
+              </nav>
+            </div>
+          </header>
+        )}
+
+        <BackgroundAnimated variant="dark">
+          <main className="max-w-5xl mx-auto px-6 py-12">
+
+            {/* ─── Hero ─── */}
+            <ScrollReveal>
+              <div className="text-center mb-12">
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-orange-500/10 border border-orange-500/20 mb-6">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-orange-400">
+                    <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20" />
+                  </svg>
+                  <span className="text-sm font-medium text-orange-300">Comprendre pour Vendre</span>
+                </div>
+                <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
+                  Le programme complet
+                </h1>
+                <p className="text-lg text-gray-400 max-w-2xl mx-auto">
+                  {programStats.modules} modules progressifs pour maitriser la vente par la comprehension du cerveau humain.
+                </p>
+              </div>
+            </ScrollReveal>
+
+            {/* ─── Stats ─── */}
+            <ScrollReveal delay={0.05}>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-16">
+                {[
+                  { value: programStats.modules, label: "Modules" },
+                  { value: programStats.lessons, label: "Lecons" },
+                  { value: programStats.exercises, label: "Exercices" },
+                  { value: programStats.templates, label: "Templates" },
+                ].map(({ value, label }) => (
+                  <div key={label} className="bg-white/5 border border-white/10 rounded-xl p-4 text-center">
+                    <div className="text-2xl font-bold text-white">{value}</div>
+                    <div className="text-sm text-gray-500">{label}</div>
                   </div>
-                  <div className="flex-1 space-y-4">
-                    <div>
-                      <h2 className="text-2xl font-bold mb-2">{module.title}</h2>
-                      <p className="text-gray-600">{module.description}</p>
-                    </div>
+                ))}
+              </div>
+            </ScrollReveal>
 
-                    <div className="flex flex-wrap gap-3">
-                      <Badge variant="default">{module.lessons} leçons</Badge>
-                      <Badge variant="default">{module.duration}</Badge>
-                      <Badge variant="default">{module.exercises} exercices</Badge>
-                    </div>
+            {/* ─── Section : Modules & Leçons ─── */}
+            <ScrollReveal delay={0.1}>
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold text-white">Modules & Lecons</h2>
+                {hasAccess && (
+                  <Link
+                    href="/formation"
+                    className="text-sm text-orange-400 hover:text-orange-300 transition-colors flex items-center gap-1"
+                  >
+                    Voir toutes les lecons
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="m9 18 6-6-6-6" />
+                    </svg>
+                  </Link>
+                )}
+              </div>
+            </ScrollReveal>
 
-                    <div className="pt-4 border-t border-gray-200">
-                      <h4 className="font-semibold mb-3">Objectifs d&apos;apprentissage :</h4>
-                      <ul className="space-y-2">
-                        {module.objectives.map((objective, i) => (
-                          <li key={i} className="flex items-start gap-2">
-                            <span className="text-pedagogy-green-500 mt-1">✓</span>
-                            <span className="text-gray-700">{objective}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-
-                    {module.deliverables && (
-                      <div className="pt-4 border-t border-gray-200">
-                        <h4 className="font-semibold mb-3">Livrables :</h4>
-                        <ul className="space-y-2">
-                          {module.deliverables.map((deliverable, i) => (
-                            <li key={i} className="flex items-start gap-2">
-                              <span className="text-pedagogy-orange-500">→</span>
-                              <span className="text-gray-700">{deliverable}</span>
-                            </li>
-                          ))}
-                        </ul>
+            <div className="space-y-4 mb-20">
+              {programPreview.map((mod, index) => (
+                <ScrollReveal key={mod.id} delay={0.12 + index * 0.03}>
+                  <div className="bg-white/5 border border-white/10 rounded-2xl p-6 hover:bg-white/[0.07] transition-colors">
+                    <div className="flex items-center gap-4 mb-4">
+                      <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500/20 to-orange-600/20 flex items-center justify-center text-lg font-bold text-orange-400">
+                        {String(mod.id).padStart(2, "0")}
                       </div>
-                    )}
-
-                    <div className="pt-4">
-                      <details className="group">
-                        <summary className="cursor-pointer text-pedagogy-blue-600 font-medium hover:text-pedagogy-blue-700">
-                          Voir le détail des leçons ({module.lessons})
-                        </summary>
-                        <div className="mt-4 space-y-2 pl-4 border-l-2 border-gray-200">
-                          {module.lessonsList?.map((lesson, i) => (
-                            <div key={i} className="text-gray-600 text-sm">
-                              Leçon {i + 1} : {lesson}
-                            </div>
-                          ))}
-                          {!module.lessonsList && (
-                            <p className="text-sm text-gray-500 italic">
-                              Contenu détaillé accessible après inscription
-                            </p>
+                      <div>
+                        <h3 className="text-lg font-semibold text-white">{mod.title}</h3>
+                        <p className="text-sm text-gray-500">{mod.lessons.length} lecons</p>
+                      </div>
+                    </div>
+                    <div className="pl-16 space-y-1">
+                      {mod.lessons.map((lesson) => (
+                        <div key={lesson.id} className="flex items-center justify-between py-2 border-b border-white/5 last:border-0">
+                          {hasAccess ? (
+                            <Link
+                              href="/formation"
+                              className="text-gray-300 text-sm hover:text-orange-300 transition-colors"
+                            >
+                              {lesson.title}
+                            </Link>
+                          ) : (
+                            <span className="text-gray-400 text-sm">{lesson.title}</span>
                           )}
                         </div>
-                      </details>
+                      ))}
                     </div>
                   </div>
+                </ScrollReveal>
+              ))}
+            </div>
+
+            {/* ─── Section : Exercices ─── */}
+            <ScrollReveal delay={0.15}>
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold text-white">Exercices pratiques</h2>
+                {hasAccess && (
+                  <Link
+                    href="/exercices"
+                    className="text-sm text-orange-400 hover:text-orange-300 transition-colors flex items-center gap-1"
+                  >
+                    Voir les {programStats.exercises} exercices
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="m9 18 6-6-6-6" />
+                    </svg>
+                  </Link>
+                )}
+              </div>
+            </ScrollReveal>
+
+            <ScrollReveal delay={0.18}>
+              {hasAccess ? (
+                <div className="grid sm:grid-cols-2 gap-4 mb-20">
+                  {exercises.map((item) => (
+                    <Link
+                      key={`${item.moduleId}-${item.lessonId}`}
+                      href="/exercices"
+                      className="flex items-start gap-4 p-5 bg-white/5 border border-white/10 rounded-2xl hover:bg-white/[0.08] hover:border-white/20 transition-colors group"
+                    >
+                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500/20 to-orange-600/20 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-orange-400">
+                          <path d="M9 11l3 3L22 4" />
+                          <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+                        </svg>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-white font-medium text-sm group-hover:text-orange-300 transition-colors mb-1">
+                          {item.exercise.title}
+                        </p>
+                        <span className="text-xs px-2 py-0.5 rounded-full bg-white/5 border border-white/10 text-gray-500">
+                          Module {item.moduleId}
+                        </span>
+                      </div>
+                    </Link>
+                  ))}
                 </div>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
+              ) : (
+                <div className="bg-white/5 border border-white/10 rounded-2xl p-8 text-center mb-20">
+                  <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-orange-500/10 flex items-center justify-center">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-orange-400">
+                      <path d="M9 11l3 3L22 4" />
+                      <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+                    </svg>
+                  </div>
+                  <p className="text-white font-semibold mb-2">{programStats.exercises} exercices pratiques</p>
+                  <p className="text-gray-500 text-sm max-w-sm mx-auto">
+                    Des mises en pratique concretes pour appliquer chaque concept directement sur votre activite.
+                  </p>
+                </div>
+              )}
+            </ScrollReveal>
 
-      {/* CTA */}
-      <section className="section-spacing bg-white">
-        <div className="container-width">
-          <div className="max-w-2xl mx-auto text-center space-y-6">
-            <h2>Prêt à commencer ?</h2>
-            <p className="text-lg text-gray-600">
-              Accès immédiat à tous les modules • Paiement unique • Accès à vie
-            </p>
-            <Button variant="action" size="lg" asChild>
-              <Link href="/#prix">Accéder à la formation</Link>
-            </Button>
-          </div>
-        </div>
-      </section>
+            {/* ─── Section : Templates & Ressources ─── */}
+            <ScrollReveal delay={0.2}>
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold text-white">Templates & Ressources</h2>
+                {hasAccess && (
+                  <Link
+                    href="/formation"
+                    className="text-sm text-orange-400 hover:text-orange-300 transition-colors flex items-center gap-1"
+                  >
+                    Voir les {programStats.templates} templates
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="m9 18 6-6-6-6" />
+                    </svg>
+                  </Link>
+                )}
+              </div>
+            </ScrollReveal>
+
+            <ScrollReveal delay={0.23}>
+              <div className="grid md:grid-cols-3 gap-4">
+                {(hasAccess ? fullTemplates : templatesPreview).map((template) => {
+                  const typeColors = {
+                    PDF: { bg: "bg-red-500/10", text: "text-red-400" },
+                    Template: { bg: "bg-blue-500/10", text: "text-blue-400" },
+                    Schema: { bg: "bg-purple-500/10", text: "text-purple-400" },
+                  };
+                  const colors = typeColors[template.type] ?? typeColors.Template;
+
+                  return (
+                    <div key={template.id} className="bg-white/5 border border-white/10 rounded-xl p-4 hover:bg-white/[0.07] transition-colors group">
+                      <div className="flex items-center gap-3">
+                        <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${colors.bg}`}>
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className={colors.text}>
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                            <polyline points="14 2 14 8 20 8" />
+                          </svg>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          {hasAccess ? (
+                            <Link
+                              href="/formation"
+                              className="text-sm font-medium text-white hover:text-orange-300 transition-colors block truncate"
+                            >
+                              {template.title}
+                            </Link>
+                          ) : (
+                            <p className="text-sm font-medium text-white truncate">{template.title}</p>
+                          )}
+                          <p className="text-xs text-gray-500">{template.type}</p>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </ScrollReveal>
+
+            {/* Spacer pour le paywall fixe */}
+            {!hasAccess && <div className="h-64" />}
+
+          </main>
+        </BackgroundAnimated>
+      </PageTransition>
     </div>
-  )
+  );
 }
-
-const programModules = [
-  {
-    title: 'Fondations : Comprendre la psychologie de la persuasion',
-    description: 'Les bases essentielles pour comprendre comment les humains prennent des décisions et comment vous pouvez influencer positivement ce processus.',
-    lessons: 6,
-    duration: '2h30',
-    exercises: 5,
-    objectives: [
-      'Comprendre les mécanismes de prise de décision humaine',
-      'Identifier les différents types de motivations d\'achat',
-      'Distinguer influence éthique et manipulation',
-      'Maîtriser les 6 principes de persuasion de Cialdini',
-    ],
-    deliverables: [
-      'Carte mentale des motivations d\'achat',
-      'Grille d\'analyse de votre audience cible',
-    ],
-    lessonsList: [
-      'Introduction : Influence vs Manipulation',
-      'Comment le cerveau prend des décisions',
-      'Les 3 niveaux de motivation',
-      'Les 6 principes universels de persuasion',
-      'Le rôle des émotions dans l\'achat',
-      'Synthèse et exercice d\'application',
-    ],
-  },
-  {
-    title: 'Les biais cognitifs et leur utilisation éthique',
-    description: 'Découverte approfondie des biais cognitifs les plus puissants et comment les utiliser de manière éthique pour faciliter la prise de décision.',
-    lessons: 8,
-    duration: '3h',
-    exercises: 8,
-    objectives: [
-      'Identifier et comprendre les 20 biais cognitifs principaux',
-      'Savoir quand et comment utiliser chaque biais',
-      'Reconnaître les utilisations éthiques vs manipulatrices',
-      'Intégrer les biais dans votre communication',
-    ],
-    deliverables: [
-      'Guide de référence des biais cognitifs',
-      'Checklist d\'application éthique',
-    ],
-  },
-  {
-    title: 'L\'art du storytelling et de la communication',
-    description: 'Maîtrisez l\'art de raconter des histoires qui captivent, résonnent et persuadent votre audience.',
-    lessons: 7,
-    duration: '2h45',
-    exercises: 6,
-    objectives: [
-      'Structurer une histoire persuasive avec le modèle du voyage du héros',
-      'Créer des messages qui résonnent émotionnellement',
-      'Adapter votre communication à différents profils',
-      'Utiliser les métaphores et analogies efficacement',
-    ],
-    deliverables: [
-      'Template de structure narrative',
-      'Bibliothèque d\'histoires type',
-    ],
-  },
-  {
-    title: 'Créer de la valeur et la communiquer',
-    description: 'Apprenez à identifier la vraie valeur de votre offre et à la communiquer de manière convaincante.',
-    lessons: 6,
-    duration: '2h30',
-    exercises: 7,
-    objectives: [
-      'Identifier les véritables bénéfices de votre offre',
-      'Transformer des caractéristiques en bénéfices',
-      'Créer et présenter votre proposition de valeur unique',
-      'Positionner votre prix comme un investissement',
-    ],
-    deliverables: [
-      'Votre proposition de valeur unique',
-      'Matrice bénéfices/objections',
-    ],
-  },
-  {
-    title: 'Le processus de vente éthique',
-    description: 'Construisez un processus de vente complet qui convertit naturellement, sans forcer ni manipuler.',
-    lessons: 7,
-    duration: '3h15',
-    exercises: 9,
-    objectives: [
-      'Structurer un tunnel de vente éthique',
-      'Créer du contenu qui éduque et qualifie',
-      'Mettre en place un système de nurturing',
-      'Optimiser chaque étape du parcours client',
-    ],
-    deliverables: [
-      'Votre tunnel de vente complet',
-      'Séquence d\'emails de nurturing',
-    ],
-  },
-  {
-    title: 'Objections, négociation et closing',
-    description: 'Gérez les objections avec élégance, négociez avec intégrité et concluez des ventes dans le respect mutuel.',
-    lessons: 6,
-    duration: '2h30',
-    exercises: 8,
-    objectives: [
-      'Anticiper et prévenir les objections principales',
-      'Répondre aux objections sans être défensif',
-      'Négocier en créant de la valeur pour les deux parties',
-      'Closer avec confiance et authenticité',
-    ],
-    deliverables: [
-      'Scripts de réponse aux objections',
-      'Framework de négociation',
-    ],
-  },
-  {
-    title: 'Marketing de contenu et croissance long terme',
-    description: 'Créez une machine de marketing de contenu qui attire, éduque et convertit votre audience naturellement.',
-    lessons: 7,
-    duration: '3h',
-    exercises: 6,
-    objectives: [
-      'Créer une stratégie de contenu alignée avec votre tunnel',
-      'Produire du contenu qui positionne votre expertise',
-      'Optimiser pour le SEO et la viralité éthique',
-      'Mesurer et optimiser vos performances',
-    ],
-    deliverables: [
-      'Calendrier éditorial 3 mois',
-      'Templates de contenus performants',
-    ],
-  },
-]

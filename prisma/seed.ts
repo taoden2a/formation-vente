@@ -7,7 +7,7 @@ async function main() {
     where: { slug: "formation-vente" },
     update: {},
     create: {
-      title: "L'Art de Convaincre",
+      title: "Comprendre pour Vendre",
       slug: "formation-vente",
       description:
         "Formation complète en vente éthique : psychologie, biais cognitifs, storytelling et marketing.",

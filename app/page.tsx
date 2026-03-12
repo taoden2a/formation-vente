@@ -1,390 +1,360 @@
+"use client";
+
+import { useRef } from "react";
 import Link from "next/link";
-import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
 import { CheckoutButton } from "@/components/CheckoutButton";
+import { ScrollReveal } from "@/components/ui/ScrollReveal";
+import { BackgroundAnimated } from "@/components/ui/BackgroundAnimated";
+import { CognitiveOrbs } from "@/components/ui/CognitiveOrbs";
+import { ScrollProgress } from "@/components/ui/ScrollProgress";
+import {
+  BrainIcon,
+  TargetIcon,
+  BlueprintIcon,
+  VoiceIcon,
+  CheckIcon,
+} from "@/components/ui/Icons";
+import { TestimonialsScroll } from "@/components/sections/TestimonialsScroll";
 
 export default function Home() {
+  const titleRef = useRef<HTMLHeadingElement>(null);
+
   return (
-    <div className="bg-gray-50">
-      {/* HERO */}
-      <section className="section-spacing bg-gradient-to-b from-white to-gray-50">
-        <div className="container-width">
-          <div className="max-w-4xl mx-auto text-center space-y-8">
-            <h1 className="text-5xl md:text-6xl font-bold tracking-tight text-gray-900">
-              Comprendre pour Vendre
-            </h1>
-            <p className="text-xl md:text-2xl text-gray-600 font-medium">
-              Maîtriser la compétence qui conditionne tous les revenus.
-            </p>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Apprends à comprendre comment une décision se forme réellement pour savoir vendre, à l&apos;oral comme à l&apos;écrit, dans n&apos;importe quel contexte.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
-              <Button variant="action" size="lg" asChild>
-                <Link href="#prix">Accéder à la formation</Link>
-              </Button>
-              <Button variant="secondary" size="lg" asChild>
-                <Link href="/programme">Découvrir le programme</Link>
-              </Button>
-            </div>
-          </div>
-        </div>
-      </section>
+    <div className="bg-[#0a0a0f] text-white">
+      {/* Scroll progress bar */}
+      <ScrollProgress />
 
-      {/* SECTION PROBLÈME */}
-      <section className="section-spacing bg-white">
-        <div className="container-width">
-          <div className="max-w-3xl mx-auto space-y-8">
-            <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-900">
-              La plupart des gens essaient de vendre sans comprendre.
-            </h2>
-            <div className="space-y-6 text-lg text-gray-600">
-              <p>
-                Ils apprennent des scripts. Répètent des formules. Appliquent des techniques sorties de leur contexte.
-              </p>
-              <p>
-                Le résultat : des conversations forcées, des prospects qui fuient, et une impression persistante de ne pas être à sa place quand il s&apos;agit de &quot;vendre&quot;.
-              </p>
-              <p>
-                Le problème n&apos;est pas le manque de motivation ou de travail. C&apos;est l&apos;absence de compréhension des mécanismes réels qui gouvernent les décisions humaines.
-              </p>
-              <p>
-                Sans cette compréhension, chaque interaction commerciale devient un coup de dés. Avec elle, la vente devient une compétence maîtrisable, reproductible, et alignée avec tes valeurs.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* BLOC 1 — HERO IMMERSIF V8 */}
+      <section className="hero-container relative min-h-screen flex items-center justify-center overflow-hidden">
+        {/* Background layer */}
+        <BackgroundAnimated variant="hero-v8" className="absolute inset-0">
+          <span />
+        </BackgroundAnimated>
 
-      {/* SECTION THÈSE CENTRALE */}
-      <section className="section-spacing bg-gray-50">
-        <div className="container-width">
-          <div className="max-w-3xl mx-auto space-y-8">
-            <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-900">
-              Sans compétence de vente, aucun projet ne tient.
-            </h2>
-            <div className="space-y-6 text-lg text-gray-600">
-              <p>
-                Un produit excellent ne se vend pas tout seul. Une idée brillante reste une idée si personne ne l&apos;achète. Un talent reconnu ne génère rien s&apos;il n&apos;est pas communiqué.
+        {/* Cognitive Orbs V8 - Strategic animated orbs (positioned at section level) */}
+        <CognitiveOrbs titleRef={titleRef} className="z-[5]" />
+
+        <div className="relative z-10 w-full max-w-5xl mx-auto px-6 sm:px-8 lg:px-12 py-20">
+          <div className="text-center space-y-8">
+            <ScrollReveal delay={0.12} blur duration={0.9}>
+              <h1
+                ref={titleRef}
+                className="hero-reveal text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight text-white text-glow"
+              >
+                La compétence qui transforme une idée en{" "}
+                <span className="hero-gradient-text">revenus</span>.
+              </h1>
+            </ScrollReveal>
+
+            <ScrollReveal delay={0.3} duration={0.8}>
+              <p className="text-lg md:text-xl text-gray-400 font-medium max-w-2xl mx-auto leading-relaxed">
+                Apprends la psychologie réelle de l&apos;achat pour vendre plus<br className="hidden sm:block" /> sans manipuler et sans scripts artificiels.
               </p>
-              <p>
-                La vente n&apos;est pas une option réservée aux commerciaux. C&apos;est la compétence fondamentale de quiconque veut transformer une valeur en revenu.
-              </p>
-              <p>
-                Que tu sois entrepreneur, freelance, salarié en reconversion ou étudiant avec un projet : ta capacité à convaincre détermine ta capacité à exister économiquement.
-              </p>
-              <p className="font-medium text-gray-900">
-                Cette formation t&apos;enseigne cette compétence. Pas avec des raccourcis ou des promesses irréalistes. Avec une méthode structurée, basée sur la compréhension du cerveau humain.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
+            </ScrollReveal>
 
-      {/* SECTION MÉTHODE */}
-      <section className="section-spacing bg-white">
-        <div className="container-width">
-          <div className="max-w-4xl mx-auto space-y-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-900">
-              Une approche basée sur la compréhension humaine, pas sur des scripts.
-            </h2>
-
-            <div className="grid md:grid-cols-2 gap-8">
-              <Card className="space-y-4">
-                <div className="w-12 h-12 rounded-xl bg-gray-100 flex items-center justify-center">
-                  <span className="text-2xl">✗</span>
-                </div>
-                <h3 className="text-xl font-semibold text-gray-900">
-                  Ce que cette formation n&apos;enseigne pas
-                </h3>
-                <ul className="space-y-3 text-gray-600">
-                  <li className="flex items-start gap-3">
-                    <span className="text-gray-400 mt-1">—</span>
-                    <span>Des scripts à réciter sans comprendre</span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <span className="text-gray-400 mt-1">—</span>
-                    <span>Des techniques de pression ou de manipulation</span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <span className="text-gray-400 mt-1">—</span>
-                    <span>Des promesses de résultats instantanés</span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <span className="text-gray-400 mt-1">—</span>
-                    <span>Des méthodes qui fonctionnent &quot;pour tout le monde&quot;</span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <span className="text-gray-400 mt-1">—</span>
-                    <span>Du marketing agressif déguisé en formation</span>
-                  </li>
-                </ul>
-              </Card>
-
-              <Card className="space-y-4 border-pedagogy-green-200 bg-pedagogy-green-50/30">
-                <div className="w-12 h-12 rounded-xl bg-pedagogy-green-100 flex items-center justify-center">
-                  <span className="text-2xl text-pedagogy-green-600">✓</span>
-                </div>
-                <h3 className="text-xl font-semibold text-gray-900">
-                  Ce qu&apos;elle enseigne réellement
-                </h3>
-                <ul className="space-y-3 text-gray-600">
-                  <li className="flex items-start gap-3">
-                    <span className="text-pedagogy-green-500 mt-1">→</span>
-                    <span>Comment le cerveau prend réellement ses décisions</span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <span className="text-pedagogy-green-500 mt-1">→</span>
-                    <span>Les biais cognitifs et leur utilisation éthique</span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <span className="text-pedagogy-green-500 mt-1">→</span>
-                    <span>Comment structurer un message qui résonne</span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <span className="text-pedagogy-green-500 mt-1">→</span>
-                    <span>L&apos;art de créer de la valeur perçue authentique</span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <span className="text-pedagogy-green-500 mt-1">→</span>
-                    <span>Un processus de vente aligné avec tes valeurs</span>
-                  </li>
-                </ul>
-              </Card>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* SECTION POUR QUI */}
-      <section className="section-spacing bg-gray-50">
-        <div className="container-width">
-          <div className="max-w-5xl mx-auto space-y-12">
-            <div className="text-center space-y-4">
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-900">
-                Pour qui est cette formation ?
-              </h2>
-              <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-                La compétence de vente est universelle. Elle s&apos;applique à tout contexte où tu dois convaincre pour générer un revenu.
-              </p>
-            </div>
-
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {audiences.map((audience, index) => (
-                <Card key={index} className="space-y-4">
-                  <div className="w-12 h-12 rounded-xl bg-pedagogy-blue-100 flex items-center justify-center">
-                    <span className="text-2xl">{audience.icon}</span>
-                  </div>
-                  <h3 className="text-xl font-semibold text-gray-900">
-                    {audience.title}
-                  </h3>
-                  <p className="text-gray-600">
-                    {audience.description}
-                  </p>
-                </Card>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* SECTION STRUCTURE DE LA FORMATION */}
-      <section className="section-spacing bg-white">
-        <div className="container-width">
-          <div className="max-w-4xl mx-auto space-y-12">
-            <div className="text-center space-y-4">
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-900">
-                8 modules pour maîtriser la vente
-              </h2>
-              <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-                Une progression logique, du fondement théorique à l&apos;application pratique.
-              </p>
-            </div>
-
-            <div className="grid gap-4">
-              {modules.map((module, index) => (
-                <div
-                  key={index}
-                  className="flex items-start gap-4 p-6 bg-gray-50 rounded-2xl hover:bg-gray-100 transition-colors"
+            <ScrollReveal delay={0.48} duration={0.8}>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center pt-6">
+                <Link
+                  href="#prix"
+                  className="btn-premium inline-flex items-center justify-center rounded-xl px-8 py-4 text-lg font-semibold text-white"
                 >
-                  <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-pedagogy-blue-500 flex items-center justify-center">
-                    <span className="text-lg font-bold text-white">
-                      {String(index + 1).padStart(2, "0")}
-                    </span>
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-1">
-                      {module.title}
-                    </h3>
-                    <p className="text-gray-600">
-                      {module.description}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <div className="text-center">
-              <Button variant="secondary" size="lg" asChild>
-                <Link href="/programme">Voir le programme détaillé</Link>
-              </Button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* SECTION RÉSULTATS */}
-      <section className="section-spacing bg-gray-50">
-        <div className="container-width">
-          <div className="max-w-3xl mx-auto space-y-10">
-            <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-900">
-              À la fin, tu sauras :
-            </h2>
-
-            <div className="grid sm:grid-cols-2 gap-4">
-              {outcomes.map((outcome, index) => (
-                <div
-                  key={index}
-                  className="flex items-start gap-3 p-4 bg-white rounded-xl"
+                  Accéder à la formation
+                </Link>
+                <Link
+                  href="/programme"
+                  className="btn-premium-secondary inline-flex items-center justify-center rounded-xl px-8 py-4 text-lg font-medium text-gray-200"
                 >
-                  <span className="text-pedagogy-green-500 text-xl mt-0.5">✓</span>
-                  <span className="text-gray-700">{outcome}</span>
-                </div>
-              ))}
-            </div>
+                  Voir la formation
+                </Link>
+              </div>
+            </ScrollReveal>
           </div>
         </div>
       </section>
 
-      {/* CTA FINAL */}
-      <section id="prix" className="section-spacing bg-white">
+      {/* BLOC 2 — LE CHOC */}
+      <BackgroundAnimated variant="dark" className="section-spacing">
         <div className="container-width">
-          <div className="max-w-2xl mx-auto">
-            <Card className="text-center space-y-8 p-8 md:p-12 border-2 border-pedagogy-blue-100">
+          <div className="max-w-4xl mx-auto text-center space-y-12">
+            <ScrollReveal>
               <div className="space-y-4">
-                <h2 className="text-3xl md:text-4xl font-bold text-gray-900">
-                  Comprendre pour Vendre
-                </h2>
-                <p className="text-lg text-gray-600">
-                  Accès immédiat à l&apos;ensemble de la formation.
+                <p className="text-lg md:text-xl text-gray-400">Tu peux avoir :</p>
+                <ul className="text-xl md:text-2xl text-gray-300 space-y-2 font-medium">
+                  <li>• un bon produit</li>
+                  <li>• une expertise réelle</li>
+                  <li>• une idée brillante</li>
+                </ul>
+                <p className="text-xl md:text-2xl text-gray-400 pt-2">
+                  Et pourtant ne presque rien vendre.
                 </p>
               </div>
+            </ScrollReveal>
 
+            <ScrollReveal delay={0.2}>
               <div className="space-y-2">
-                <div className="text-5xl font-bold text-gray-900">75€</div>
-                <p className="text-gray-500">Paiement unique • Accès à vie</p>
+                <p className="text-lg text-gray-500">Pourquoi ?</p>
+                <p className="text-2xl md:text-3xl font-bold text-orange-400 text-glow-orange">
+                  Parce que la vente n&apos;est pas une technique.
+                  <span className="block mt-1 text-white">C&apos;est une compréhension.</span>
+                </p>
               </div>
+            </ScrollReveal>
 
-              <ul className="text-left space-y-3 text-gray-600">
-                <li className="flex items-center gap-3">
-                  <span className="text-pedagogy-green-500">✓</span>
-                  <span>8 modules complets</span>
-                </li>
-                <li className="flex items-center gap-3">
-                  <span className="text-pedagogy-green-500">✓</span>
-                  <span>50+ leçons structurées</span>
-                </li>
-                <li className="flex items-center gap-3">
-                  <span className="text-pedagogy-green-500">✓</span>
-                  <span>Exercices pratiques</span>
-                </li>
-                <li className="flex items-center gap-3">
-                  <span className="text-pedagogy-green-500">✓</span>
-                  <span>Modèles et templates</span>
-                </li>
-                <li className="flex items-center gap-3">
-                  <span className="text-pedagogy-green-500">✓</span>
-                  <span>Études de cas réelles</span>
-                </li>
-                <li className="flex items-center gap-3">
-                  <span className="text-pedagogy-green-500">✓</span>
-                  <span>Mises à jour incluses</span>
-                </li>
-              </ul>
-
-              <CheckoutButton />
-
-              <p className="text-sm text-gray-500">
-                Paiement sécurisé par Stripe. Satisfait ou remboursé sous 14 jours.
-              </p>
-            </Card>
+            <div className="grid md:grid-cols-3 gap-6 pt-4">
+              {shockCards.map((card, index) => (
+                <ScrollReveal key={index} delay={0.2 + index * 0.1}>
+                  <div className="glass-card-hover rounded-2xl p-8 h-full">
+                    <p className="text-lg text-gray-300 font-medium">{card}</p>
+                  </div>
+                </ScrollReveal>
+              ))}
+            </div>
           </div>
         </div>
-      </section>
+      </BackgroundAnimated>
+
+      {/* BLOC 3 — LA SOLUTION */}
+      <BackgroundAnimated variant="dark" className="section-spacing">
+        <div className="container-width">
+          <div className="max-w-5xl mx-auto space-y-12 py-8 md:py-16">
+            <ScrollReveal>
+              <h2 className="text-3xl md:text-4xl font-bold text-center text-white">
+                Ce que tu vas réellement apprendre
+                <span className="block mt-2 text-gray-400">dans cette formation</span>
+              </h2>
+            </ScrollReveal>
+
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {pillars.map((pillar, index) => (
+                <ScrollReveal key={index} delay={index * 0.1} direction="scale">
+                  <div className="glass-card-hover rounded-2xl p-6 h-full space-y-4">
+                    <div className="icon-glow w-14 h-14 rounded-xl flex items-center justify-center">
+                      {pillar.icon}
+                    </div>
+                    <p className="text-gray-300 font-medium leading-relaxed">
+                      {pillar.text}
+                    </p>
+                  </div>
+                </ScrollReveal>
+              ))}
+            </div>
+          </div>
+        </div>
+      </BackgroundAnimated>
+
+      {/* BLOC 4 — LES 9 MODULES */}
+      <BackgroundAnimated variant="dark" className="section-spacing">
+        <div className="container-width">
+          <div className="max-w-4xl mx-auto space-y-12">
+            <ScrollReveal>
+              <h2 className="text-3xl md:text-4xl font-bold text-center text-white">
+                9 modules pour maîtriser la vente
+              </h2>
+            </ScrollReveal>
+
+            <div className="relative">
+              {/* Animated timeline line */}
+              <div className="absolute left-7 top-0 bottom-0 w-0.5 timeline-line-v6 hidden md:block" />
+
+              <div className="space-y-4">
+                {modules.map((module, index) => (
+                  <ScrollReveal key={index} delay={index * 0.07} direction="left" distance={25} duration={0.7}>
+                    <div className="module-card-v6 flex items-center gap-6 p-5 rounded-2xl relative group">
+                      <div className="module-number-v6 flex-shrink-0 w-14 h-14 rounded-xl flex items-center justify-center z-10">
+                        <span className="text-xl font-bold text-white">
+                          {String(index + 1).padStart(2, "0")}
+                        </span>
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="text-lg font-semibold text-white group-hover:text-blue-300 transition-colors duration-300">
+                          {module.title}
+                        </h3>
+                        <p className="text-gray-500 text-sm mt-0.5 group-hover:text-gray-400 transition-colors duration-300">
+                          {module.transformation}
+                        </p>
+                      </div>
+                    </div>
+                  </ScrollReveal>
+                ))}
+              </div>
+            </div>
+
+            <ScrollReveal delay={0.5}>
+              <div className="text-center">
+                <Link
+                  href="/programme"
+                  className="btn-premium-secondary inline-flex items-center justify-center rounded-xl px-6 py-3 font-medium text-gray-300"
+                >
+                  Voir la formation
+                </Link>
+              </div>
+            </ScrollReveal>
+          </div>
+        </div>
+      </BackgroundAnimated>
+
+      {/* BLOC 5 — TÉMOIGNAGES */}
+      <TestimonialsScroll />
+
+      {/* BLOC 6 — POUR QUI */}
+      <BackgroundAnimated variant="dark" className="section-spacing">
+        <div className="container-width">
+          <div className="max-w-4xl mx-auto space-y-12">
+            <ScrollReveal>
+              <h2 className="text-3xl md:text-4xl font-bold text-center text-white">
+                Cette formation est faite pour toi si :
+              </h2>
+            </ScrollReveal>
+
+            <div className="grid sm:grid-cols-2 gap-5">
+              {forWhoCards.map((card, index) => (
+                <ScrollReveal key={index} delay={index * 0.1} direction="scale">
+                  <div className="glass-card-hover rounded-2xl p-6 h-full flex items-start gap-4">
+                    <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-orange-500/10 border border-orange-500/20 flex items-center justify-center">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="text-orange-400">
+                        <path d="M20 6 9 17l-5-5" />
+                      </svg>
+                    </div>
+                    <p className="text-gray-300 font-medium leading-relaxed">{card}</p>
+                  </div>
+                </ScrollReveal>
+              ))}
+            </div>
+          </div>
+        </div>
+      </BackgroundAnimated>
+
+      {/* BLOC 7 — CTA FINAL */}
+      <BackgroundAnimated variant="darker" className="section-spacing" id="prix">
+        <div className="container-width">
+          <div className="max-w-3xl mx-auto text-center space-y-10">
+            <ScrollReveal duration={0.9}>
+              <h2 className="text-2xl md:text-3xl font-bold text-white">
+                La compétence que personne ne t&apos;enseigne,
+                <span className="block mt-1 text-gray-400">mais dont tout dépend.</span>
+              </h2>
+            </ScrollReveal>
+
+            <ScrollReveal delay={0.2} direction="scale" duration={0.9}>
+              <div className="cta-card-v6 rounded-3xl p-8 md:p-12 text-gray-900 space-y-8">
+                <div className="space-y-2">
+                  <h3 className="text-2xl md:text-3xl font-bold text-gray-900">
+                    Comprendre pour Vendre
+                  </h3>
+                  <p className="text-gray-600">
+                    Accès immédiat à l&apos;ensemble de la formation.
+                  </p>
+                </div>
+
+                <div className="space-y-1">
+                  <div className="flex items-end gap-3 justify-center">
+                    <span className="text-gray-400 line-through text-xl">199€</span>
+                    <span className="text-5xl md:text-6xl font-bold text-gray-900">59€</span>
+                  </div>
+                  <p className="text-gray-500 text-sm">Paiement unique • Accès à vie</p>
+                  <p className="text-gray-400 text-xs pt-1 italic">Moins cher qu&apos;un seul prospect perdu.</p>
+                </div>
+
+                <ul className="text-left space-y-3 text-gray-600 max-w-sm mx-auto">
+                  {features.map((feature, index) => (
+                    <li key={index} className="flex items-center gap-3">
+                      <span className="flex-shrink-0 w-5 h-5 rounded-full bg-green-100 flex items-center justify-center">
+                        <CheckIcon size={12} className="text-green-600" />
+                      </span>
+                      <span>{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+
+                <CheckoutButton />
+
+                <p className="text-xs text-gray-500">
+                  Paiement sécurisé par Stripe. Satisfait ou remboursé sous 14 jours.
+                </p>
+              </div>
+            </ScrollReveal>
+          </div>
+        </div>
+      </BackgroundAnimated>
     </div>
   );
 }
 
-const audiences = [
+const shockCards = [
+  "Un bon produit ne suffit pas.",
+  "Une idée brillante ne suffit pas.",
+  "Une expertise ne suffit pas.",
+];
+
+const pillars = [
   {
-    icon: "📊",
-    title: "Commercial",
-    description: "Tu veux augmenter tes résultats en comprenant vraiment ce qui motive tes clients, au-delà des techniques de surface.",
+    icon: <BrainIcon size={28} className="text-blue-400" />,
+    text: "Comprendre comment le cerveau décide",
   },
   {
-    icon: "🎓",
-    title: "Étudiant",
-    description: "Tu lances un projet et tu dois apprendre à convaincre des clients, des investisseurs ou des partenaires.",
+    icon: <TargetIcon size={28} className="text-blue-400" />,
+    text: "Identifier les leviers émotionnels réels",
   },
   {
-    icon: "🚀",
-    title: "Entrepreneur",
-    description: "Tu veux structurer ton discours commercial et convertir plus naturellement, sans avoir l'impression de forcer.",
+    icon: <BlueprintIcon size={28} className="text-blue-400" />,
+    text: "Structurer une offre claire",
   },
   {
-    icon: "💻",
-    title: "Freelance",
-    description: "Tu dois vendre tes services mais tu ne sais pas comment présenter ta valeur ni justifier tes tarifs.",
-  },
-  {
-    icon: "🔧",
-    title: "Indépendant",
-    description: "Tu as l'expertise technique mais il te manque la compétence commerciale pour développer ton activité.",
+    icon: <VoiceIcon size={28} className="text-blue-400" />,
+    text: "Vendre à l'oral et à l'écrit",
   },
 ];
 
 const modules = [
   {
-    title: "Fondations : Comprendre la psychologie de la décision",
-    description: "Les bases essentielles sur le fonctionnement du cerveau humain face à une décision.",
+    title: "Comment le cerveau prend une décision d'achat",
+    transformation: "Comprendre les mécanismes invisibles de toute décision.",
   },
   {
-    title: "Les biais cognitifs et leur utilisation éthique",
-    description: "Identifier et utiliser les biais de manière responsable pour faciliter la prise de décision.",
+    title: "Les biais cognitifs vraiment utiles en vente",
+    transformation: "Utiliser la psychologie de manière éthique.",
   },
   {
-    title: "L'art du storytelling persuasif",
-    description: "Structurer des histoires qui captivent, résonnent et conduisent naturellement à l'action.",
+    title: "Comprendre profondément son client",
+    transformation: "Identifier les vrais moteurs d'achat.",
   },
   {
-    title: "Créer et communiquer de la valeur",
-    description: "Identifier la vraie valeur de ton offre et la présenter de manière convaincante.",
+    title: "Construire une offre qui donne envie d'acheter",
+    transformation: "Transformer ta valeur en proposition irrésistible.",
   },
   {
-    title: "Le processus de vente éthique",
-    description: "Construire un parcours de vente qui convertit sans manipulation ni pression.",
+    title: "Parler pour vendre",
+    transformation: "Maîtriser l'art de la persuasion orale.",
   },
   {
-    title: "Objections, négociation et closing",
-    description: "Gérer les objections avec élégance et conclure des ventes dans le respect mutuel.",
+    title: "Écrire pour vendre",
+    transformation: "Rédiger des messages qui convertissent.",
   },
   {
-    title: "Communication écrite et orale",
-    description: "Adapter ton message selon le canal : email, appel, présentation, page de vente.",
+    title: "Marketing digital et acquisition",
+    transformation: "Attirer les bons clients avec les bons canaux.",
   },
   {
-    title: "Croissance et amélioration continue",
-    description: "Mesurer tes résultats, identifier les points de friction et optimiser ton approche.",
+    title: "Éthique, limites et crédibilité",
+    transformation: "Vendre avec intégrité et construire la confiance.",
+  },
+  {
+    title: "Mise en pratique finale",
+    transformation: "Appliquer l'ensemble sur ton projet concret.",
   },
 ];
 
-const outcomes = [
-  "Comprendre comment une décision d'achat se forme réellement",
-  "Identifier les motivations profondes de tes prospects",
-  "Structurer un message qui résonne et convainc",
-  "Présenter ton offre sans avoir l'impression de forcer",
-  "Répondre aux objections avec assurance et empathie",
-  "Construire un processus de vente aligné avec tes valeurs",
-  "Négocier en créant de la valeur pour les deux parties",
-  "Convertir plus naturellement, avec moins de friction",
+const features = [
+  "9 modules structurés",
+  "50+ leçons",
+  "Exercices concrets",
+  "Templates utilisables",
+  "Mises à jour incluses",
+];
+
+const forWhoCards = [
+  "Tu as un bon produit mais les ventes stagnent",
+  "Tu veux comprendre pourquoi les gens achètent vraiment",
+  "Tu ne veux pas manipuler tes clients — juste mieux les servir",
+  "Tu veux transformer ta valeur en revenus concrets",
 ];

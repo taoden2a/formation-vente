@@ -3,7 +3,10 @@
     "allow": [
       "Bash(npm install:*)",
       "Bash(npm run lint:*)",
-      "Bash(npm run build:*)"
+      "Bash(npm run build:*)",
+      "Bash(ls \"/Users/tao/formation-vente/app/\\(formation\\)/formation/\")",
+      "Bash(/Users/tao/formation-vente/docs/PROJECT_MEMORY.md:*)",
+      "Bash(ls /Users/tao/formation-vente/app/\\\\\\(formation\\\\\\)/)"
     ]
   }
 }

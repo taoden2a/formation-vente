@@ -60,7 +60,7 @@ npm install next-auth @next-auth/prisma-adapter
 
 1. **Créer le produit et le prix dans Stripe**
    - Se connecter au dashboard Stripe
-   - Créer un produit "L'Art de Convaincre"
+   - Créer un produit "Comprendre pour Vendre"
    - Créer un prix unique (75-95€)
    - Noter le `price_id`
 

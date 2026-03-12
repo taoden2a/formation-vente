@@ -2,13 +2,13 @@ import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
 import { Header } from '@/components/layout/Header'
-import { Footer } from '@/components/layout/Footer'
+import { FooterV2 } from '@/components/layout/FooterV2'
 import { AuthStatus } from '@/components/layout/AuthStatus'
 
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: "L'Art de Convaincre - Formation en vente éthique",
+  title: "Comprendre pour Vendre - Formation en vente éthique",
   description: 'Apprenez à vendre et convaincre sans manipulation, basé sur la psychologie, les biais cognitifs et le marketing éthique.',
 }
 
@@ -23,7 +23,7 @@ export default function RootLayout({
         <div className="flex flex-col min-h-screen">
           <Header authSlot={<AuthStatus />} />
           <main className="flex-1">{children}</main>
-          <Footer />
+          <FooterV2 />
         </div>
       </body>
     </html>
