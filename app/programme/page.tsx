@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { userHasAccess } from "@/lib/acces";
@@ -28,7 +29,7 @@ import { ScrollReveal } from "@/components/ui/ScrollReveal";
 
 export const metadata = {
   title: "Programme | Comprendre pour Vendre",
-  description: "Decouvrez le programme complet : 9 modules, 27 lecons, exercices pratiques et templates exclusifs.",
+  description: "Decouvrez le programme complet : 8 modules, 43 lecons, exercices pratiques et templates exclusifs.",
 };
 
 export default async function ProgrammePage() {
@@ -40,6 +41,11 @@ export default async function ProgrammePage() {
     if (userId) {
       hasAccess = await userHasAccess(userId);
     }
+  }
+
+  // Membres avec accès → redirigés vers la vraie zone de formation
+  if (hasAccess) {
+    redirect("/formation");
   }
 
   // Données serveur uniquement pour les membres
@@ -54,7 +60,7 @@ export default async function ProgrammePage() {
         <div className="fixed inset-0 z-50 pointer-events-none">
           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#0a0a0f]/60 to-[#0a0a0f]" />
           <div className="absolute bottom-8 left-1/2 -translate-x-1/2 pointer-events-auto">
-            <div className="bg-[#12141a]/95 backdrop-blur-xl border border-white/10 rounded-2xl p-6 md:p-8 max-w-md mx-4 text-center shadow-2xl shadow-black/50">
+            <div className="bg-[#12141a] border border-white/10 rounded-2xl p-6 md:p-8 max-w-md mx-4 text-center shadow-2xl shadow-black/50">
               <div className="w-14 h-14 mx-auto mb-4 rounded-full bg-orange-500/10 flex items-center justify-center">
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-orange-400">
                   <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
@@ -95,7 +101,7 @@ export default async function ProgrammePage() {
       <PageTransition>
         {/* ─── Bannière membre sticky — membres uniquement ─── */}
         {hasAccess && (
-          <header className="sticky top-0 z-40 border-b border-white/10 bg-[#0a0a0f]/90 backdrop-blur-xl">
+          <header className="sticky top-0 z-40 border-b border-white/10 bg-[#0a0a0f]/98">
             <div className="max-w-5xl mx-auto px-6 h-14 flex items-center justify-between gap-4">
               <span className="text-sm text-green-400 flex items-center gap-2 flex-shrink-0">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">

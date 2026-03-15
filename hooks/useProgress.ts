@@ -5,12 +5,14 @@ import { useState, useEffect, useCallback } from "react";
 const STORAGE_KEY = "cpv_progress";
 
 export type LessonStatus = "todo" | "in_progress" | "completed";
+export type ExerciseStatus = "todo" | "done";
 
 export interface ProgressData {
   currentModule: number;
   currentLesson: number;
   completedLessons: string[]; // Format: "module-lesson" e.g., "1-3"
-  inProgressLessons: string[]; // New: Lessons marked as "in progress"
+  inProgressLessons: string[]; // Lessons marked as "in progress"
+  completedExercises: string[]; // Format: "module-lesson" e.g., "1-3"
   progressPercent: number;
   lastVisitedAt: number;
 }
@@ -20,6 +22,7 @@ const defaultProgress: ProgressData = {
   currentLesson: 1,
   completedLessons: [],
   inProgressLessons: [],
+  completedExercises: [],
   progressPercent: 0,
   lastVisitedAt: Date.now(),
 };
@@ -34,10 +37,9 @@ export function useProgress() {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
         const parsed = JSON.parse(stored) as ProgressData;
-        // Ensure inProgressLessons exists for backward compatibility
-        if (!parsed.inProgressLessons) {
-          parsed.inProgressLessons = [];
-        }
+        // Backward compatibility guards
+        if (!parsed.inProgressLessons) parsed.inProgressLessons = [];
+        if (!parsed.completedExercises) parsed.completedExercises = [];
         setProgress(parsed);
       }
     } catch {
@@ -91,7 +93,7 @@ export function useProgress() {
 
   // Toggle lesson status: todo -> in_progress -> completed -> todo
   const toggleLessonStatus = useCallback(
-    (moduleIndex: number, lessonIndex: number, totalLessons: number) => {
+    (moduleIndex: number, lessonIndex: number, totalLessons: number, totalExercises = 0) => {
       const lessonKey = `${moduleIndex}-${lessonIndex}`;
       const currentStatus = getLessonStatus(moduleIndex, lessonIndex);
 
@@ -114,7 +116,11 @@ export function useProgress() {
           break;
       }
 
-      const newPercent = Math.round((newCompleted.length / totalLessons) * 100);
+      const totalItems = totalLessons + totalExercises;
+      const completedExercisesCount = totalExercises > 0 ? progress.completedExercises.length : 0;
+      const newPercent = totalItems > 0
+        ? Math.round(((newCompleted.length + completedExercisesCount) / totalItems) * 100)
+        : 0;
 
       saveProgress({
         ...progress,
@@ -128,13 +134,17 @@ export function useProgress() {
 
   // Mark lesson as complete directly (for backward compatibility)
   const completeLesson = useCallback(
-    (moduleIndex: number, lessonIndex: number, totalLessons: number) => {
+    (moduleIndex: number, lessonIndex: number, totalLessons: number, totalExercises = 0) => {
       const lessonKey = `${moduleIndex}-${lessonIndex}`;
       if (progress.completedLessons.includes(lessonKey)) return;
 
-      let newCompleted = [...progress.completedLessons, lessonKey];
-      let newInProgress = progress.inProgressLessons.filter((k) => k !== lessonKey);
-      const newPercent = Math.round((newCompleted.length / totalLessons) * 100);
+      const newCompleted = [...progress.completedLessons, lessonKey];
+      const newInProgress = progress.inProgressLessons.filter((k) => k !== lessonKey);
+      const totalItems = totalLessons + totalExercises;
+      const completedExercisesCount = totalExercises > 0 ? progress.completedExercises.length : 0;
+      const newPercent = totalItems > 0
+        ? Math.round(((newCompleted.length + completedExercisesCount) / totalItems) * 100)
+        : 0;
 
       saveProgress({
         ...progress,
@@ -167,6 +177,33 @@ export function useProgress() {
     [progress.completedLessons]
   );
 
+  // Get exercise status (binary: todo / done)
+  const getExerciseStatus = useCallback(
+    (moduleIndex: number, lessonIndex: number): ExerciseStatus => {
+      const key = `${moduleIndex}-${lessonIndex}`;
+      return progress.completedExercises.includes(key) ? "done" : "todo";
+    },
+    [progress.completedExercises]
+  );
+
+  // Toggle exercise status: todo <-> done
+  const toggleExerciseStatus = useCallback(
+    (moduleIndex: number, lessonIndex: number, totalLessons = 0, totalExercises = 0) => {
+      const key = `${moduleIndex}-${lessonIndex}`;
+      const isDone = progress.completedExercises.includes(key);
+      const newCompleted = isDone
+        ? progress.completedExercises.filter((k) => k !== key)
+        : [...progress.completedExercises, key];
+      const totalItems = totalLessons + totalExercises;
+      const completedLessonsCount = totalLessons > 0 ? progress.completedLessons.length : 0;
+      const newPercent = totalItems > 0
+        ? Math.round(((completedLessonsCount + newCompleted.length) / totalItems) * 100)
+        : 0;
+      saveProgress({ ...progress, completedExercises: newCompleted, progressPercent: newPercent });
+    },
+    [progress, saveProgress]
+  );
+
   // Reset progress
   const resetProgress = useCallback(() => {
     saveProgress(defaultProgress);
@@ -181,6 +218,8 @@ export function useProgress() {
     getLessonStatus,
     isLessonCompleted,
     getModuleProgress,
+    getExerciseStatus,
+    toggleExerciseStatus,
     resetProgress,
   };
 }

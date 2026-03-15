@@ -7,7 +7,7 @@
  * Accès vérifié par le layout parent (/app/(formation)/layout.tsx).
  */
 
-import { programModules, getTotalLessons } from "@/lib/server/programme-content";
+import { programModules, getTotalLessons, getTotalExercises } from "@/lib/server/programme-content";
 import { programPreview } from "@/lib/programme-preview";
 import { PageTransition } from "@/components/ui/PageTransition";
 import { BackgroundAnimated } from "@/components/ui/BackgroundAnimated";
@@ -20,6 +20,7 @@ export const metadata = {
 
 export default function FormationPage() {
   const totalLessons = getTotalLessons();
+  const totalExercises = getTotalExercises();
 
   // Données allégées pour le sommaire — pas de contenu de leçon
   const modules = programModules.map((mod) => {
@@ -33,14 +34,22 @@ export default function FormationPage() {
         lessonKey: `${mod.id}-${lesson.id}`,
         title: lesson.title,
       })),
-      exercises: mod.lessons
-        .filter((l) => !!l.exercise)
-        .map((l) => ({
-          lessonKey: `${mod.id}-${l.id}`,
-          lessonTitle: l.title,
-          title: l.exercise!.title,
-          description: l.exercise!.description,
+      exercises: [
+        ...mod.lessons
+          .filter((l) => !!l.exercise)
+          .map((l) => ({
+            lessonKey: `${mod.id}-${l.id}`,
+            lessonTitle: l.title,
+            title: l.exercise!.title,
+            description: l.exercise!.description,
+          })),
+        ...(mod.standaloneExercises ?? []).map((se) => ({
+          lessonKey: `${mod.id}-${se.id}`,
+          lessonTitle: se.title,
+          title: se.title,
+          description: se.description,
         })),
+      ],
     };
   });
 
@@ -48,7 +57,7 @@ export default function FormationPage() {
     <div className="min-h-screen bg-[#0a0a0f] text-white">
       <PageTransition>
         <BackgroundAnimated variant="dark">
-          <SommaireClient modules={modules} totalLessons={totalLessons} />
+          <SommaireClient modules={modules} totalLessons={totalLessons} totalExercises={totalExercises} />
         </BackgroundAnimated>
       </PageTransition>
     </div>

@@ -258,7 +258,7 @@ model Affiliate {
   id            String    @id @default(cuid())
   userId        String    @unique
   code          String    @unique // Code unique de l'affilié
-  commissionRate Float    @default(20.0) // Taux de commission en %
+  commissionRate Float    @default(25.0) // Taux de commission en %
   totalEarnings  Int      @default(0) // Gains totaux en centimes
   isActive      Boolean   @default(true)
   createdAt     DateTime  @default(now())
@@ -286,17 +286,19 @@ model AffiliateClick {
 }
 
 model AffiliateSale {
-  id            String    @id @default(cuid())
-  affiliateId   String
-  amount        Int       // Montant de la vente en centimes
-  commission    Int       // Commission en centimes
-  status        String    @default("pending") // "pending", "approved", "paid"
-  createdAt     DateTime  @default(now())
-  approvedAt    DateTime?
-  paidAt        DateTime?
+  id                String    @id @default(cuid())
+  affiliateId       String
+  buyerUserId       String?   // Utilisateur acheteur (peut être null si compte non trouvé)
+  stripeSessionId   String    @unique // Pour dédoublonnage
+  amount            Int       // Montant de la vente en centimes
+  commission        Int       // Commission en centimes
+  status            String    @default("pending") // "pending", "approved", "paid"
+  createdAt         DateTime  @default(now())
+  approvedAt        DateTime?
+  paidAt            DateTime?
 
   // Relations
-  affiliate     Affiliate @relation(fields: [affiliateId], references: [id], onDelete: Cascade)
+  affiliate         Affiliate @relation(fields: [affiliateId], references: [id], onDelete: Cascade)
 
   @@map("affiliate_sales")
 }

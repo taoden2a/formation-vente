@@ -31,7 +31,14 @@ La vente est la compétence mère. Sans savoir vendre, aucun projet ne tient. On
 ✅ Header System V2 déployé (dual header: Marketing + Product, progression intégrée)
 ✅ Footer V2 déployé (dark immersive)
 ✅ Renommage complet "L'Art de Convaincre" → "Comprendre pour Vendre"
-✅ programme-preview.ts aligné sur contenu formation réel (48 leçons, 29 exercices, 9 modules)
+✅ programme-preview.ts aligné sur contenu formation réel (43 leçons, 26 exercices, 8 modules)
+✅ Module 8 "Éthique, limites et crédibilité" supprimé — ancien M9 "Mise en pratique finale" devient M8 — DA éthique nettoyée partout
+✅ Module 8 "Mise en pratique finale" complété : 4 leçons pratiques (offre complète, script oral, version écrite, simulation réelle) + 4 corrections pédagogiques (8-1 à 8-4) extraites de contenu formation.txt
+✅ Système exercices complet déployé : /exercices (liste + progression) + /exercices/[module]/[lesson] (réponse + correction pédagogique)
+✅ /exercices redesignée V2 : exercices groupés par module, grille de cartes, filtres Tous/À faire/Terminés, navigation rapide par module (scroll anchors), tri (non terminés en premier)
+✅ /affiliation : accès conditionnel côté serveur (getServerSession + userHasAccess) — non-clients voient page marketing, clients voient dashboard affilié
+✅ /membre : bloc "Ressources exclusives" remplacé par "Dernière activité" — dernière leçon/exercice/note depuis localStorage + programPreview pour résoudre les titres
+✅ Refonte responsive mobile-first complète — breakpoints 320px→640px→1024px→1440px — voir section 8
 
 ---
 
@@ -185,9 +192,21 @@ Sécurité :
 
 ---
 
-## 8. Prochaine priorité
+## 8. Décisions produit officielles
+
+| Règle | Valeur |
+|-------|--------|
+| Commission affiliation | **25%** |
+| Paiement affiliés | **Mensuel** |
+| Seuil minimum affiliés | **Aucun — dès la 1ère vente** |
+| Garantie remboursement | **14 jours** |
+| Email contact (réception formulaire) | **deneutao@gmail.com** |
+
+## 8b. Prochaine priorité
 
 - ~~Vérifier que toutes les env vars sont configurées sur Vercel~~ ✅ Fait
+- Ajouter `RESEND_API_KEY` sur Vercel pour que le formulaire de contact fonctionne en production
+- Ajouter (optionnel) `RESEND_FROM_EMAIL` sur Vercel si domaine vérifié sur Resend
 - Tester le flow complet en production (inscription → paiement → accès membre)
 - Configurer le webhook Stripe en production (`https://formation-vente.vercel.app/api/stripe/webhook`)
 
@@ -249,6 +268,14 @@ Sécurité :
 | 2026-03-03 | **Refonte Landing Page V2** – Hero : nouveau h1 "La compétence qui transforme une idée en revenus." + sous-titre psychologie/anti-manipulation ; BLOC 2 : texte "Tu peux avoir..." + "Pourquoi ?" + orange CTA phrase ; Témoignages : badges stat orange (×2 closing, +60% prospects, +40% acceptation) ; Nouvelle section BLOC 6 "Pour qui" (4 cards glass, `forWhoCards` array) ; Pricing : ajout "Moins cher qu'un seul prospect perdu." |
 | 2026-03-03 | **Cohérence narrative Landing Page** – BLOC 3 renommé "LA SOLUTION" : titre changé de "La vente n'est pas une technique..." à "Ce que tu vas réellement apprendre dans cette formation" (évite répétition avec BLOC 2) ; padding interne renforcé (`py-8 md:py-16`) pour respiration visuelle ; apostrophe corrigée dans pillars (`l&apos;oral` → `l'oral`) |
 | 2026-03-03 | **Hero H1 — Reveal + Gradient animé** – `.hero-reveal` (opacity+translateY 0→1, 0.8s ease-out, delay 100ms) ajouté sur le h1 ; `.hero-gradient-text` (gradient orange `#ff7a18→#ffb347→#ff7a18`, background-size 200%, animation 6s infinie) sur `<span>revenus</span>` ; keyframes ajoutés à la fin de `globals.css` |
+| 2026-03-15 | **Formulaire contact fonctionnel** – `app/api/contact/route.ts` créé (Resend REST API via fetch, `RESEND_API_KEY` requis) ; `app/contact/page.tsx` mis à jour : loading state, erreur réelle, succès réel ; email direct sidebar → `deneutao@gmail.com` |
+| 2026-03-15 | **Footer** – `.footer-link` : `transition: all` → `transition: color, transform, text-shadow` (fix GPU perf) |
+| 2026-03-15 | **Stats affilié /membre** – Suppression des données hardcodées ; fetch réel depuis `/api/affiliation/stats` avec états loading/vide/rempli ; CTA si non affilié (25% commission, dès 1ère vente) |
+| 2026-03-15 | **Menu mobile** – Hamburger ajouté dans `Header.tsx` : drawer slide-in, fermeture au clic extérieur et au changement de route, body scroll lock, authSlot dans le menu |
+| 2026-03-15 | **Menu mobile V2** – Fixes visibilité : bouton `bg-white/5`→`bg-white/10` + `border border-white/20` + `active:bg-white/20` ; drawer `bg-[#0a0a0f]/98`→`bg-[#0a0a0f]` (opaque, plus transparent) ; `z-40`→`z-50` ; liens `text-gray-400`→`text-white/80` ; `py-3`→`py-3.5` |
+| 2026-03-15 | **Cohérence contenu produit** – Garantie partout → 14 jours (FAQ, CGV) ; Commission → 25% (FAQ, AffiliationClient, compte) ; Paiement affiliés → dès 1ère vente, aucun seuil (AffiliationClient FAQ) ; Paiement en 3 fois → supprimé de CGV et FAQ |
+| 2026-03-15 | **Page connexion** – Redirect post-login → `/formation` (au lieu de `/membre`) ; lien "Mot de passe oublié" → `/contact?subject=probleme-technique` ; CTA "Pas encore membre ? Découvrir la formation" → `/#prix` |
+| 2026-03-15 | **Navigation** – `/programme` : membres avec accès redirigés vers `/formation` ; ProfileDropdown : ajout "Mes notes" → `/notes` |
 
 ---
 
@@ -4618,3 +4645,325 @@ Chaque page : breadcrumb Formation → Ressources → [page], card "Bientôt dis
 ### Statut
 
 ✅ **BUILD OK** — 0 erreur, 34 routes générées
+
+---
+
+## Section 49 — Système d'affiliation complet (2026-03-14)
+
+### Objectif
+Implémenter un système d'affiliation opérationnel : génération de lien, tracking visiteur, attribution de commission via Stripe webhook, dashboard affilié.
+
+---
+
+### Base de données
+
+**Modèles existants** (déjà dans le schema Prisma, aucune table à créer) :
+- `Affiliate` : `id`, `userId`, `code` (unique), `commissionRate` (default 25%), `totalEarnings`, `isActive`
+- `AffiliateClick` : `id`, `affiliateId`, `ip`, `userAgent`, `referer`, `createdAt`
+- `AffiliateSale` : `id`, `affiliateId`, `buyerUserId`, `stripeSessionId` (unique), `amount`, `commission`, `status`, `createdAt`
+
+**Modifications schema (`prisma/schema.prisma`) :**
+- `Affiliate.commissionRate` : `@default(20.0)` → `@default(25.0)` (25%)
+- `AffiliateSale` : ajout `buyerUserId String?` + `stripeSessionId String @unique` (dédoublonnage)
+
+> ⚠️ Migration Supabase requise : `npx prisma db push` ou migration SQL manuelle pour ajouter les colonnes `buyerUserId` et `stripeSessionId` à la table `affiliate_sales`.
+
+---
+
+### API endpoints créés
+
+#### `POST /api/affiliation/create`
+- Auth requise + accès formation requis (`userHasAccess()`)
+- Si affilié existant → retourne code existant
+- Sinon génère code 8 caractères alphanumériques (loop anti-collision), crée `Affiliate`
+- Réponse : `{ code, createdAt, isNew }`
+
+#### `GET /api/affiliation/stats`
+- Auth requise
+- Si pas d'affilié → `{ hasAffiliate: false }`
+- Sinon retourne : `{ hasAffiliate, code, commissionRate, totalEarnings, totalEarningsEur, clicks, sales, conversionRate }`
+
+#### `POST /api/affiliation/track`
+- Public (no auth)
+- Body: `{ code: string }`
+- Valide que le code existe et est actif, enregistre un `AffiliateClick`
+- Réponse : `{ ok: true }` ou erreur 404
+
+---
+
+### Tracking visiteur
+
+**Mécanisme en deux parties :**
+
+1. **`components/AffiliateTracker.tsx`** (Client Component, `useSearchParams`)
+   - Détecte `?ref=CODE` dans l'URL
+   - Stocke le cookie `affiliate_ref=CODE` (30 jours) côté client
+   - Appelle `POST /api/affiliation/track` pour enregistrer le clic (fire-and-forget)
+   - Utilise `sessionStorage` pour éviter les doublons dans la même session
+
+2. **`app/layout.tsx`** — ajoute `<AffiliateTracker />` (dans `<Suspense>`) + `<Providers>` (pour `SessionProvider`)
+
+3. **`components/Providers.tsx`** — wraps `SessionProvider` de `next-auth/react`
+
+**Cookie :** `affiliate_ref` • durée 30 jours • `SameSite=Lax`
+
+---
+
+### Checkout Stripe modifié
+
+**`app/api/stripe/checkout/route.ts`**
+- Lit le cookie `affiliate_ref` depuis `req.headers.get("cookie")`
+- Si présent → ajoute `affiliate: affiliateCode` dans les `metadata` Stripe
+- La signature passe de `POST()` à `POST(req: NextRequest)`
+
+---
+
+### Webhook Stripe modifié
+
+**`app/api/stripe/webhook/route.ts`** — nouvelle fonction `handleAffiliateCommission()`
+
+Logique :
+1. Récupère `session.metadata?.affiliate`
+2. Vérifie `payment_status === "paid"` et `amount_total > 0`
+3. Trouve l'affilié par `code`
+4. Vérifie que l'affilié n'est pas lui-même l'acheteur (anti auto-attribution)
+5. Calcule `commissionCents = amount * (commissionRate / 100)`
+6. Crée `AffiliateSale` avec `stripeSessionId` unique (dédoublonnage automatique par contrainte DB)
+7. Incrémente `affiliate.totalEarnings`
+
+---
+
+### Dashboard affilié (`app/affiliation/page.tsx`)
+
+Page existante refactorisée :
+- Utilise `useSession()` pour détecter si l'utilisateur est connecté
+- **Non connecté** : page publique inchangée (simulateur, timeline, FAQ, CTA vers achat)
+- **Connecté, pas encore affilié** : carte "Rejoignez le programme" avec bouton "Créer mon lien affilié"
+- **Affilié actif** : dashboard complet avec :
+  - Lien affilié personnel + bouton copier
+  - 4 stats : Clics / Ventes / Commissions (€) / Taux de conversion
+  - Note sur le seuil de paiement (5 ventes)
+
+---
+
+### Fichiers créés
+
+| Fichier | Type |
+|---|---|
+| `app/api/affiliation/create/route.ts` | API POST |
+| `app/api/affiliation/stats/route.ts` | API GET |
+| `app/api/affiliation/track/route.ts` | API POST |
+| `components/AffiliateTracker.tsx` | Client Component |
+| `components/Providers.tsx` | Client Component (SessionProvider) |
+
+### Fichiers modifiés
+
+| Fichier | Modification |
+|---|---|
+| `prisma/schema.prisma` | commissionRate 25%, champs AffiliateSale |
+| `app/api/stripe/checkout/route.ts` | Lecture cookie + metadata affiliate |
+| `app/api/stripe/webhook/route.ts` | Attribution commission affilié |
+| `app/affiliation/page.tsx` | Dashboard réel avec stats |
+| `app/layout.tsx` | Ajout Providers + AffiliateTracker |
+
+---
+
+### Sécurité
+
+- Commission uniquement si `payment_status === "paid"` (Stripe)
+- Dédoublonnage par `stripeSessionId @unique` en base
+- Anti auto-attribution (affilié ≠ acheteur)
+- Code affilié accessible uniquement aux membres (formation achetée)
+
+---
+
+### Migration Supabase requise
+
+Avant déploiement, appliquer :
+
+```sql
+ALTER TABLE affiliate_sales
+  ADD COLUMN IF NOT EXISTS buyer_user_id text,
+  ADD COLUMN IF NOT EXISTS stripe_session_id text UNIQUE;
+```
+
+Ou via Prisma CLI : `npx prisma db push`
+
+### Statut
+
+✅ **BUILD OK** — 0 erreur, 37 routes générées
+
+---
+
+## Section 50 — Refonte contenu pédagogique (2026-03-14)
+
+### Objectif
+
+Remplacer le contenu approximatif de `lib/server/programme-content.ts` par un contenu pédagogique structuré, basé sur `contenu formation.txt` (source de vérité).
+
+### Règle de structure par leçon
+
+Chaque leçon contient :
+- `description` : accroche/résumé (1-2 phrases)
+- `content[]` : 3 paragraphes (explication + exemples concrets)
+- `takeaways[]` : 3 points clés mémorisables
+- `exercise?` : titre + description (distribué sur certaines leçons)
+
+### Progression
+
+| Module | Statut | Leçons | Source |
+|--------|--------|--------|--------|
+| M1 — Cerveau & décision | ✅ Terminé | 5/5 | contenu formation.txt (complet) |
+| M2 — Biais cognitifs | ✅ Terminé | 10/10 | contenu formation.txt (complet) |
+| M3 — Comprendre son client | ✅ Terminé | 5/5 | contenu formation.txt (titres + objectif module) |
+| M4 — Construire une offre | ✅ Terminé | 5/5 | contenu formation.txt (complet) |
+| M5 — Parler pour vendre | ✅ Terminé | 5/5 | contenu formation.txt (complet) |
+| M6 — Écrire pour vendre | ✅ Terminé | 5/5 | contenu formation.txt (complet) |
+| M7 — Marketing digital | ✅ Terminé | 8/8 | contenu formation.txt (complet) |
+| M8 — Éthique | ⏳ Mis à l'écart | — | — |
+| M9 — Mise en pratique | ✅ Corrigé | 0 leçons (lessons: []) | 4 exercices finaux + 3 livrables (source) |
+
+### Exercices M1 (3 exercices, distribués sur leçons 1, 3, 5)
+
+| Leçon | Exercice |
+|-------|----------|
+| L1 | Analyse d'un achat personnel récent |
+| L3 | Déconstruction d'une publicité |
+| L5 | Identifier ce qui fait hésiter vs ce qui fait agir |
+
+### Références scientifiques intégrées M1
+
+- Gallup (70 % émotionnel vs 30 % rationnel)
+- Damasio (1994) — lésions émotionnelles → impossibilité de décider
+- Kahneman & Tversky (1979) — aversion à la perte (2×)
+- Kahneman — Système 1 vs Système 2
+
+### Exercices M2 (3 exercices, distribués sur leçons 2, 6, 10)
+
+| Leçon | Exercice |
+|-------|----------|
+| L2 | Inventaire de vos preuves sociales |
+| L6 | Recadrage de votre offre |
+| L10 | Test de simplicité en 5 secondes |
+
+### Références / données intégrées M2
+
+- Kahneman & Tversky (1979) — aversion à la perte
+- Sondage 2020 : 87 % des Français consultent les avis avant d'acheter
+- 79 % font confiance aux avis en ligne autant qu'une recommandation personnelle
+- Milgram — biais d'autorité
+- Effet de fluidité cognitive (biais de simplicité)
+
+---
+
+## Progression globale — formule mise à jour (2026-03-15)
+
+### Ancienne formule
+`progressPercent = Math.round(completedLessons.length / totalLessons * 100)`
+→ Exercices non comptés.
+
+### Nouvelle formule
+`progressPercent = Math.round((completedLessons.length + completedExercises.length) / (totalLessons + totalExercises) * 100)`
+
+### Implémentation
+- `hooks/useProgress.ts` — 3 fonctions mises à jour :
+  - `toggleLessonStatus(moduleIndex, lessonIndex, totalLessons, totalExercises = 0)`
+  - `completeLesson(moduleIndex, lessonIndex, totalLessons, totalExercises = 0)`
+  - `toggleExerciseStatus(moduleIndex, lessonIndex, totalLessons = 0, totalExercises = 0)` — maintenant met à jour `progressPercent`
+- `totalExercises` optionnel avec default `0` → backward compatible (vieux callers non modifiés)
+- Si `totalExercises = 0`, les `completedExercises` ne sont pas comptés → pas de dépassement 100%
+
+### Callsites mis à jour
+| Fichier | Changement |
+|---------|------------|
+| `app/(formation)/formation/[module]/[lesson]/page.tsx` | Importe `getTotalExercises`, passe `totalExercises` à LessonClient |
+| `app/(formation)/formation/[module]/[lesson]/LessonClient.tsx` | Reçoit `totalExercises`, le passe à `toggleLessonStatus` |
+| `app/(formation)/exercices/[module]/[lesson]/page.tsx` | Importe `getTotalLessons`, passe `totalLessons` à ExerciseClient |
+| `app/(formation)/exercices/[module]/[lesson]/ExerciseClient.tsx` | Reçoit `totalLessons`, le passe à `toggleExerciseStatus` |
+| `app/(formation)/formation/page.tsx` | Importe `getTotalExercises`, passe `totalExercises` à SommaireClient |
+| `app/(formation)/formation/SommaireClient.tsx` | Reçoit `totalExercises`, affiche "X leçons · Y exercices terminés sur Z éléments" |
+
+### Affichage SommaireClient (texte sous la barre)
+Avant : `5 leçons terminées sur 43`
+Après : `5 leçons · 2 exercices terminés sur 68 éléments`
+
+### ProgressData localStorage (cpv_progress)
+```typescript
+{
+  currentModule: number;
+  currentLesson: number;
+  completedLessons: string[];    // "moduleId-lessonId"
+  inProgressLessons: string[];
+  completedExercises: string[];  // "moduleId-exerciseId"
+  progressPercent: number;       // = (completedLessons + completedExercises) / (totalLessons + totalExercises) * 100
+  lastVisitedAt: number;
+}
+```
+
+---
+
+## Page Paramètres — Fonctionnalités implémentées (2026-03-15)
+
+### Fonctionnalités fonctionnelles AVANT
+
+| Fonctionnalité | Statut | Mécanisme |
+|---|---|---|
+| Toggle réduire animations | ✅ | localStorage `cpv_reduce_motion_override` + class `reduce-motion-override` sur `body` |
+| Toggle mode compact | ✅ | localStorage `cpv_compact_mode` + class `compact-mode` sur `body` |
+| Réinitialiser progression | ✅ | `localStorage.removeItem("cpv_progress")` + event `cpv-progress-update` |
+| Effacer notes | ❌ faux | Cherchait préfixe `cpv_notes` mais les vraies notes sont sous `lesson_notes_*` |
+| Déconnexion | ✅ | Form POST `/api/auth/signout` (NextAuth built-in) |
+| Modifier email | ❌ simulé | Fake delay 800ms — aucun appel API |
+| Changer mot de passe | ❌ simulé | Fake delay 1000ms — aucun appel API |
+| Supprimer compte | ❌ simulé | Affichait "pas encore disponible" |
+
+### API routes créées
+
+| Route | Méthode | Action |
+|---|---|---|
+| `app/api/user/update-email/route.ts` | POST | Vérifie unicité → `prisma.user.update({ email })` |
+| `app/api/user/update-password/route.ts` | POST | `bcrypt.compare` current → `bcrypt.hash(12)` → `prisma.user.update({ passwordHash })` |
+| `app/api/user/delete-account/route.ts` | POST | Supprime Note, Progress, Enrollment, Affiliate+clicks+sales, puis User (cascade payments) |
+
+### Corrections page parametres
+
+- `NOTES_PREFIX` : `"cpv_notes"` → `"lesson_notes_"` (correspond au vrai préfixe de `LessonClient`)
+- Ajout `EXERCISE_RESPONSE_PREFIX = "exercise_response_"` — inclus dans la suppression de notes
+- `handleSaveEmail` → appel réel `POST /api/user/update-email`
+- `handleChangePassword` → appel réel `POST /api/user/update-password`
+- `handleDeleteAccountFinal` → appel réel `POST /api/user/delete-account` + clear localStorage + `signOut({ callbackUrl: "/" })`
+- Delete step 2 modal : ajout champ input "type SUPPRIMER" + bouton disabled tant que texte incorrect + loading state `isDeleting`
+
+### Auth
+- NextAuth + Credentials + JWT + PrismaAdapter (PostgreSQL)
+- **Pas de Supabase Auth** — auth gérée par NextAuth via table `users` (Prisma)
+- Pour modifier email/password : via API routes Prisma, pas via Supabase
+
+---
+
+## 8. Responsive mobile-first
+
+### Principes appliqués
+- **Mobile-first** : toutes les classes base = mobile (320px+), adaptations via `sm:`, `md:`, `lg:`
+- **Touch targets** : minimum 44×44px (WCAG 2.5.5) sur tous les boutons interactifs
+- **Hover guards** : `@media (hover: hover)` sur tous les translateX/Y transforms (ne persistent pas sur touch)
+- **section-spacing** : `py-10 sm:py-16 md:py-24` (réduit de `py-16` fixe)
+
+### Changements par fichier
+
+| Fichier | Changements mobile |
+|---|---|
+| `globals.css` | `section-spacing` → `py-10 sm:py-16 md:py-24`; `h1` → `text-3xl sm:text-4xl`; `h2` → `text-2xl sm:text-3xl`; `prose-reading` → `clamp(15px,4vw,17px)`; `@media (hover:hover)` guards; `.footer-link` → `min-height:44px` |
+| `app/page.tsx` | Hero: px-4, CTA full-width sur mobile (`w-full sm:w-auto`), py-14 sm:py-20; Modules: gap-3 sm:gap-6, p-4 sm:p-5; Piliers: p-5 sm:p-6; Sections: `space-y-8 sm:space-y-12`; Pricing: `space-y-5 sm:space-y-8`, prix `text-4xl sm:text-5xl md:text-6xl` |
+| `TestimonialsScroll.tsx` | Cards `w-[280px] sm:w-[320px]`, `p-4 sm:p-6`, `mx-2 sm:mx-3` |
+| `app/contact/page.tsx` | py-10 md:py-16 lg:py-24; hero `mb-8 md:mb-12`; form `p-5 sm:p-8`; grid `gap-6 lg:gap-12` |
+| `app/membre/page.tsx` | py-8 md:py-12 lg:py-20; progress % `text-4xl sm:text-5xl`; CTA btn `px-6 text-base`; stats `grid-cols-2 md:grid-cols-4` |
+| `app/affiliation/AffiliationClient.tsx` | py-10 md:py-16 lg:py-24; hero `mb-8 md:mb-12`; badge `w-16 sm:w-20`; steps `sm:grid-cols-3`; link card `flex-col sm:flex-row`; cartes `p-5 sm:p-8` |
+| `app/connexion/page.tsx` | py-8 sm:py-16 (au lieu de py-16 fixe) |
+| `app/parametres/page.tsx` | py-8 md:py-12 lg:py-20; email edit `flex-col sm:flex-row`; eye toggle 44px |
+| `LessonClient.tsx` | Grille: `md:grid-cols-[1fr_260px]` + `lg:grid-cols-[320px_…_260px]`; `lg:max-h-72` seulement |
+| `FooterV2.tsx` | `sm:grid-cols-2`; `mt-8 md:mt-14` |
+| `Header.tsx` | Hamburger `w-11 h-11` (44px) |
+| `SommaireClient.tsx` | `px-4 sm:px-6`; bottom row `flex-col sm:flex-row` |
+| `exercices/page.tsx` | `px-4 sm:px-6 py-8 md:py-12` |
+| `notes/page.tsx` | `px-4 sm:px-6 py-8 md:py-12` |

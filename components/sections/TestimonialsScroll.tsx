@@ -57,7 +57,7 @@ const testimonials: Testimonial[] = [
   {
     name: 'Léa V.',
     role: 'Chargée de développement',
-    text: 'La partie sur l\'éthique en vente a changé ma relation au métier. Je vends mieux parce que je suis honnête, pas malgré ça.',
+    text: 'Le module sur la mise en pratique finale m\'a permis de consolider tout ce que j\'avais appris. J\'ai directement appliqué sur mon prochain client.',
     rating: 5,
     initials: 'LV',
     color: 'from-emerald-500/30 to-emerald-600/20',
@@ -82,7 +82,7 @@ function StarIcon() {
 
 function TestimonialCard({ t }: { t: Testimonial }) {
   return (
-    <div className="flex-shrink-0 w-[320px] mx-3 bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-sm">
+    <div className="flex-shrink-0 w-[280px] sm:w-[320px] mx-2 sm:mx-3 bg-white/[0.07] border border-white/10 rounded-2xl p-4 sm:p-6">
       <div className="flex items-center gap-3 mb-4">
         {/* Avatar */}
         <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${t.color} flex items-center justify-center text-sm font-bold text-white flex-shrink-0`}>
@@ -119,10 +119,10 @@ export function TestimonialsScroll() {
 
   return (
     <section className="section-spacing overflow-hidden">
-      <div className="container-width mb-12">
+      <div className="container-width mb-8 sm:mb-12">
         <div className="text-center">
           <p className="text-xs font-semibold tracking-widest text-gray-500 uppercase mb-3">Témoignages</p>
-          <h2 className="text-3xl md:text-4xl font-bold text-white">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white">
             Ils ont compris pour vendre
           </h2>
         </div>

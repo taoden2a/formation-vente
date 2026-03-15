@@ -34,12 +34,12 @@ export default function Home() {
         {/* Cognitive Orbs V8 - Strategic animated orbs (positioned at section level) */}
         <CognitiveOrbs titleRef={titleRef} className="z-[5]" />
 
-        <div className="relative z-10 w-full max-w-5xl mx-auto px-6 sm:px-8 lg:px-12 py-20">
-          <div className="text-center space-y-8">
+        <div className="relative z-10 w-full max-w-5xl mx-auto px-4 sm:px-8 lg:px-12 py-14 sm:py-20">
+          <div className="text-center space-y-6 sm:space-y-8">
             <ScrollReveal delay={0.12} blur duration={0.9}>
               <h1
                 ref={titleRef}
-                className="hero-reveal text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight text-white text-glow"
+                className="hero-reveal text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-white text-glow"
               >
                 La compétence qui transforme une idée en{" "}
                 <span className="hero-gradient-text">revenus</span>.
@@ -47,22 +47,22 @@ export default function Home() {
             </ScrollReveal>
 
             <ScrollReveal delay={0.3} duration={0.8}>
-              <p className="text-lg md:text-xl text-gray-400 font-medium max-w-2xl mx-auto leading-relaxed">
-                Apprends la psychologie réelle de l&apos;achat pour vendre plus<br className="hidden sm:block" /> sans manipuler et sans scripts artificiels.
+              <p className="text-base sm:text-lg md:text-xl text-gray-400 font-medium max-w-xl sm:max-w-2xl mx-auto leading-relaxed">
+                Apprends la psychologie réelle de l&apos;achat pour vendre plus sans manipuler et sans scripts artificiels.
               </p>
             </ScrollReveal>
 
             <ScrollReveal delay={0.48} duration={0.8}>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center pt-6">
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center pt-2 sm:pt-6">
                 <Link
                   href="#prix"
-                  className="btn-premium inline-flex items-center justify-center rounded-xl px-8 py-4 text-lg font-semibold text-white"
+                  className="btn-premium inline-flex items-center justify-center rounded-xl px-6 sm:px-8 py-3.5 sm:py-4 text-base sm:text-lg font-semibold text-white w-full sm:w-auto"
                 >
                   Accéder à la formation
                 </Link>
                 <Link
                   href="/programme"
-                  className="btn-premium-secondary inline-flex items-center justify-center rounded-xl px-8 py-4 text-lg font-medium text-gray-200"
+                  className="btn-premium-secondary inline-flex items-center justify-center rounded-xl px-6 sm:px-8 py-3.5 sm:py-4 text-base sm:text-lg font-medium text-gray-200 w-full sm:w-auto"
                 >
                   Voir la formation
                 </Link>
@@ -75,16 +75,16 @@ export default function Home() {
       {/* BLOC 2 — LE CHOC */}
       <BackgroundAnimated variant="dark" className="section-spacing">
         <div className="container-width">
-          <div className="max-w-4xl mx-auto text-center space-y-12">
+          <div className="max-w-4xl mx-auto text-center space-y-8 sm:space-y-12">
             <ScrollReveal>
-              <div className="space-y-4">
-                <p className="text-lg md:text-xl text-gray-400">Tu peux avoir :</p>
-                <ul className="text-xl md:text-2xl text-gray-300 space-y-2 font-medium">
+              <div className="space-y-3 sm:space-y-4">
+                <p className="text-base sm:text-lg md:text-xl text-gray-400">Tu peux avoir :</p>
+                <ul className="text-lg sm:text-xl md:text-2xl text-gray-300 space-y-2 font-medium">
                   <li>• un bon produit</li>
                   <li>• une expertise réelle</li>
                   <li>• une idée brillante</li>
                 </ul>
-                <p className="text-xl md:text-2xl text-gray-400 pt-2">
+                <p className="text-lg sm:text-xl md:text-2xl text-gray-400 pt-2">
                   Et pourtant ne presque rien vendre.
                 </p>
               </div>
@@ -92,18 +92,18 @@ export default function Home() {
 
             <ScrollReveal delay={0.2}>
               <div className="space-y-2">
-                <p className="text-lg text-gray-500">Pourquoi ?</p>
-                <p className="text-2xl md:text-3xl font-bold text-orange-400 text-glow-orange">
+                <p className="text-base text-gray-500">Pourquoi ?</p>
+                <p className="text-xl sm:text-2xl md:text-3xl font-bold text-orange-400 text-glow-orange">
                   Parce que la vente n&apos;est pas une technique.
                   <span className="block mt-1 text-white">C&apos;est une compréhension.</span>
                 </p>
               </div>
             </ScrollReveal>
 
-            <div className="grid md:grid-cols-3 gap-6 pt-4">
+            <div className="grid md:grid-cols-3 gap-4 sm:gap-6 pt-2 sm:pt-4">
               {shockCards.map((card, index) => (
                 <ScrollReveal key={index} delay={0.2 + index * 0.1}>
-                  <div className="glass-card-hover rounded-2xl p-8 h-full">
+                  <div className="glass-card-hover rounded-2xl p-5 md:p-8 h-full">
                     <p className="text-lg text-gray-300 font-medium">{card}</p>
                   </div>
                 </ScrollReveal>
@@ -116,22 +116,22 @@ export default function Home() {
       {/* BLOC 3 — LA SOLUTION */}
       <BackgroundAnimated variant="dark" className="section-spacing">
         <div className="container-width">
-          <div className="max-w-5xl mx-auto space-y-12 py-8 md:py-16">
+          <div className="max-w-5xl mx-auto space-y-8 sm:space-y-12 py-4 sm:py-8 md:py-16">
             <ScrollReveal>
-              <h2 className="text-3xl md:text-4xl font-bold text-center text-white">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center text-white">
                 Ce que tu vas réellement apprendre
-                <span className="block mt-2 text-gray-400">dans cette formation</span>
+                <span className="block mt-1 sm:mt-2 text-gray-400">dans cette formation</span>
               </h2>
             </ScrollReveal>
 
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
               {pillars.map((pillar, index) => (
                 <ScrollReveal key={index} delay={index * 0.1} direction="scale">
-                  <div className="glass-card-hover rounded-2xl p-6 h-full space-y-4">
-                    <div className="icon-glow w-14 h-14 rounded-xl flex items-center justify-center">
+                  <div className="glass-card-hover rounded-2xl p-5 sm:p-6 h-full space-y-3 sm:space-y-4">
+                    <div className="icon-glow w-12 h-12 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center">
                       {pillar.icon}
                     </div>
-                    <p className="text-gray-300 font-medium leading-relaxed">
+                    <p className="text-sm sm:text-base text-gray-300 font-medium leading-relaxed">
                       {pillar.text}
                     </p>
                   </div>
@@ -145,10 +145,10 @@ export default function Home() {
       {/* BLOC 4 — LES 9 MODULES */}
       <BackgroundAnimated variant="dark" className="section-spacing">
         <div className="container-width">
-          <div className="max-w-4xl mx-auto space-y-12">
+          <div className="max-w-4xl mx-auto space-y-8 sm:space-y-12">
             <ScrollReveal>
-              <h2 className="text-3xl md:text-4xl font-bold text-center text-white">
-                9 modules pour maîtriser la vente
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center text-white">
+                8 modules pour maîtriser la vente
               </h2>
             </ScrollReveal>
 
@@ -156,20 +156,20 @@ export default function Home() {
               {/* Animated timeline line */}
               <div className="absolute left-7 top-0 bottom-0 w-0.5 timeline-line-v6 hidden md:block" />
 
-              <div className="space-y-4">
+              <div className="space-y-3 sm:space-y-4">
                 {modules.map((module, index) => (
                   <ScrollReveal key={index} delay={index * 0.07} direction="left" distance={25} duration={0.7}>
-                    <div className="module-card-v6 flex items-center gap-6 p-5 rounded-2xl relative group">
-                      <div className="module-number-v6 flex-shrink-0 w-14 h-14 rounded-xl flex items-center justify-center z-10">
-                        <span className="text-xl font-bold text-white">
+                    <div className="module-card-v6 flex items-center gap-3 sm:gap-6 p-4 sm:p-5 rounded-2xl relative group">
+                      <div className="module-number-v6 flex-shrink-0 w-11 h-11 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center z-10">
+                        <span className="text-base sm:text-xl font-bold text-white">
                           {String(index + 1).padStart(2, "0")}
                         </span>
                       </div>
-                      <div className="flex-1">
-                        <h3 className="text-lg font-semibold text-white group-hover:text-blue-300 transition-colors duration-300">
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-base sm:text-lg font-semibold text-white group-hover:text-blue-300 transition-colors duration-300 leading-snug">
                           {module.title}
                         </h3>
-                        <p className="text-gray-500 text-sm mt-0.5 group-hover:text-gray-400 transition-colors duration-300">
+                        <p className="text-gray-500 text-xs sm:text-sm mt-0.5 group-hover:text-gray-400 transition-colors duration-300 leading-snug">
                           {module.transformation}
                         </p>
                       </div>
@@ -199,17 +199,17 @@ export default function Home() {
       {/* BLOC 6 — POUR QUI */}
       <BackgroundAnimated variant="dark" className="section-spacing">
         <div className="container-width">
-          <div className="max-w-4xl mx-auto space-y-12">
+          <div className="max-w-4xl mx-auto space-y-8 sm:space-y-12">
             <ScrollReveal>
-              <h2 className="text-3xl md:text-4xl font-bold text-center text-white">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center text-white">
                 Cette formation est faite pour toi si :
               </h2>
             </ScrollReveal>
 
-            <div className="grid sm:grid-cols-2 gap-5">
+            <div className="grid sm:grid-cols-2 gap-3 sm:gap-5">
               {forWhoCards.map((card, index) => (
                 <ScrollReveal key={index} delay={index * 0.1} direction="scale">
-                  <div className="glass-card-hover rounded-2xl p-6 h-full flex items-start gap-4">
+                  <div className="glass-card-hover rounded-2xl p-4 sm:p-6 h-full flex items-start gap-3 sm:gap-4">
                     <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-orange-500/10 border border-orange-500/20 flex items-center justify-center">
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="text-orange-400">
                         <path d="M20 6 9 17l-5-5" />
@@ -227,35 +227,35 @@ export default function Home() {
       {/* BLOC 7 — CTA FINAL */}
       <BackgroundAnimated variant="darker" className="section-spacing" id="prix">
         <div className="container-width">
-          <div className="max-w-3xl mx-auto text-center space-y-10">
+          <div className="max-w-3xl mx-auto text-center space-y-6 sm:space-y-10">
             <ScrollReveal duration={0.9}>
-              <h2 className="text-2xl md:text-3xl font-bold text-white">
+              <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-white">
                 La compétence que personne ne t&apos;enseigne,
                 <span className="block mt-1 text-gray-400">mais dont tout dépend.</span>
               </h2>
             </ScrollReveal>
 
             <ScrollReveal delay={0.2} direction="scale" duration={0.9}>
-              <div className="cta-card-v6 rounded-3xl p-8 md:p-12 text-gray-900 space-y-8">
-                <div className="space-y-2">
-                  <h3 className="text-2xl md:text-3xl font-bold text-gray-900">
+              <div className="cta-card-v6 rounded-2xl sm:rounded-3xl p-5 sm:p-8 md:p-12 text-gray-900 space-y-5 sm:space-y-8">
+                <div className="space-y-1">
+                  <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">
                     Comprendre pour Vendre
                   </h3>
-                  <p className="text-gray-600">
+                  <p className="text-sm sm:text-base text-gray-600">
                     Accès immédiat à l&apos;ensemble de la formation.
                   </p>
                 </div>
 
                 <div className="space-y-1">
-                  <div className="flex items-end gap-3 justify-center">
-                    <span className="text-gray-400 line-through text-xl">199€</span>
-                    <span className="text-5xl md:text-6xl font-bold text-gray-900">59€</span>
+                  <div className="flex items-end gap-2 sm:gap-3 justify-center">
+                    <span className="text-gray-400 line-through text-lg sm:text-xl">199€</span>
+                    <span className="text-4xl sm:text-5xl md:text-6xl font-bold text-gray-900">59€</span>
                   </div>
                   <p className="text-gray-500 text-sm">Paiement unique • Accès à vie</p>
-                  <p className="text-gray-400 text-xs pt-1 italic">Moins cher qu&apos;un seul prospect perdu.</p>
+                  <p className="text-gray-400 text-xs pt-0.5 sm:pt-1 italic">Moins cher qu&apos;un seul prospect perdu.</p>
                 </div>
 
-                <ul className="text-left space-y-3 text-gray-600 max-w-sm mx-auto">
+                <ul className="text-left space-y-2.5 sm:space-y-3 text-sm sm:text-base text-gray-600 max-w-full sm:max-w-sm mx-auto">
                   {features.map((feature, index) => (
                     <li key={index} className="flex items-center gap-3">
                       <span className="flex-shrink-0 w-5 h-5 rounded-full bg-green-100 flex items-center justify-center">
@@ -312,7 +312,7 @@ const modules = [
   },
   {
     title: "Les biais cognitifs vraiment utiles en vente",
-    transformation: "Utiliser la psychologie de manière éthique.",
+    transformation: "Maîtriser les mécanismes mentaux de la persuasion.",
   },
   {
     title: "Comprendre profondément son client",
@@ -335,18 +335,14 @@ const modules = [
     transformation: "Attirer les bons clients avec les bons canaux.",
   },
   {
-    title: "Éthique, limites et crédibilité",
-    transformation: "Vendre avec intégrité et construire la confiance.",
-  },
-  {
     title: "Mise en pratique finale",
     transformation: "Appliquer l'ensemble sur ton projet concret.",
   },
 ];
 
 const features = [
-  "9 modules structurés",
-  "50+ leçons",
+  "8 modules structurés",
+  "43 leçons",
   "Exercices concrets",
   "Templates utilisables",
   "Mises à jour incluses",

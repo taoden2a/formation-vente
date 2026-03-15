@@ -12,7 +12,7 @@ export function FooterV2() {
       <div className="footer-separator absolute top-0 left-0 right-0 h-px" />
 
       <div className="relative z-10 container-width py-16">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-10 md:gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-10 md:gap-8">
           {/* Brand column */}
           <div className="space-y-4">
             <h3 className="footer-brand-title font-semibold flex items-center gap-2">
@@ -20,7 +20,7 @@ export function FooterV2() {
               <span className="footer-orange-dot" />
             </h3>
             <p className="footer-text text-sm leading-relaxed">
-              Formation complète pour apprendre à vendre et convaincre de manière éthique.
+              Formation complète pour apprendre à vendre et convaincre par la compréhension du cerveau humain.
             </p>
           </div>
 
@@ -87,7 +87,7 @@ export function FooterV2() {
         </div>
 
         {/* Bottom bar */}
-        <div className="mt-14 pt-8 footer-bottom-separator">
+        <div className="mt-8 md:mt-14 pt-8 footer-bottom-separator">
           <p className="footer-copyright text-sm text-center">
             © {currentYear} Comprendre pour Vendre. Tous droits réservés.
           </p>

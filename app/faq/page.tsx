@@ -49,7 +49,7 @@ const faqData = [
   {
     category: "formation",
     question: "Combien de temps dure la formation complète ?",
-    answer: "La formation comprend 9 modules et 27 leçons structurées. Vous pouvez la suivre à votre rythme, mais comptez environ 15 à 20 heures pour parcourir l'intégralité du contenu. La plupart des élèves terminent en 4 à 6 semaines en y consacrant 30 minutes par jour.",
+    answer: "La formation comprend 8 modules et 43 leçons structurées. Vous pouvez la suivre à votre rythme, mais comptez environ 15 à 20 heures pour parcourir l'intégralité du contenu. La plupart des élèves terminent en 4 à 6 semaines en y consacrant 30 minutes par jour.",
   },
   {
     category: "formation",
@@ -84,17 +84,12 @@ const faqData = [
   {
     category: "paiement",
     question: "Y a-t-il une garantie de remboursement ?",
-    answer: "Oui, nous offrons une garantie satisfait ou remboursé de 30 jours. Si la formation ne correspond pas à vos attentes, vous pouvez demander un remboursement complet sans justification.",
-  },
-  {
-    category: "paiement",
-    question: "Puis-je payer en plusieurs fois ?",
-    answer: "Oui, nous proposons un paiement en 3 fois sans frais pour rendre la formation plus accessible. Les échéances sont prélevées automatiquement chaque mois.",
+    answer: "Oui, nous offrons une garantie satisfait ou remboursé de 14 jours. Si la formation ne correspond pas à vos attentes dans les 14 jours suivant votre achat, vous pouvez demander un remboursement complet sans justification.",
   },
   {
     category: "affiliation",
     question: "Comment fonctionne le programme d'affiliation ?",
-    answer: "En tant que client, vous recevez un lien d'affiliation unique. Pour chaque vente générée via votre lien, vous touchez 20% de commission. Les paiements sont effectués mensuellement dès que vous atteignez 50€ de commissions.",
+    answer: "En tant que client, vous recevez un lien d'affiliation unique. Pour chaque vente générée via votre lien, vous touchez 25% de commission. Les paiements sont effectués mensuellement, dès votre première vente — il n'y a pas de seuil minimum.",
   },
   {
     category: "affiliation",
@@ -246,15 +241,13 @@ export default function FAQPage() {
                             }`}
                           />
                         </button>
-                        <div
-                          className={`faq-accordion-content transition-all duration-400 ease-out overflow-hidden ${
-                            isOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
-                          }`}
-                        >
-                          <div className="px-5 pb-5">
-                            <p className="text-gray-400 leading-relaxed">
-                              {faq.answer}
-                            </p>
+                        <div className={`accordion-grid ${isOpen ? "accordion-grid-open" : ""}`}>
+                          <div className="overflow-hidden">
+                            <div className="px-5 pb-5">
+                              <p className="text-gray-400 leading-relaxed">
+                                {faq.answer}
+                              </p>
+                            </div>
                           </div>
                         </div>
                       </div>

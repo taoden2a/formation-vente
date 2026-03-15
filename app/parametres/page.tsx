@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { signOut } from "next-auth/react";
 import { BackgroundAnimated } from "@/components/ui/BackgroundAnimated";
 import { PageTransition } from "@/components/ui/PageTransition";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
@@ -133,9 +135,12 @@ function XIcon({ className = "", size = 20 }: { className?: string; size?: numbe
 const MOTION_OVERRIDE_KEY = "cpv_reduce_motion_override";
 const COMPACT_MODE_KEY = "cpv_compact_mode";
 const PROGRESS_STORAGE_KEY = "cpv_progress";
-const NOTES_PREFIX = "cpv_notes";
+const NOTES_PREFIX = "lesson_notes_";
+const EXERCISE_RESPONSE_PREFIX = "exercise_response_";
 
 export default function ParametresPage() {
+  const router = useRouter();
+
   // User session
   const [userEmail, setUserEmail] = useState<string>("");
   const [isLoadingSession, setIsLoadingSession] = useState(true);
@@ -157,6 +162,8 @@ export default function ParametresPage() {
   // Delete account modals
   const [showDeleteStep1, setShowDeleteStep1] = useState(false);
   const [showDeleteStep2, setShowDeleteStep2] = useState(false);
+  const [deleteConfirmInput, setDeleteConfirmInput] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Preferences
   const [reduceMotion, setReduceMotion] = useState(false);
@@ -203,6 +210,13 @@ export default function ParametresPage() {
     }
   }, []);
 
+  // Body scroll lock when any modal is open
+  useEffect(() => {
+    const anyOpen = showPasswordModal || showDeleteStep1 || showDeleteStep2 || showResetProgressModal || showDeleteNotesModal;
+    document.body.style.overflow = anyOpen ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
+  }, [showPasswordModal, showDeleteStep1, showDeleteStep2, showResetProgressModal, showDeleteNotesModal]);
+
   // Show feedback
   const showFeedbackMessage = (type: "success" | "error", message: string) => {
     setFeedback({ type, message });
@@ -233,7 +247,7 @@ export default function ParametresPage() {
     }
   };
 
-  // Save email (simulated - no backend endpoint)
+  // Save email
   const handleSaveEmail = async () => {
     if (!newEmail || newEmail === userEmail) {
       setIsEditingEmail(false);
@@ -241,14 +255,28 @@ export default function ParametresPage() {
     }
 
     setEmailSaving(true);
-    await new Promise((resolve) => setTimeout(resolve, 800));
-    setUserEmail(newEmail);
-    setIsEditingEmail(false);
-    setEmailSaving(false);
-    showFeedbackMessage("success", "Email mis à jour avec succès.");
+    try {
+      const res = await fetch("/api/user/update-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: newEmail }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        showFeedbackMessage("error", data.error ?? "Erreur lors de la mise à jour.");
+      } else {
+        setUserEmail(newEmail);
+        setIsEditingEmail(false);
+        showFeedbackMessage("success", "Email mis à jour avec succès.");
+      }
+    } catch {
+      showFeedbackMessage("error", "Erreur réseau. Réessayez.");
+    } finally {
+      setEmailSaving(false);
+    }
   };
 
-  // Change password (simulated - no backend endpoint)
+  // Change password
   const handleChangePassword = async () => {
     if (!currentPassword || !newPassword || !confirmPassword) {
       showFeedbackMessage("error", "Veuillez remplir tous les champs.");
@@ -266,11 +294,25 @@ export default function ParametresPage() {
     }
 
     setPasswordSaving(true);
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    setPasswordSaving(false);
-    setShowPasswordModal(false);
-    resetPasswordForm();
-    showFeedbackMessage("success", "Mot de passe mis à jour avec succès.");
+    try {
+      const res = await fetch("/api/user/update-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ currentPassword, newPassword }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        showFeedbackMessage("error", data.error ?? "Erreur lors de la mise à jour.");
+      } else {
+        setShowPasswordModal(false);
+        resetPasswordForm();
+        showFeedbackMessage("success", "Mot de passe mis à jour avec succès.");
+      }
+    } catch {
+      showFeedbackMessage("error", "Erreur réseau. Réessayez.");
+    } finally {
+      setPasswordSaving(false);
+    }
   };
 
   const resetPasswordForm = () => {
@@ -284,27 +326,52 @@ export default function ParametresPage() {
   // Delete account step 1 -> step 2
   const handleDeleteStep1Confirm = () => {
     setShowDeleteStep1(false);
+    setDeleteConfirmInput("");
     setShowDeleteStep2(true);
   };
 
-  // Delete account final (simulated)
+  // Delete account final
   const handleDeleteAccountFinal = async () => {
-    setShowDeleteStep2(false);
-    showFeedbackMessage("error", "La suppression de compte n'est pas encore disponible.");
+    if (deleteConfirmInput !== "SUPPRIMER") {
+      showFeedbackMessage("error", "Veuillez taper SUPPRIMER pour confirmer.");
+      return;
+    }
+
+    setIsDeleting(true);
+    try {
+      const res = await fetch("/api/user/delete-account", { method: "POST" });
+      if (!res.ok) {
+        const data = await res.json();
+        showFeedbackMessage("error", data.error ?? "Erreur lors de la suppression.");
+        setIsDeleting(false);
+        return;
+      }
+      // Clear all local data
+      localStorage.removeItem(PROGRESS_STORAGE_KEY);
+      for (let i = localStorage.length - 1; i >= 0; i--) {
+        const key = localStorage.key(i);
+        if (key && (key.startsWith(NOTES_PREFIX) || key.startsWith(EXERCISE_RESPONSE_PREFIX))) {
+          localStorage.removeItem(key);
+        }
+      }
+      setShowDeleteStep2(false);
+      await signOut({ callbackUrl: "/" });
+    } catch {
+      showFeedbackMessage("error", "Erreur réseau. Réessayez.");
+      setIsDeleting(false);
+    }
   };
 
-  // Delete all notes
+  // Delete all notes (lesson notes + exercise responses)
   const deleteAllNotes = () => {
-    const keysToDelete: string[] = [];
-    for (let i = 0; i < localStorage.length; i++) {
+    for (let i = localStorage.length - 1; i >= 0; i--) {
       const key = localStorage.key(i);
-      if (key && key.startsWith(NOTES_PREFIX)) {
-        keysToDelete.push(key);
+      if (key && (key.startsWith(NOTES_PREFIX) || key.startsWith(EXERCISE_RESPONSE_PREFIX))) {
+        localStorage.removeItem(key);
       }
     }
-    keysToDelete.forEach((key) => localStorage.removeItem(key));
     setShowDeleteNotesModal(false);
-    showFeedbackMessage("success", "Toutes vos notes ont été supprimées.");
+    showFeedbackMessage("success", "Toutes vos notes et réponses ont été supprimées.");
   };
 
   // Reset progress
@@ -319,11 +386,11 @@ export default function ParametresPage() {
     <div className="min-h-screen bg-[#0a0a0f] text-white">
       <PageTransition>
         <BackgroundAnimated variant="dark" className="min-h-screen">
-          <div className="container-width py-12 md:py-20">
+          <div className="container-width py-8 md:py-12 lg:py-20">
             {/* Hero minimal */}
             <ScrollReveal>
-              <div className="max-w-3xl mx-auto mb-10">
-                <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">
+              <div className="max-w-3xl mx-auto mb-6 md:mb-10">
+                <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-2">
                   Paramètres
                 </h1>
                 <p className="text-gray-400">
@@ -380,19 +447,19 @@ export default function ParametresPage() {
                     {isLoadingSession ? (
                       <div className="h-10 bg-white/5 rounded-lg animate-pulse" />
                     ) : isEditingEmail ? (
-                      <div className="flex gap-2">
+                      <div className="flex flex-col sm:flex-row gap-2">
                         <input
                           type="email"
                           value={newEmail}
                           onChange={(e) => setNewEmail(e.target.value)}
-                          className="flex-1 px-4 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-blue-500/50 transition-colors"
+                          className="flex-1 px-4 py-3 sm:py-2.5 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-blue-500/50 transition-colors"
                           placeholder="nouveau@email.com"
                           autoFocus
                         />
                         <button
                           onClick={handleSaveEmail}
                           disabled={emailSaving}
-                          className="px-4 py-2.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium transition-all duration-200 disabled:opacity-50 hover:-translate-y-0.5"
+                          className="min-h-[44px] px-4 py-2.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium transition-all duration-200 disabled:opacity-50"
                         >
                           {emailSaving ? "..." : "Enregistrer"}
                         </button>
@@ -401,7 +468,7 @@ export default function ParametresPage() {
                             setIsEditingEmail(false);
                             setNewEmail(userEmail);
                           }}
-                          className="px-4 py-2.5 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-all duration-200 hover:-translate-y-0.5"
+                          className="min-h-[44px] px-4 py-2.5 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-all duration-200"
                         >
                           Annuler
                         </button>
@@ -584,12 +651,14 @@ export default function ParametresPage() {
               </ScrollReveal>
             </div>
           </div>
+        </BackgroundAnimated>
+      </PageTransition>
 
-          {/* Password Modal */}
+      {/* Password Modal */}
           {showPasswordModal && (
             <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
               <div
-                className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+                className="absolute inset-0 bg-black/85"
                 onClick={() => {
                   setShowPasswordModal(false);
                   resetPasswordForm();
@@ -620,7 +689,7 @@ export default function ParametresPage() {
                       <button
                         type="button"
                         onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300 transition-colors"
+                        className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-gray-500 hover:text-gray-300 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
                       >
                         {showCurrentPassword ? <EyeOffIcon size={18} /> : <EyeIcon size={18} />}
                       </button>
@@ -641,7 +710,7 @@ export default function ParametresPage() {
                       <button
                         type="button"
                         onClick={() => setShowNewPassword(!showNewPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300 transition-colors"
+                        className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-gray-500 hover:text-gray-300 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
                       >
                         {showNewPassword ? <EyeOffIcon size={18} /> : <EyeIcon size={18} />}
                       </button>
@@ -687,7 +756,7 @@ export default function ParametresPage() {
           {showDeleteStep1 && (
             <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
               <div
-                className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+                className="absolute inset-0 bg-black/85"
                 onClick={() => setShowDeleteStep1(false)}
               />
               <div className="parametres-modal relative p-6 rounded-2xl max-w-md w-full animate-modal-in">
@@ -724,8 +793,8 @@ export default function ParametresPage() {
           {showDeleteStep2 && (
             <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
               <div
-                className="absolute inset-0 bg-black/80 backdrop-blur-sm"
-                onClick={() => setShowDeleteStep2(false)}
+                className="absolute inset-0 bg-black/85"
+                onClick={() => !isDeleting && setShowDeleteStep2(false)}
               />
               <div className="parametres-modal relative p-6 rounded-2xl max-w-md w-full animate-modal-in">
                 <div className="flex items-center gap-3 mb-4">
@@ -736,7 +805,7 @@ export default function ParametresPage() {
                     Confirmation finale
                   </h3>
                 </div>
-                <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 mb-6">
+                <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 mb-5">
                   <p className="text-red-300 text-sm font-medium">
                     Cette action est irréversible.
                   </p>
@@ -744,18 +813,33 @@ export default function ParametresPage() {
                     Votre compte, votre progression et toutes vos notes seront définitivement supprimés.
                   </p>
                 </div>
+                <div className="mb-6">
+                  <label className="block text-sm text-gray-400 mb-2">
+                    Tapez <span className="text-red-400 font-mono font-bold">SUPPRIMER</span> pour confirmer
+                  </label>
+                  <input
+                    type="text"
+                    value={deleteConfirmInput}
+                    onChange={(e) => setDeleteConfirmInput(e.target.value)}
+                    placeholder="SUPPRIMER"
+                    disabled={isDeleting}
+                    className="w-full px-4 py-3 bg-white/5 border border-red-500/20 rounded-xl text-white placeholder-gray-600 focus:outline-none focus:border-red-500/50 transition-colors font-mono"
+                  />
+                </div>
                 <div className="flex gap-3">
                   <button
                     onClick={() => setShowDeleteStep2(false)}
-                    className="flex-1 py-3 rounded-xl bg-white/10 text-white font-medium hover:bg-white/20 transition-all duration-200 hover:-translate-y-0.5"
+                    disabled={isDeleting}
+                    className="flex-1 py-3 rounded-xl bg-white/10 text-white font-medium hover:bg-white/20 transition-all duration-200 hover:-translate-y-0.5 disabled:opacity-50"
                   >
                     Annuler
                   </button>
                   <button
                     onClick={handleDeleteAccountFinal}
-                    className="flex-1 py-3 rounded-xl bg-red-500 text-white font-medium hover:bg-red-600 transition-all duration-200 hover:-translate-y-0.5"
+                    disabled={isDeleting || deleteConfirmInput !== "SUPPRIMER"}
+                    className="flex-1 py-3 rounded-xl bg-red-500 text-white font-medium hover:bg-red-600 transition-all duration-200 hover:-translate-y-0.5 disabled:opacity-40 disabled:cursor-not-allowed"
                   >
-                    Supprimer définitivement
+                    {isDeleting ? "Suppression..." : "Supprimer définitivement"}
                   </button>
                 </div>
               </div>
@@ -766,7 +850,7 @@ export default function ParametresPage() {
           {showResetProgressModal && (
             <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
               <div
-                className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+                className="absolute inset-0 bg-black/85"
                 onClick={() => setShowResetProgressModal(false)}
               />
               <div className="parametres-modal relative p-6 rounded-2xl max-w-md w-full animate-modal-in">
@@ -803,7 +887,7 @@ export default function ParametresPage() {
           {showDeleteNotesModal && (
             <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
               <div
-                className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+                className="absolute inset-0 bg-black/85"
                 onClick={() => setShowDeleteNotesModal(false)}
               />
               <div className="parametres-modal relative p-6 rounded-2xl max-w-md w-full animate-modal-in">
@@ -835,8 +919,6 @@ export default function ParametresPage() {
               </div>
             </div>
           )}
-        </BackgroundAnimated>
-      </PageTransition>
     </div>
   );
 }

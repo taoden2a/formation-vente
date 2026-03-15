@@ -30,6 +30,7 @@ interface ModuleData {
 interface Props {
   modules: ModuleData[];
   totalLessons: number;
+  totalExercises: number;
 }
 
 // ─── Icônes ───────────────────────────────────────────────────────────────────
@@ -70,7 +71,7 @@ function StatusDot({ status }: { status: "todo" | "in_progress" | "completed" })
 
 // ─── Composant principal ──────────────────────────────────────────────────────
 
-export function SommaireClient({ modules, totalLessons }: Props) {
+export function SommaireClient({ modules, totalLessons, totalExercises }: Props) {
   const { progress, isLoaded, getLessonStatus, getModuleProgress } = useProgress();
 
   const [openModuleId, setOpenModuleId] = useState<number | null>(1);
@@ -82,11 +83,12 @@ export function SommaireClient({ modules, totalLessons }: Props) {
     }
   }, [isLoaded, progress.currentModule]);
 
-  const completedCount = isLoaded ? progress.completedLessons.length : 0;
+  const completedLessonsCount = isLoaded ? progress.completedLessons.length : 0;
+  const completedExercisesCount = isLoaded ? progress.completedExercises.length : 0;
   const globalPercent = isLoaded ? progress.progressPercent : 0;
 
   return (
-    <main className="max-w-4xl mx-auto px-6 py-12">
+    <main className="max-w-4xl mx-auto px-4 sm:px-6 py-8 md:py-12">
 
       {/* ── En-tête ─────────────────────────────────────────────────────────── */}
       <div className="mb-10">
@@ -99,7 +101,7 @@ export function SommaireClient({ modules, totalLessons }: Props) {
           </span>
         </div>
         <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">Formation</h1>
-        <p className="text-gray-400">9 modules progressifs pour maîtriser la vente par la compréhension.</p>
+        <p className="text-gray-400">8 modules progressifs pour maîtriser la vente par la compréhension.</p>
       </div>
 
       {/* ── Barre de progression globale ────────────────────────────────────── */}
@@ -115,7 +117,7 @@ export function SommaireClient({ modules, totalLessons }: Props) {
           />
         </div>
         <p className="text-xs text-gray-500">
-          {completedCount} leçon{completedCount !== 1 ? "s" : ""} terminée{completedCount !== 1 ? "s" : ""} sur {totalLessons}
+          {completedLessonsCount} leçon{completedLessonsCount !== 1 ? "s" : ""} · {completedExercisesCount} exercice{completedExercisesCount !== 1 ? "s" : ""} terminés sur {totalLessons + totalExercises} éléments
         </p>
       </div>
 
@@ -128,16 +130,16 @@ export function SommaireClient({ modules, totalLessons }: Props) {
           return (
             <div
               key={mod.id}
-              className={`bg-white/5 border rounded-2xl overflow-hidden transition-colors ${
+              className={`bg-white/5 border rounded-2xl overflow-hidden transition-colors duration-200 ${
                 isModuleOpen ? "border-white/20" : "border-white/10"
               }`}
             >
               {/* Header module */}
               <button
                 onClick={() => setOpenModuleId(isModuleOpen ? null : mod.id)}
-                className="w-full flex items-center gap-4 p-5 text-left hover:bg-white/[0.04] transition-colors"
+                className="w-full flex items-center gap-4 p-5 text-left hover:bg-white/[0.04] transition-colors group"
               >
-                <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-orange-500/20 to-orange-600/20 flex items-center justify-center text-base font-bold text-orange-400 flex-shrink-0">
+                <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-orange-500/20 to-orange-600/20 flex items-center justify-center text-base font-bold text-orange-400 flex-shrink-0 transition-transform duration-200 group-hover:scale-105">
                   {String(mod.id).padStart(2, "0")}
                 </div>
 
@@ -161,8 +163,9 @@ export function SommaireClient({ modules, totalLessons }: Props) {
                 <ChevronDown open={isModuleOpen} />
               </button>
 
-              {/* Contenu module */}
-              {isModuleOpen && (
+              {/* Contenu module — CSS grid-rows accordion for smooth animation */}
+              <div className={`accordion-grid ${isModuleOpen ? "accordion-grid-open" : ""}`}>
+                <div className="overflow-hidden">
                 <div className="border-t border-white/10">
 
                   {/* Objectif */}
@@ -199,7 +202,7 @@ export function SommaireClient({ modules, totalLessons }: Props) {
                             <svg
                               width="14" height="14" viewBox="0 0 24 24" fill="none"
                               stroke="currentColor" strokeWidth="2"
-                              className="flex-shrink-0 text-gray-600 group-hover:text-blue-400 transition-colors"
+                              className="flex-shrink-0 text-gray-600 group-hover:text-blue-400 transition-all duration-200 group-hover:translate-x-0.5"
                             >
                               <path d="m9 18 6-6-6-6" />
                             </svg>
@@ -217,33 +220,36 @@ export function SommaireClient({ modules, totalLessons }: Props) {
                       </p>
                       <div className="space-y-3">
                         {mod.exercises.map((ex) => (
-                          <div
+                          <Link
                             key={ex.lessonKey}
-                            className="bg-orange-500/5 border border-orange-500/15 rounded-xl p-4"
+                            href={`/exercices/${ex.lessonKey.replace("-", "/")}`}
+                            className="block bg-orange-500/5 border border-orange-500/15 rounded-xl p-4 hover:bg-orange-500/10 hover:border-orange-500/25 transition-all duration-200 hover:-translate-y-0.5 group"
                           >
-                            <h4 className="text-sm font-semibold text-orange-300 mb-1">{ex.title}</h4>
+                            <h4 className="text-sm font-semibold text-orange-300 mb-1 group-hover:text-orange-200 transition-colors">{ex.title}</h4>
                             <p className="text-xs text-gray-400 leading-relaxed">{ex.description}</p>
-                          </div>
+                          </Link>
                         ))}
                       </div>
                     </div>
                   )}
                 </div>
-              )}
+                </div>
+              </div>
             </div>
           );
         })}
       </div>
 
       {/* ── Lien Exercices ──────────────────────────────────────────────────── */}
-      <div className="mt-10 pt-8 border-t border-white/10 flex items-center justify-between">
+      <div className="mt-10 pt-8 border-t border-white/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <p className="text-sm text-gray-500">Tous les exercices de la formation</p>
         <Link
           href="/exercices"
-          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-orange-500/10 border border-orange-500/20 text-orange-300 text-sm font-medium hover:bg-orange-500/20 hover:border-orange-500/40 transition-colors"
+          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-orange-500/10 border border-orange-500/20 text-orange-300 text-sm font-medium hover:bg-orange-500/20 hover:border-orange-500/40 transition-all duration-200 group"
         >
           Voir tous les exercices
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
+            className="transition-transform duration-200 group-hover:translate-x-0.5">
             <path d="m9 18 6-6-6-6" />
           </svg>
         </Link>

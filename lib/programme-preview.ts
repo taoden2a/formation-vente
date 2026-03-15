@@ -37,7 +37,7 @@ export interface TemplatePreview {
 // ============================================================================
 // STRUCTURE DU PROGRAMME (PREVIEW ONLY)
 // Données publiques - peuvent être affichées sur la page marketing
-// Source : contenu formation.txt — 9 modules, 48 leçons, 29 exercices
+// Source : contenu formation.txt — 8 modules, 43 leçons, 26 exercices
 // ============================================================================
 
 export const programPreview: ModulePreview[] = [
@@ -178,24 +178,6 @@ export const programPreview: ModulePreview[] = [
   },
   {
     id: 8,
-    title: "Éthique, limites et crédibilité",
-    objective:
-      "Ne pas devenir un vendeur toxique ou dangereux. Ce module traite de l'éthique dans la vente et le marketing d'influence. On apprend à distinguer influence légitime et manipulation, et à bâtir une crédibilité durable.",
-    lessons: [
-      { id: 1, title: "Différence entre influence et manipulation" },
-      { id: 2, title: "Ce que la science permet / ne permet pas" },
-      { id: 3, title: "Promesses interdites et mensonges courants" },
-      { id: 4, title: "Construire une réputation long terme" },
-      { id: 5, title: "Pourquoi l'éthique fait vendre plus sur la durée" },
-    ],
-    exercises: [
-      "Identifier une promesse abusive",
-      "Réécrire une promesse honnête",
-      "Auto-audit de crédibilité",
-    ],
-  },
-  {
-    id: 9,
     title: "Mise en pratique finale",
     objective:
       "Passer de la théorie à l'action. Ce dernier module est consacré à des exercices intégrateurs pour appliquer tout ce qui a été appris dans les modules précédents — de la compréhension du cerveau à la construction d'une offre complète.",
@@ -218,7 +200,6 @@ export const templatesPreview: TemplatePreview[] = [
   { id: "sequence-email", title: "Séquence email type", type: "Template" },
   { id: "matrice-objections", title: "Matrice des objections", type: "Template" },
   { id: "tunnel-vente", title: "Schéma tunnel de vente", type: "Schema" },
-  { id: "audit-ethique", title: "Audit éthique", type: "PDF" },
 ];
 
 // ============================================================================

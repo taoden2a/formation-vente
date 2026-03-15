@@ -10,7 +10,7 @@ export function Footer() {
           <div className="space-y-4">
             <h3 className="font-semibold text-gray-900">Comprendre pour Vendre</h3>
             <p className="text-sm text-gray-600">
-              Formation complète pour apprendre à vendre et convaincre de manière éthique.
+              Formation complète pour apprendre à vendre et convaincre par la compréhension du cerveau humain.
             </p>
           </div>
 

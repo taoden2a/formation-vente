@@ -71,6 +71,8 @@ export default function ContactPage() {
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const [isFocused, setIsFocused] = useState<string | null>(null);
 
   const validateForm = () => {
@@ -100,10 +102,28 @@ export default function ContactPage() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (validateForm()) {
+    setSubmitError(null);
+    if (!validateForm()) return;
+
+    setIsLoading(true);
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setSubmitError(data.error ?? "Erreur lors de l'envoi. Veuillez réessayer.");
+        return;
+      }
       setIsSubmitted(true);
+    } catch {
+      setSubmitError("Erreur réseau. Vérifiez votre connexion et réessayez.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -121,28 +141,28 @@ export default function ContactPage() {
     <div className="min-h-screen bg-[#0a0a0f] text-white">
       <PageTransition>
         <BackgroundAnimated variant="dark" className="min-h-screen">
-          <div className="container-width py-16 md:py-24">
+          <div className="container-width py-10 md:py-16 lg:py-24">
             {/* Hero */}
             <ScrollReveal>
-              <div className="text-center mb-16">
-                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/10 border border-blue-500/20 mb-6">
+              <div className="text-center mb-8 md:mb-12 lg:mb-16">
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/10 border border-blue-500/20 mb-4 sm:mb-6">
                   <MessageCircleIcon size={18} className="text-blue-400" />
                   <span className="text-sm font-medium text-blue-300">Support</span>
                 </div>
-                <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
+                <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-3 sm:mb-4">
                   Contactez-nous
                 </h1>
-                <p className="text-lg text-gray-400 max-w-xl mx-auto">
+                <p className="text-base sm:text-lg text-gray-400 max-w-xl mx-auto">
                   Une question, un problème technique ou une suggestion ? Notre équipe est là pour vous aider.
                 </p>
               </div>
             </ScrollReveal>
 
-            <div className="max-w-5xl mx-auto grid lg:grid-cols-5 gap-12">
+            <div className="max-w-5xl mx-auto grid lg:grid-cols-5 gap-6 lg:gap-12">
               {/* Form */}
               <ScrollReveal delay={0.1} className="lg:col-span-3">
                 {isSubmitted ? (
-                  <div className="contact-success-card p-8 rounded-2xl text-center">
+                  <div className="contact-success-card p-5 sm:p-8 rounded-2xl text-center">
                     <div className="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-6">
                       <CheckCircleIcon size={32} className="text-green-400" />
                     </div>
@@ -163,7 +183,7 @@ export default function ContactPage() {
                     </button>
                   </div>
                 ) : (
-                  <form onSubmit={handleSubmit} className="contact-form-card p-8 rounded-2xl space-y-6">
+                  <form onSubmit={handleSubmit} className="contact-form-card p-5 sm:p-8 rounded-2xl space-y-5 sm:space-y-6">
                     {/* Name */}
                     <div className="space-y-2">
                       <label htmlFor="name" className="block text-sm font-medium text-gray-300">
@@ -276,12 +296,32 @@ export default function ContactPage() {
                       )}
                     </div>
 
+                    {/* Submit error */}
+                    {submitError && (
+                      <div className="flex items-start gap-2 px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/20">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-red-400 flex-shrink-0 mt-0.5">
+                          <circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" />
+                        </svg>
+                        <p className="text-sm text-red-400">{submitError}</p>
+                      </div>
+                    )}
+
                     {/* Submit */}
                     <button
                       type="submit"
-                      className="contact-submit-btn w-full py-4 rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 text-white font-semibold hover:from-orange-600 hover:to-orange-700 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-orange-500/25"
+                      disabled={isLoading}
+                      className="contact-submit-btn w-full py-4 rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 text-white font-semibold hover:from-orange-600 hover:to-orange-700 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-orange-500/25 disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                     >
-                      Envoyer le message
+                      {isLoading ? (
+                        <>
+                          <svg className="animate-spin" width="18" height="18" viewBox="0 0 24 24" fill="none">
+                            <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" strokeDasharray="32" strokeDashoffset="12" />
+                          </svg>
+                          Envoi en cours...
+                        </>
+                      ) : (
+                        "Envoyer le message"
+                      )}
                     </button>
                   </form>
                 )}
@@ -290,7 +330,7 @@ export default function ContactPage() {
               {/* Sidebar */}
               <ScrollReveal delay={0.2} className="lg:col-span-2 space-y-6">
                 {/* Support rapide */}
-                <div className="contact-info-card p-6 rounded-2xl space-y-6">
+                <div className="contact-info-card p-4 sm:p-6 rounded-2xl space-y-5 sm:space-y-6">
                   <h3 className="text-lg font-semibold text-white">Support rapide</h3>
 
                   <div className="space-y-4">
@@ -310,14 +350,14 @@ export default function ContactPage() {
                       </div>
                       <div>
                         <h4 className="text-sm font-medium text-white">Email direct</h4>
-                        <p className="text-sm text-gray-400">support@comprendrepourvendre.com</p>
+                        <p className="text-sm text-gray-400">deneutao@gmail.com</p>
                       </div>
                     </div>
                   </div>
                 </div>
 
                 {/* FAQ Link */}
-                <div className="contact-info-card p-6 rounded-2xl">
+                <div className="contact-info-card p-4 sm:p-6 rounded-2xl">
                   <div className="flex items-start gap-4">
                     <div className="w-10 h-10 rounded-lg bg-green-500/20 flex items-center justify-center flex-shrink-0">
                       <HelpCircleIcon size={18} className="text-green-400" />
@@ -338,7 +378,7 @@ export default function ContactPage() {
                 </div>
 
                 {/* Horaires */}
-                <div className="contact-info-card p-6 rounded-2xl">
+                <div className="contact-info-card p-4 sm:p-6 rounded-2xl">
                   <h4 className="text-sm font-medium text-white mb-3">Horaires du support</h4>
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">

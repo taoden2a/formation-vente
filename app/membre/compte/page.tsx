@@ -144,7 +144,7 @@ export default function ComptePage() {
             <div className="space-y-4">
               <h3 className="text-xl font-semibold">Programme d&apos;affiliation</h3>
               <p className="text-gray-600">
-                Recommandez la formation et gagnez 20% de commission sur chaque vente.
+                Recommandez la formation et gagnez 25% de commission sur chaque vente.
               </p>
               <Button variant="action" asChild>
                 <a href="/membre/affiliation">Accéder au programme d&apos;affiliation</a>

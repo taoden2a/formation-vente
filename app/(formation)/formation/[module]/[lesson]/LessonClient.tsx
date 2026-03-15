@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import Link from "next/link";
 import { useProgress } from "@/hooks/useProgress";
+import { BackNav } from "@/components/ui/BackNav";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -22,6 +23,7 @@ interface Props {
   prevLesson: NavLesson | null;
   nextLesson: NavLesson | null;
   totalLessons: number;
+  totalExercises: number;
   moduleLessons: ModuleLesson[];
 }
 
@@ -115,6 +117,7 @@ export function LessonClient({
   prevLesson,
   nextLesson,
   totalLessons,
+  totalExercises,
   moduleLessons,
 }: Props) {
   const { progress, isLoaded, toggleLessonStatus, getLessonStatus, getModuleProgress } = useProgress();
@@ -132,7 +135,7 @@ export function LessonClient({
     if (!isLoaded || hasAutoMarked.current) return;
     hasAutoMarked.current = true;
     const s = getLessonStatus(moduleId, lessonId);
-    if (s === "todo") toggleLessonStatus(moduleId, lessonId, totalLessons);
+    if (s === "todo") toggleLessonStatus(moduleId, lessonId, totalLessons, totalExercises);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoaded]);
 
@@ -156,22 +159,22 @@ export function LessonClient({
 
   return (
     <div className="min-h-screen bg-[#0a0a0f] text-white">
-      <div className="max-w-[1400px] mx-auto px-4 lg:px-6 py-10">
+      <div className="max-w-[1400px] mx-auto px-4 py-6 md:py-10">
 
-        {/* Breadcrumb — full width */}
-        <nav className="flex items-center gap-1.5 text-xs text-gray-500 mb-8 flex-wrap">
-          <Link href="/formation" className="hover:text-white transition-colors">Formation</Link>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="m9 18 6-6-6-6" />
-          </svg>
-          <span className="text-gray-600 truncate max-w-[200px]">{moduleTitle}</span>
-        </nav>
+        {/* Back nav */}
+        <BackNav
+          items={[
+            { label: "Formation", href: "/formation" },
+            { label: moduleTitle },
+            { label: title },
+          ]}
+        />
 
-        {/* 3-column grid — DOM order: center, left, right → correct mobile order via CSS order */}
-        <div className="grid grid-cols-1 lg:grid-cols-[320px_minmax(0,700px)_260px] gap-6 items-start">
+        {/* 3-column grid — mobile: 1 col | md: 2 col (content + notes) | lg: 3 col */}
+        <div className="grid grid-cols-1 md:grid-cols-[1fr_260px] lg:grid-cols-[320px_minmax(0,700px)_260px] gap-6 items-start">
 
-          {/* ── CENTER — Lesson content ── order-1 mobile, col-2 desktop */}
-          <main className="order-1 lg:col-start-2 lg:row-start-1 w-full">
+          {/* ── CENTER — Lesson content ── order-1 mobile, col-1 at md, col-2 at lg */}
+          <main className="order-1 md:col-start-1 md:row-start-1 lg:col-start-2 lg:row-start-1 w-full">
 
             {/* Module badge */}
             <div className="flex items-center gap-2.5 mb-5">
@@ -186,10 +189,10 @@ export function LessonClient({
 
             {/* Status button */}
             <button
-              onClick={() => toggleLessonStatus(moduleId, lessonId, totalLessons)}
-              className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all mb-10 ${
+              onClick={() => toggleLessonStatus(moduleId, lessonId, totalLessons, totalExercises)}
+              className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 mb-6 md:mb-10 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.97] ${
                 status === "completed"
-                  ? "bg-green-500/20 text-green-400 border border-green-500/30"
+                  ? "bg-green-500/20 text-green-400 border border-green-500/30 hover:bg-green-500/25"
                   : status === "in_progress"
                   ? "bg-orange-500/10 text-orange-400 border border-orange-500/20 hover:bg-orange-500/20"
                   : "bg-white/5 text-gray-400 border border-white/10 hover:bg-white/10"
@@ -282,7 +285,7 @@ export function LessonClient({
               {prevLesson ? (
                 <Link
                   href={prevLesson.href}
-                  className="flex items-center gap-2 px-4 py-3.5 rounded-xl bg-white/5 border border-white/10 hover:bg-white/[0.08] hover:border-white/20 transition-colors group"
+                  className="flex items-center gap-2 px-4 py-3.5 rounded-xl bg-white/5 border border-white/10 hover:bg-white/[0.08] hover:border-white/20 transition-all duration-200 hover:-translate-y-0.5 group"
                 >
                   <ArrowLeft />
                   <div className="min-w-0">
@@ -295,7 +298,7 @@ export function LessonClient({
               {nextLesson ? (
                 <Link
                   href={nextLesson.href}
-                  className="flex items-center justify-end gap-2 px-4 py-3.5 rounded-xl bg-white/5 border border-white/10 hover:bg-white/[0.08] hover:border-white/20 transition-colors group text-right"
+                  className="flex items-center justify-end gap-2 px-4 py-3.5 rounded-xl bg-white/5 border border-white/10 hover:bg-white/[0.08] hover:border-white/20 transition-all duration-200 hover:-translate-y-0.5 group text-right"
                 >
                   <div className="min-w-0">
                     <div className="text-xs text-gray-500 mb-0.5">Suivant</div>
@@ -306,7 +309,7 @@ export function LessonClient({
               ) : (
                 <Link
                   href="/formation"
-                  className="flex items-center justify-end gap-2 px-4 py-3.5 rounded-xl bg-orange-500/10 border border-orange-500/20 hover:bg-orange-500/20 transition-colors group text-right"
+                  className="flex items-center justify-end gap-2 px-4 py-3.5 rounded-xl bg-orange-500/10 border border-orange-500/20 hover:bg-orange-500/20 transition-all duration-200 hover:-translate-y-0.5 group text-right"
                 >
                   <div>
                     <div className="text-xs text-orange-400/70 mb-0.5">Formation terminée</div>
@@ -319,8 +322,8 @@ export function LessonClient({
 
           </main>
 
-          {/* ── LEFT — Notes ── order-2 mobile, col-1 desktop, full height sticky */}
-          <aside className="order-2 lg:col-start-1 lg:row-start-1 lg:sticky lg:top-16 lg:h-[calc(100vh-4rem)]">
+          {/* ── LEFT — Notes ── order-3 mobile, col-2/row-1 at md (sticky right panel), col-1 at lg */}
+          <aside className="order-3 md:col-start-2 md:row-start-1 lg:col-start-1 lg:row-start-1 md:sticky md:top-16 lg:h-[calc(100vh-4rem)]">
             <div className="bg-white/5 border border-white/10 rounded-2xl p-5 lg:flex lg:flex-col lg:h-full">
               <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-3 flex items-center gap-2 flex-shrink-0">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -335,14 +338,14 @@ export function LessonClient({
                 onBlur={handleNoteBlur}
                 placeholder="Notez vos réflexions ici…"
                 rows={8}
-                className="flex-1 min-h-0 w-full px-3 py-3 rounded-xl bg-white/[0.04] border border-white/10 text-white placeholder-gray-600 focus:border-orange-500/40 focus:ring-2 focus:ring-orange-500/10 outline-none resize-none transition-colors text-sm leading-7"
+                className="flex-1 min-h-0 w-full px-3 py-3 rounded-xl bg-white/[0.04] border border-white/10 text-white placeholder-gray-600 focus:border-orange-500/40 focus:ring-2 focus:ring-orange-500/10 focus:bg-white/[0.06] outline-none resize-none transition-all duration-200 text-sm leading-7"
               />
               <p className="text-xs text-gray-600 mt-2 flex-shrink-0">Sauvegarde automatique</p>
             </div>
           </aside>
 
-          {/* ── RIGHT — Module nav ── order-3 mobile, col-3 desktop */}
-          <aside className="order-3 lg:col-start-3 lg:row-start-1 lg:sticky lg:top-20">
+          {/* ── RIGHT — Module nav ── order-2 mobile, col-span-2/row-2 at md, col-3/row-1 at lg */}
+          <aside className="order-2 md:col-start-1 md:col-span-2 md:row-start-2 lg:col-start-3 lg:col-span-1 lg:row-start-1 lg:sticky lg:top-20">
             <div className="bg-white/5 border border-white/10 rounded-2xl p-5 space-y-5">
 
               {/* Module header + progress */}
@@ -368,7 +371,7 @@ export function LessonClient({
               <div className="border-t border-white/10" />
 
               {/* Lesson list */}
-              <div className="space-y-0.5 max-h-72 overflow-y-auto">
+              <div className="space-y-0.5 lg:max-h-72 lg:overflow-y-auto">
                 {moduleLessons.map((l) => {
                   const lStatus   = isLoaded ? getLessonStatus(moduleId, l.id) : "todo";
                   const isCurrent = l.id === lessonId;
@@ -401,7 +404,18 @@ export function LessonClient({
               </div>
 
               {/* Exercise link */}
-              {moduleHasExercise && (
+              {exercise ? (
+                <Link
+                  href={`/exercices/${moduleId}/${lessonId}`}
+                  className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-orange-500/10 border border-orange-500/25 text-orange-300 text-sm hover:bg-orange-500/15 hover:border-orange-500/40 transition-all duration-200 hover:-translate-y-0.5 font-medium"
+                >
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M9 11l3 3L22 4" />
+                    <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+                  </svg>
+                  Faire l&apos;exercice
+                </Link>
+              ) : moduleHasExercise ? (
                 <Link
                   href="/exercices"
                   className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-orange-500/5 border border-orange-500/15 text-orange-300/80 text-sm hover:bg-orange-500/10 hover:border-orange-500/30 transition-colors"
@@ -412,7 +426,7 @@ export function LessonClient({
                   </svg>
                   Exercices du module
                 </Link>
-              )}
+              ) : null}
 
             </div>
           </aside>

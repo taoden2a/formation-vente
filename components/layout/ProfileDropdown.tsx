@@ -87,8 +87,30 @@ interface ProfileDropdownProps {
   variant?: 'marketing' | 'product'
 }
 
+function NotesIcon({ className = "", size = 18 }: { className?: string; size?: number }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+    >
+      <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
+      <polyline points="14 2 14 8 20 8" />
+      <line x1="16" x2="8" y1="13" y2="13" />
+      <line x1="16" x2="8" y1="17" y2="17" />
+    </svg>
+  )
+}
+
 const profileMenuItems = [
   { label: 'Mon compte', href: '/membre', icon: UserIcon },
+  { label: 'Mes notes', href: '/notes', icon: NotesIcon },
   { label: 'Affiliation', href: '/affiliation', icon: LinkIcon },
   { label: 'Paramètres', href: '/parametres', icon: SettingsIcon },
 ]
@@ -96,35 +118,32 @@ const profileMenuItems = [
 export function ProfileDropdown({ isAuthenticated, variant = 'product' }: ProfileDropdownProps) {
   const [isOpen, setIsOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
+  // Ref mirrors isOpen — allows scroll/click handlers to read state without re-registering
+  const isOpenRef = useRef(false)
 
-  // Close dropdown on click outside
+  const open = () => { isOpenRef.current = true; setIsOpen(true) }
+  const close = () => { isOpenRef.current = false; setIsOpen(false) }
+  const toggle = () => { if (isOpenRef.current) close(); else open() }
+
+  // Close on click outside — registered once, reads state via ref
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsOpen(false)
+      if (isOpenRef.current && dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        close()
       }
     }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
 
-    if (isOpen) {
-      document.addEventListener('mousedown', handleClickOutside)
-    }
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
-    }
-  }, [isOpen])
-
-  // Close dropdown on scroll
+  // Close on scroll — registered once, no deps, reads state via ref
   useEffect(() => {
     const handleScroll = () => {
-      if (isOpen) {
-        setIsOpen(false)
-      }
+      if (isOpenRef.current) close()
     }
-
     window.addEventListener('scroll', handleScroll, { passive: true })
     return () => window.removeEventListener('scroll', handleScroll)
-  }, [isOpen])
+  }, [])
 
   // If not authenticated, show login button
   if (!isAuthenticated) {
@@ -142,7 +161,7 @@ export function ProfileDropdown({ isAuthenticated, variant = 'product' }: Profil
   return (
     <div ref={dropdownRef} className="relative">
       <button
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={toggle}
         className={clsx(
           'profile-button',
           isOpen && 'profile-button-active'
@@ -169,7 +188,7 @@ export function ProfileDropdown({ isAuthenticated, variant = 'product' }: Profil
                 key={item.href}
                 href={item.href}
                 className="profile-dropdown-item"
-                onClick={() => setIsOpen(false)}
+                onClick={close}
               >
                 <Icon size={16} />
                 <span>{item.label}</span>
@@ -185,7 +204,7 @@ export function ProfileDropdown({ isAuthenticated, variant = 'product' }: Profil
             <button
               type="submit"
               className="profile-dropdown-item profile-dropdown-logout"
-              onClick={() => setIsOpen(false)}
+              onClick={close}
             >
               <LogoutIcon size={16} />
               <span>Se déconnecter</span>

@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { MAIN_COURSE_SLUG } from "@/lib/acces";
@@ -8,7 +8,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2023-10-16",
 });
 
-export async function POST() {
+export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
 
   if (!session?.user?.email) {
@@ -26,14 +26,30 @@ export async function POST() {
     );
   }
 
+  // Lire le cookie d'affiliation
+  const cookieHeader = req.headers.get("cookie") ?? "";
+  const affiliateMatch = cookieHeader.match(/affiliate_ref=([^;]+)/);
+  const affiliateRef = affiliateMatch
+    ? decodeURIComponent(affiliateMatch[1])
+    : undefined;
+
   try {
+    const metadata: Record<string, string> = {
+      userId,
+      courseSlug: MAIN_COURSE_SLUG,
+    };
+
+    if (affiliateRef) {
+      metadata.affiliate = affiliateRef;
+    }
+
     const checkoutSession = await stripe.checkout.sessions.create({
       mode: "payment",
       line_items: [{ price: process.env.STRIPE_PRICE_ID!, quantity: 1 }],
       success_url: `${process.env.NEXTAUTH_URL}/paiement/succes`,
       cancel_url: `${process.env.NEXTAUTH_URL}/paiement/annule`,
       customer_email: session.user.email,
-      metadata: { userId, courseSlug: MAIN_COURSE_SLUG },
+      metadata,
     });
 
     return NextResponse.json({ url: checkoutSession.url });

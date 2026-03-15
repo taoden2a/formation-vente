@@ -9,7 +9,7 @@
  */
 
 import { notFound } from "next/navigation";
-import { programModules, getTotalLessons } from "@/lib/server/programme-content";
+import { programModules, getTotalLessons, getTotalExercises } from "@/lib/server/programme-content";
 import { LessonClient } from "./LessonClient";
 
 interface PageProps {
@@ -32,6 +32,7 @@ export default function LessonPage({ params }: PageProps) {
 
   const lesson = mod.lessons[lessonIdx];
   const totalLessons = getTotalLessons();
+  const totalExercises = getTotalExercises();
 
   const moduleLessons = mod.lessons.map((l) => ({
     id: l.id,
@@ -91,6 +92,7 @@ export default function LessonPage({ params }: PageProps) {
       prevLesson={prevLesson}
       nextLesson={nextLesson}
       totalLessons={totalLessons}
+      totalExercises={totalExercises}
       moduleLessons={moduleLessons}
     />
   );

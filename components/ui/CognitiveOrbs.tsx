@@ -131,6 +131,7 @@ export function CognitiveOrbs({ titleRef, className = "" }: CognitiveOrbsProps) 
   }, [isEnabled, titleRef]);
 
   // Animation loop — direct DOM manipulation, ZERO forceUpdate / React re-renders
+  // IntersectionObserver pauses the loop when the component is off-screen
   useEffect(() => {
     if (!isEnabled || !initialized) return;
 
@@ -216,12 +217,43 @@ export function CognitiveOrbs({ titleRef, className = "" }: CognitiveOrbsProps) 
       animationFrameRef.current = requestAnimationFrame(animate);
     };
 
-    isRunningRef.current = true;
-    animationFrameRef.current = requestAnimationFrame(animate);
+    const startLoop = () => {
+      if (!isRunningRef.current) {
+        isRunningRef.current = true;
+        animationFrameRef.current = requestAnimationFrame(animate);
+      }
+    };
+
+    const stopLoop = () => {
+      isRunningRef.current = false;
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+        animationFrameRef.current = 0;
+      }
+    };
+
+    // IntersectionObserver — pause loop when off-screen, resume when visible
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          startLoop();
+        } else {
+          stopLoop();
+        }
+      },
+      { threshold: 0 }
+    );
+
+    if (containerRef.current) {
+      observer.observe(containerRef.current);
+    }
+
+    // Start immediately if already visible
+    startLoop();
 
     return () => {
-      isRunningRef.current = false;
-      if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
+      stopLoop();
+      observer.disconnect();
     };
   }, [isEnabled, initialized]);
 

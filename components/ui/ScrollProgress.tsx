@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef } from "react";
 
 interface ScrollProgressProps {
   className?: string;
@@ -8,19 +8,24 @@ interface ScrollProgressProps {
 }
 
 export function ScrollProgress({ className = "", height = 2 }: ScrollProgressProps) {
-  const [progress, setProgress] = useState(0);
+  const barRef = useRef<HTMLDivElement>(null);
 
+  // Direct DOM update — no setState, no React re-render on scroll
   useEffect(() => {
+    const bar = barRef.current;
+    if (!bar) return;
+
     const updateProgress = () => {
       const scrollTop = window.scrollY;
       const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-      const scrollProgress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
-      setProgress(scrollProgress);
+      const ratio = docHeight > 0 ? scrollTop / docHeight : 0;
+      // scaleX on compositor thread — no layout recalculation
+      bar.style.transform = `scaleX(${ratio})`;
+      bar.style.boxShadow = ratio > 0 ? "0 0 10px rgba(59, 130, 246, 0.5)" : "none";
     };
 
-    window.addEventListener("scroll", updateProgress, { passive: true });
     updateProgress();
-
+    window.addEventListener("scroll", updateProgress, { passive: true });
     return () => window.removeEventListener("scroll", updateProgress);
   }, []);
 
@@ -30,10 +35,13 @@ export function ScrollProgress({ className = "", height = 2 }: ScrollProgressPro
       style={{ height }}
     >
       <div
-        className="h-full bg-gradient-to-r from-blue-500 via-orange-500 to-green-500 transition-all duration-150 ease-out"
+        ref={barRef}
+        className="h-full w-full bg-gradient-to-r from-blue-500 via-orange-500 to-green-500"
         style={{
-          width: `${progress}%`,
-          boxShadow: progress > 0 ? "0 0 10px rgba(59, 130, 246, 0.5)" : "none",
+          transformOrigin: "left",
+          transform: "scaleX(0)",
+          transition: "transform 0.1s ease-out",
+          willChange: "transform",
         }}
       />
     </div>

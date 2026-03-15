@@ -32,12 +32,13 @@ export function BackgroundAnimated({
 
   const isV7 = variant === "hero-v7";
   const isV8 = variant === "hero-v8";
+  const isHero = variant === "hero" || isV7 || isV8;
 
   return (
     <div id={id} className={`relative overflow-hidden ${className}`}>
-      {/* Animated gradient background */}
+      {/* Animated gradient background — hero only, static for dark/darker */}
       <div
-        className={`absolute inset-0 ${getVariantClasses()} animate-gradient-slow`}
+        className={`absolute inset-0 ${getVariantClasses()}${isHero ? " animate-gradient-slow" : ""}`}
       />
 
       {/* V7 cinematic animated layer */}

@@ -128,7 +128,7 @@ export default function CGVPage() {
                       <h2 className="text-xl font-semibold text-white mb-4">Article 2 — Accès à la formation</h2>
                       <div className="space-y-3 text-gray-300 leading-relaxed">
                         <p>
-                          <strong>2.1 Contenu :</strong> La formation « Comprendre pour Vendre » est une formation en ligne composée de 9 modules et 27 leçons vidéo, accompagnées de ressources téléchargeables (templates, exercices, fiches de synthèse).
+                          <strong>2.1 Contenu :</strong> La formation « Comprendre pour Vendre » est une formation en ligne composée de 8 modules et 43 leçons, accompagnées de ressources téléchargeables (templates, exercices, fiches de synthèse).
                         </p>
                         <p>
                           <strong>2.2 Accès :</strong> L&apos;accès à la formation est accordé immédiatement après confirmation du paiement. Un email contenant les identifiants de connexion est envoyé à l&apos;adresse email fournie lors de la commande.
@@ -152,7 +152,7 @@ export default function CGVPage() {
                           <strong>3.1 Prix :</strong> Le prix de la formation est indiqué en euros TTC sur la page de vente. Le Vendeur se réserve le droit de modifier ses prix à tout moment, mais les produits seront facturés au prix en vigueur au moment de la validation de la commande.
                         </p>
                         <p>
-                          <strong>3.2 Modalités de paiement :</strong> Le paiement peut être effectué par carte bancaire (Visa, Mastercard, American Express) via la plateforme sécurisée Stripe, ou par PayPal. Un paiement en 3 fois sans frais est également disponible.
+                          <strong>3.2 Modalités de paiement :</strong> Le paiement peut être effectué par carte bancaire (Visa, Mastercard, American Express) via la plateforme sécurisée Stripe.
                         </p>
                         <p>
                           <strong>3.3 Sécurité :</strong> Toutes les transactions sont sécurisées par chiffrement SSL. Le Vendeur n&apos;a jamais accès aux informations bancaires du Client.
@@ -167,13 +167,13 @@ export default function CGVPage() {
                       <h2 className="text-xl font-semibold text-white mb-4">Article 4 — Droit de rétractation</h2>
                       <div className="space-y-3 text-gray-300 leading-relaxed">
                         <p>
-                          <strong>4.1 Garantie satisfait ou remboursé :</strong> Le Vendeur offre une garantie satisfait ou remboursé de 30 jours à compter de la date d&apos;achat. Durant cette période, le Client peut demander un remboursement intégral sans justification.
+                          <strong>4.1 Garantie satisfait ou remboursé :</strong> Le Vendeur offre une garantie satisfait ou remboursé de 14 jours à compter de la date d&apos;achat. Durant cette période, le Client peut demander un remboursement intégral sans justification.
                         </p>
                         <p>
                           <strong>4.2 Procédure :</strong> Pour exercer ce droit, le Client doit envoyer une demande via le formulaire de contact ou par email. Le remboursement est effectué dans un délai de 14 jours suivant la réception de la demande, via le même moyen de paiement que celui utilisé lors de l&apos;achat.
                         </p>
                         <p>
-                          <strong>4.3 Après la période de garantie :</strong> Passé le délai de 30 jours, conformément à l&apos;article L221-28 du Code de la consommation, le droit de rétractation ne peut être exercé pour les contenus numériques fournis sur un support immatériel dont l&apos;exécution a commencé avec l&apos;accord du consommateur.
+                          <strong>4.3 Après la période de garantie :</strong> Passé le délai de 14 jours, conformément à l&apos;article L221-28 du Code de la consommation, le droit de rétractation ne peut être exercé pour les contenus numériques fournis sur un support immatériel dont l&apos;exécution a commencé avec l&apos;accord du consommateur.
                         </p>
                       </div>
                     </section>

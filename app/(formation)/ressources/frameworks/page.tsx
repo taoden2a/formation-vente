@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export const metadata = {
   title: "Frameworks de persuasion | Comprendre pour Vendre",
-  description: "Structures d'argumentation éprouvées pour persuader avec intégrité.",
+  description: "Structures d'argumentation éprouvées pour persuader efficacement.",
 };
 
 export default function FrameworksPage() {
@@ -33,7 +33,7 @@ export default function FrameworksPage() {
             <span className="text-sm font-medium text-gray-400">Ressources exclusives</span>
           </div>
           <h1 className="text-3xl font-bold text-white mb-2">Frameworks de persuasion</h1>
-          <p className="text-gray-400">Structures d&apos;argumentation éprouvées pour persuader avec intégrité.</p>
+          <p className="text-gray-400">Structures d&apos;argumentation éprouvées pour persuader efficacement.</p>
         </div>
 
         {/* Coming soon */}

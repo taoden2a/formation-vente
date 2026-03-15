@@ -107,4 +107,87 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   if (process.env.NODE_ENV === "development") {
     console.log("Webhook: accès créé pour user", resolvedUserId, "cours", course.id);
   }
+
+  // Attribution de commission affilié
+  const affiliateCode = session.metadata?.affiliate;
+  if (
+    affiliateCode &&
+    session.payment_status === "paid" &&
+    (session.amount_total ?? 0) > 0
+  ) {
+    await handleAffiliateCommission({
+      affiliateCode,
+      buyerUserId: resolvedUserId,
+      stripeSessionId: session.id,
+      amountCents: session.amount_total ?? 0,
+    });
+  }
+}
+
+async function handleAffiliateCommission({
+  affiliateCode,
+  buyerUserId,
+  stripeSessionId,
+  amountCents,
+}: {
+  affiliateCode: string;
+  buyerUserId: string;
+  stripeSessionId: string;
+  amountCents: number;
+}) {
+  // Trouver l'affilié
+  const affiliate = await prisma.affiliate.findUnique({
+    where: { code: affiliateCode },
+  });
+
+  if (!affiliate || !affiliate.isActive) {
+    console.warn("Webhook affiliation: code affilié invalide ou inactif:", affiliateCode);
+    return;
+  }
+
+  // Ne pas attribuer de commission si c'est l'affilié lui-même qui achète
+  if (affiliate.userId === buyerUserId) {
+    if (process.env.NODE_ENV === "development") {
+      console.log("Webhook affiliation: auto-achat ignoré pour", affiliateCode);
+    }
+    return;
+  }
+
+  // Calculer la commission (25%)
+  const commissionCents = Math.round(amountCents * (affiliate.commissionRate / 100));
+
+  // Créer la vente affiliée (upsert par stripeSessionId pour dédoublonnage)
+  try {
+    await prisma.affiliateSale.create({
+      data: {
+        affiliateId: affiliate.id,
+        buyerUserId,
+        stripeSessionId,
+        amount: amountCents,
+        commission: commissionCents,
+        status: "pending",
+      },
+    });
+
+    // Mettre à jour le total des gains
+    await prisma.affiliate.update({
+      where: { id: affiliate.id },
+      data: { totalEarnings: { increment: commissionCents } },
+    });
+
+    if (process.env.NODE_ENV === "development") {
+      console.log(
+        `Webhook affiliation: commission ${commissionCents / 100}€ enregistrée pour affilié ${affiliateCode}`
+      );
+    }
+  } catch (err: unknown) {
+    // Erreur de contrainte unique = vente déjà traitée (dédoublonnage)
+    const isUniqueConstraint =
+      err instanceof Error && err.message.includes("Unique constraint");
+    if (isUniqueConstraint) {
+      console.warn("Webhook affiliation: session déjà traitée:", stripeSessionId);
+    } else {
+      console.error("Webhook affiliation: erreur création commission:", err);
+    }
+  }
 }
