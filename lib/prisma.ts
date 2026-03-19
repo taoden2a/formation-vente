@@ -8,6 +8,13 @@ const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined
 }
 
-export const prisma = globalForPrisma.prisma ?? new PrismaClient()
+export const prisma =
+  globalForPrisma.prisma ??
+  new PrismaClient({
+    log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
+  })
 
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
+// Toujours conserver le singleton global — en production comme en dev.
+// Sans ça, chaque invocation Vercel (warm lambda) crée un nouveau PrismaClient
+// et épuise le pool de connexions Supabase (max 20 sur plan gratuit).
+globalForPrisma.prisma = prisma

@@ -85,38 +85,47 @@ function InscriptionForm() {
     setLoading(true);
     setLoadingStep("register");
 
-    const res = await fetch("/api/auth/register", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
-    });
+    try {
+      const res = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
 
-    const data = await res.json();
+      // Lecture défensive : le serveur peut renvoyer du HTML en cas d'erreur 500
+      let data: { error?: string } = {};
+      try { data = await res.json(); } catch { /* réponse non-JSON */ }
 
-    if (!res.ok) {
-      setError(data.error ?? "Une erreur est survenue. Veuillez réessayer.");
+      if (!res.ok) {
+        setError(data.error ?? "Une erreur est survenue. Veuillez réessayer.");
+        triggerShake();
+        setLoading(false);
+        return;
+      }
+
+      // Auto sign-in after account creation
+      const signInRes = await signIn("credentials", {
+        email,
+        password,
+        redirect: false,
+      });
+
+      if (!signInRes || signInRes.error) {
+        // Compte créé mais sign-in échoué — envoyer vers connexion
+        window.location.href = `/connexion${isCheckout ? "?next=checkout" : ""}`;
+        return;
+      }
+
+      if (isCheckout) {
+        await triggerCheckout();
+      } else {
+        window.location.href = next;
+      }
+    } catch {
+      // Erreur réseau ou exception non prévue
+      setError("Connexion impossible. Vérifiez votre connexion internet.");
       triggerShake();
       setLoading(false);
-      return;
-    }
-
-    // Auto sign-in after account creation
-    const signInRes = await signIn("credentials", {
-      email,
-      password,
-      redirect: false,
-    });
-
-    if (!signInRes || signInRes.error) {
-      // Account created but auto sign-in failed — send to connexion
-      window.location.href = `/connexion${isCheckout ? "?next=checkout" : ""}`;
-      return;
-    }
-
-    if (isCheckout) {
-      await triggerCheckout();
-    } else {
-      window.location.href = next;
     }
   }
 

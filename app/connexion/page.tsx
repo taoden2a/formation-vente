@@ -65,25 +65,32 @@ function ConnexionForm() {
     setLoading(true);
     setLoadingStep("login");
 
-    const res = await signIn("credentials", {
-      email,
-      password,
-      redirect: false,
-      callbackUrl: isCheckout ? "/" : next,
-    });
+    try {
+      const res = await signIn("credentials", {
+        email,
+        password,
+        redirect: false,
+        callbackUrl: isCheckout ? "/" : next,
+      });
 
-    if (!res || res.error) {
-      setLoading(false);
-      setError("Email ou mot de passe incorrect.");
+      if (!res || res.error) {
+        setLoading(false);
+        setError("Email ou mot de passe incorrect.");
+        setShake(true);
+        setTimeout(() => setShake(false), 400);
+        return;
+      }
+
+      if (isCheckout) {
+        await triggerCheckout();
+      } else {
+        window.location.href = res.url ?? next;
+      }
+    } catch {
+      setError("Connexion impossible. Vérifiez votre connexion internet.");
       setShake(true);
       setTimeout(() => setShake(false), 400);
-      return;
-    }
-
-    if (isCheckout) {
-      await triggerCheckout();
-    } else {
-      window.location.href = res.url ?? next;
+      setLoading(false);
     }
   }
 

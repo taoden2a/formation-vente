@@ -159,6 +159,10 @@ Sécurité :
 
 ### Prisma / DB
 - Client singleton dans `lib/prisma.ts` avec guard `DATABASE_URL`
+- **Singleton always set** : `globalForPrisma.prisma = prisma` sans condition (fix pool exhaustion Vercel)
+- **`DATABASE_URL` doit être le pooler Supabase** (port 6543, pgbouncer) — PAS la connexion directe (port 5432 bloqué par Vercel)
+  - Pooler : `postgresql://postgres.xxxx:[PWD]@aws-0-eu-west-1.pooler.supabase.com:6543/postgres?pgbouncer=true`
+  - Direct : `postgresql://postgres:[PWD]@db.xxxx.supabase.co:5432/postgres` (→ `DIRECT_URL` uniquement)
 - Models: User, Course, Module, Lesson, Enrollment, Payment, Progress, Note, etc.
 - Seed script: `prisma/seed.ts` (crée le cours principal)
 
@@ -287,6 +291,7 @@ Sécurité :
 | 2026-03-15 | **Menu mobile** – Hamburger ajouté dans `Header.tsx` : drawer slide-in, fermeture au clic extérieur et au changement de route, body scroll lock, authSlot dans le menu |
 | 2026-03-15 | **Menu mobile V2** – Fixes visibilité : bouton `bg-white/5`→`bg-white/10` + `border border-white/20` + `active:bg-white/20` ; drawer `bg-[#0a0a0f]/98`→`bg-[#0a0a0f]` (opaque, plus transparent) ; `z-40`→`z-50` ; liens `text-gray-400`→`text-white/80` ; `py-3`→`py-3.5` |
 | 2026-03-19 | **Inscription + tunnel achat** – `app/inscription/page.tsx` + `app/api/auth/register/route.ts` créés ; pages connexion/inscription : param `next=checkout` déclenche POST `/api/stripe/checkout` automatiquement après auth (0 clic supplémentaire) ; banner contextuel formation (59€ + Stripe) affiché si `next=checkout` ; `CheckoutButton` : 401 → `/inscription?next=checkout` ; loadingStep "login/register" → "checkout" avec message dédié |
+| 2026-03-19 | **Fix spinner infini signup** – 3 causes corrigées : (1) `register/route.ts` : try/catch global sur Prisma + bcrypt, cost réduit 12→10 (évite timeout Vercel), logs `[register]` ; (2) frontend `inscription/page.tsx` : `res.json()` défensif + `onSubmit` wrappé try/catch global + `setLoading(false)` garanti ; (3) `connexion/page.tsx` : même pattern |
 | 2026-03-15 | **Cohérence contenu produit** – Garantie partout → 14 jours (FAQ, CGV) ; Commission → 25% (FAQ, AffiliationClient, compte) ; Paiement affiliés → dès 1ère vente, aucun seuil (AffiliationClient FAQ) ; Paiement en 3 fois → supprimé de CGV et FAQ |
 | 2026-03-15 | **Page connexion** – Redirect post-login → `/formation` (au lieu de `/membre`) ; lien "Mot de passe oublié" → `/contact?subject=probleme-technique` ; CTA "Pas encore membre ? Découvrir la formation" → `/#prix` |
 | 2026-03-15 | **Navigation** – `/programme` : membres avec accès redirigés vers `/formation` ; ProfileDropdown : ajout "Mes notes" → `/notes` |
