@@ -1,8 +1,7 @@
-import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { userHasAccess } from "@/lib/acces";
-import { PricingGate } from "@/components/PricingGate";
+import { Paywall } from "@/components/Paywall";
 
 export default async function FormationLayout({
   children,
@@ -10,22 +9,12 @@ export default async function FormationLayout({
   children: React.ReactNode;
 }) {
   const session = await getServerSession(authOptions);
+  const userId = (session?.user as { id?: string })?.id;
+  const hasAccess = userId ? await userHasAccess(userId) : false;
 
-  // Non connecté → page connexion
-  if (!session?.user) {
-    redirect("/connexion");
-  }
-
-  const userId = (session.user as { id?: string }).id;
-  if (!userId) {
-    redirect("/connexion");
-  }
-
-  const hasAccess = await userHasAccess(userId);
-
-  // Connecté mais pas payé → PricingGate (zéro contenu formation exposé)
+  // Sans accès (non connecté ou connecté sans paiement) → Paywall unifié
   if (!hasAccess) {
-    return <PricingGate />;
+    return <Paywall isLoggedIn={!!session?.user} />;
   }
 
   return <>{children}</>;
