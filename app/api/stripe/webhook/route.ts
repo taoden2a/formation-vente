@@ -100,19 +100,10 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     },
   });
 
-  // Créer l'Enrollment s'il n'existe pas déjà
-  await prisma.enrollment.upsert({
-    where: {
-      userId_courseId: {
-        userId: resolvedUserId,
-        courseId: course.id,
-      },
-    },
-    update: {},
-    create: {
-      userId: resolvedUserId,
-      courseId: course.id,
-    },
+  // Activer l'accès : user.paid = true
+  await prisma.user.update({
+    where: { id: resolvedUserId },
+    data: { paid: true },
   });
 
   console.log("[webhook] accès activé pour user", resolvedUserId, "cours", course.id);

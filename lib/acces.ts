@@ -7,41 +7,28 @@ export const MAIN_COURSE_SLUG = "formation-vente";
  *
  * Logique d'acces :
  * 1. Si l'utilisateur a le role 'admin' → acces immediat
- * 2. Sinon, verification de l'enrollment dans la formation
+ * 2. Si user.paid === true → acces (paiement Stripe confirmé)
  *
  * @param userId - ID de l'utilisateur
  * @returns true si l'utilisateur a acces, false sinon
  */
 export async function userHasAccess(userId: string): Promise<boolean> {
-  // Etape 1 : Recuperer l'utilisateur avec son role
   const user = await prisma.user.findUnique({
     where: { id: userId },
-    select: { role: true },
+    select: { role: true, paid: true },
   });
 
-  if (!user) {
-    return false;
-  }
+  if (!user) return false;
 
-  // Etape 2 : Acces immediat pour les admins
-  if (user.role === "admin") {
-    return true;
-  }
+  // Admins ont toujours accès
+  if (user.role === "admin") return true;
 
-  // Etape 3 : Verification enrollment pour les utilisateurs normaux
-  const enrollment = await prisma.enrollment.findFirst({
-    where: {
-      userId,
-      course: { slug: MAIN_COURSE_SLUG },
-    },
-  });
-
-  return !!enrollment;
+  // Accès conditionné au paiement
+  return user.paid;
 }
 
 /**
  * Verifie si un utilisateur est admin.
- * Utile pour afficher des elements specifiques dans l'UI (cote serveur uniquement).
  *
  * @param userId - ID de l'utilisateur
  * @returns true si l'utilisateur est admin

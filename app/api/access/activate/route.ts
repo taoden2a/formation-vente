@@ -12,7 +12,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 /**
  * POST /api/access/activate
  * Failsafe : si le webhook Stripe n'a pas déclenché, cette route
- * vérifie directement la session Stripe et crée l'enrollment si le paiement est confirmé.
+ * vérifie directement la session Stripe et active l'accès (user.paid = true) si le paiement est confirmé.
  *
  * Body: { sessionId: string }
  */
@@ -55,7 +55,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ activated: false, error: "Paiement non confirmé" }, { status: 402 });
     }
 
-    // Trouver le cours
+    // Trouver le cours (pour le Payment record)
     const course = await prisma.course.findUnique({
       where: { slug: MAIN_COURSE_SLUG },
     });
@@ -65,7 +65,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ activated: false, error: "Cours introuvable" }, { status: 500 });
     }
 
-    // Upsert Payment
+    // Upsert Payment (historique)
     await prisma.payment.upsert({
       where: { stripeSessionId: sessionId },
       update: {
@@ -83,13 +83,10 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    // Upsert Enrollment
-    await prisma.enrollment.upsert({
-      where: {
-        userId_courseId: { userId, courseId: course.id },
-      },
-      update: {},
-      create: { userId, courseId: course.id },
+    // Activer l'accès : user.paid = true
+    await prisma.user.update({
+      where: { id: userId },
+      data: { paid: true },
     });
 
     console.log("[activate] accès activé (failsafe) pour user", userId);
