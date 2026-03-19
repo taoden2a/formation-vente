@@ -15,7 +15,7 @@ export function CheckoutButton() {
       const res = await fetch("/api/stripe/checkout", { method: "POST" });
 
       if (res.status === 401) {
-        window.location.href = "/connexion?next=/";
+        window.location.href = "/inscription?next=checkout";
         return;
       }
 

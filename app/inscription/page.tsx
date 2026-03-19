@@ -8,12 +8,13 @@ import { BackgroundAnimated } from "@/components/ui/BackgroundAnimated";
 import { PageTransition } from "@/components/ui/PageTransition";
 
 function EyeIcon({ off = false }: { off?: boolean }) {
-  if (off) return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
-      <line x1="1" y1="1" x2="23" y2="23" />
-    </svg>
-  );
+  if (off)
+    return (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+        <line x1="1" y1="1" x2="23" y2="23" />
+      </svg>
+    );
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
@@ -30,18 +31,25 @@ function Spinner() {
   );
 }
 
-function ConnexionForm() {
+function InscriptionForm() {
   const searchParams = useSearchParams();
-  const next = searchParams.get("next") ?? "/formation";
+  const next = searchParams.get("next") ?? "/#prix";
   const isCheckout = next === "checkout";
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [loadingStep, setLoadingStep] = useState<"login" | "checkout">("login");
+  const [loadingStep, setLoadingStep] = useState<"register" | "checkout">("register");
   const [shake, setShake] = useState(false);
+
+  function triggerShake() {
+    setShake(true);
+    setTimeout(() => setShake(false), 400);
+  }
 
   async function triggerCheckout() {
     setLoadingStep("checkout");
@@ -62,32 +70,65 @@ function ConnexionForm() {
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError(null);
-    setLoading(true);
-    setLoadingStep("login");
 
-    const res = await signIn("credentials", {
+    if (password.length < 8) {
+      setError("Le mot de passe doit contenir au moins 8 caractères.");
+      triggerShake();
+      return;
+    }
+    if (password !== confirmPassword) {
+      setError("Les mots de passe ne correspondent pas.");
+      triggerShake();
+      return;
+    }
+
+    setLoading(true);
+    setLoadingStep("register");
+
+    const res = await fetch("/api/auth/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      setError(data.error ?? "Une erreur est survenue. Veuillez réessayer.");
+      triggerShake();
+      setLoading(false);
+      return;
+    }
+
+    // Auto sign-in after account creation
+    const signInRes = await signIn("credentials", {
       email,
       password,
       redirect: false,
-      callbackUrl: isCheckout ? "/" : next,
     });
 
-    if (!res || res.error) {
-      setLoading(false);
-      setError("Email ou mot de passe incorrect.");
-      setShake(true);
-      setTimeout(() => setShake(false), 400);
+    if (!signInRes || signInRes.error) {
+      // Account created but auto sign-in failed — send to connexion
+      window.location.href = `/connexion${isCheckout ? "?next=checkout" : ""}`;
       return;
     }
 
     if (isCheckout) {
       await triggerCheckout();
     } else {
-      window.location.href = res.url ?? next;
+      window.location.href = next;
     }
   }
 
-  const inscriptionHref = `/inscription?next=${encodeURIComponent(next)}`;
+  const connexionHref = `/connexion?next=${encodeURIComponent(next)}`;
+
+  const loadingLabel = loading
+    ? loadingStep === "checkout"
+      ? "Redirection vers le paiement..."
+      : "Création du compte..."
+    : isCheckout
+      ? "Créer mon compte et payer"
+      : "Créer mon compte";
 
   return (
     <div className="min-h-screen bg-[#0a0a0f] text-white">
@@ -98,26 +139,27 @@ function ConnexionForm() {
 
               {/* Header */}
               <div className="text-center mb-8">
-                <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-blue-500/10 border border-blue-500/20 mb-5">
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-blue-400">
-                    <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
-                    <polyline points="10 17 15 12 10 7" />
-                    <line x1="15" y1="12" x2="3" y2="12" />
+                <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-orange-500/10 border border-orange-500/20 mb-5">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-orange-400">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                    <circle cx="9" cy="7" r="4" />
+                    <line x1="19" y1="8" x2="19" y2="14" />
+                    <line x1="22" y1="11" x2="16" y2="11" />
                   </svg>
                 </div>
-                <h1 className="text-2xl font-bold text-white mb-1">Connexion</h1>
+                <h1 className="text-2xl font-bold text-white mb-1">Créer un compte</h1>
                 <p className="text-sm text-gray-500">
                   {isCheckout
-                    ? "Connecte-toi pour accéder directement au paiement."
-                    : "Accédez à votre espace de formation."}
+                    ? "Crée ton compte pour accéder immédiatement à la formation."
+                    : "Accédez à la formation en quelques secondes."}
                 </p>
               </div>
 
               {/* Purchase context banner — visible uniquement quand next=checkout */}
               {isCheckout && (
-                <div className="mb-5 flex items-center gap-3 px-4 py-3 rounded-xl bg-blue-500/[0.07] border border-blue-500/20">
-                  <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-blue-400">
+                <div className="mb-5 flex items-center gap-3 px-4 py-3 rounded-xl bg-orange-500/[0.07] border border-orange-500/20">
+                  <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-orange-500/10 flex items-center justify-center">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-orange-400">
                       <path d="M12 2L2 7l10 5 10-5-10-5z" />
                       <path d="M2 17l10 5 10-5" />
                       <path d="M2 12l10 5 10-5" />
@@ -152,34 +194,52 @@ function ConnexionForm() {
 
                   {/* Password */}
                   <div>
-                    <div className="flex items-center justify-between mb-1.5">
-                      <label className="block text-xs font-medium text-gray-400 uppercase tracking-wide">
-                        Mot de passe
-                      </label>
-                      <a
-                        href="/contact?subject=probleme-technique"
-                        className="text-xs text-gray-500 hover:text-blue-400 transition-colors"
-                      >
-                        Mot de passe oublié ?
-                      </a>
-                    </div>
+                    <label className="block text-xs font-medium text-gray-400 mb-1.5 uppercase tracking-wide">
+                      Mot de passe
+                    </label>
                     <div className="relative">
                       <input
                         className="auth-input w-full rounded-xl px-4 py-2.5 pr-11 text-sm"
-                        placeholder="••••••••"
+                        placeholder="8 caractères minimum"
                         type={showPassword ? "text" : "password"}
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        autoComplete="current-password"
+                        autoComplete="new-password"
                         required
                       />
                       <button
                         type="button"
                         onClick={() => setShowPassword((v) => !v)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300 transition-colors"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
                         tabIndex={-1}
                       >
                         <EyeIcon off={showPassword} />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Confirm Password */}
+                  <div>
+                    <label className="block text-xs font-medium text-gray-400 mb-1.5 uppercase tracking-wide">
+                      Confirmer le mot de passe
+                    </label>
+                    <div className="relative">
+                      <input
+                        className="auth-input w-full rounded-xl px-4 py-2.5 pr-11 text-sm"
+                        placeholder="••••••••"
+                        type={showConfirm ? "text" : "password"}
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        autoComplete="new-password"
+                        required
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowConfirm((v) => !v)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
+                        tabIndex={-1}
+                      >
+                        <EyeIcon off={showConfirm} />
                       </button>
                     </div>
                   </div>
@@ -200,28 +260,28 @@ function ConnexionForm() {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="btn-interactive w-full py-2.5 rounded-xl bg-blue-500 hover:bg-blue-400 text-white font-medium text-sm disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    className="btn-interactive w-full py-2.5 rounded-xl bg-orange-500 hover:bg-orange-400 text-white font-medium text-sm disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                   >
                     {loading ? (
                       <>
                         <Spinner />
-                        {loadingStep === "checkout" ? "Redirection vers le paiement..." : "Connexion..."}
+                        {loadingStep === "checkout" ? "Redirection vers le paiement..." : "Création du compte..."}
                       </>
                     ) : (
-                      isCheckout ? "Se connecter et payer" : "Se connecter"
+                      loadingLabel
                     )}
                   </button>
                 </form>
               </div>
 
-              {/* Create account */}
+              {/* Already have account */}
               <p className="text-center mt-5 text-sm text-gray-500">
-                Pas encore membre ?{" "}
+                Déjà un compte ?{" "}
                 <Link
-                  href={inscriptionHref}
-                  className="text-orange-400 hover:text-orange-300 transition-colors font-medium"
+                  href={connexionHref}
+                  className="text-blue-400 hover:text-blue-300 transition-colors font-medium"
                 >
-                  Créer un compte
+                  Se connecter
                 </Link>
               </p>
 
@@ -233,10 +293,10 @@ function ConnexionForm() {
   );
 }
 
-export default function ConnexionPage() {
+export default function InscriptionPage() {
   return (
     <Suspense>
-      <ConnexionForm />
+      <InscriptionForm />
     </Suspense>
   );
 }

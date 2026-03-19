@@ -103,19 +103,32 @@ app/
 
 ## 4. Flows critiques
 
+### Inscription
+1. User → `/inscription` → form email + password + confirm
+2. POST `/api/auth/register` → validation → `bcrypt.hash(password, 12)` → `prisma.user.create`
+3. Auto sign-in via `signIn("credentials")`
+4. Si `next=checkout` → POST `/api/stripe/checkout` → redirect vers URL Stripe (0 clic supplémentaire)
+5. Sinon → redirect vers param `next` (défaut `/#prix`)
+6. En cas d'email existant → erreur 409 "Un compte existe déjà avec cet email."
+
 ### Authentification
 1. User → `/connexion` → form email/password
 2. `signIn("credentials")` → NextAuth → Prisma lookup
 3. Session JWT avec `user.id` propagé via callbacks
-4. `AuthStatus` (Server Component) dans le Header affiche état connexion
+4. Si `next=checkout` → POST `/api/stripe/checkout` → redirect vers URL Stripe
+5. Sinon → redirect vers param `next` (défaut `/formation`)
+6. `AuthStatus` (Server Component) dans le Header affiche état connexion
 
-### Paiement Stripe
-1. User connecté clique "Commencer maintenant" (`CheckoutButton`)
-2. POST `/api/stripe/checkout` → crée Stripe Checkout Session
-3. Redirect vers Stripe Checkout
-4. Succès → redirect `/paiement/succes`
+### Paiement Stripe (tunnel optimisé)
+1. User non connecté clique "Commencer maintenant" → redirect `/inscription?next=checkout`
+2. User crée compte → auto sign-in → POST `/api/stripe/checkout` → Stripe (SANS reclic)
+3. User déjà connecté clique "Commencer maintenant" → POST `/api/stripe/checkout` direct
+4. Stripe Checkout → succès → `/paiement/succes`
 5. Webhook `checkout.session.completed` → crée `Payment` + `Enrollment`
-6. Page succès poll `/api/access` jusqu'à `access: true` → redirect `/membre`
+6. Page succès poll `/api/access` jusqu'à `access: true` → redirect `/formation`
+
+**Param `next=checkout`** = valeur spéciale qui déclenche le paiement automatique après auth.
+Les pages `/inscription` et `/connexion` affichent un **banner contextuel** (nom formation + prix) quand `next=checkout`.
 
 ### Accès membre
 1. `app/membre/layout.tsx` vérifie :
@@ -273,6 +286,7 @@ Sécurité :
 | 2026-03-15 | **Stats affilié /membre** – Suppression des données hardcodées ; fetch réel depuis `/api/affiliation/stats` avec états loading/vide/rempli ; CTA si non affilié (25% commission, dès 1ère vente) |
 | 2026-03-15 | **Menu mobile** – Hamburger ajouté dans `Header.tsx` : drawer slide-in, fermeture au clic extérieur et au changement de route, body scroll lock, authSlot dans le menu |
 | 2026-03-15 | **Menu mobile V2** – Fixes visibilité : bouton `bg-white/5`→`bg-white/10` + `border border-white/20` + `active:bg-white/20` ; drawer `bg-[#0a0a0f]/98`→`bg-[#0a0a0f]` (opaque, plus transparent) ; `z-40`→`z-50` ; liens `text-gray-400`→`text-white/80` ; `py-3`→`py-3.5` |
+| 2026-03-19 | **Inscription + tunnel achat** – `app/inscription/page.tsx` + `app/api/auth/register/route.ts` créés ; pages connexion/inscription : param `next=checkout` déclenche POST `/api/stripe/checkout` automatiquement après auth (0 clic supplémentaire) ; banner contextuel formation (59€ + Stripe) affiché si `next=checkout` ; `CheckoutButton` : 401 → `/inscription?next=checkout` ; loadingStep "login/register" → "checkout" avec message dédié |
 | 2026-03-15 | **Cohérence contenu produit** – Garantie partout → 14 jours (FAQ, CGV) ; Commission → 25% (FAQ, AffiliationClient, compte) ; Paiement affiliés → dès 1ère vente, aucun seuil (AffiliationClient FAQ) ; Paiement en 3 fois → supprimé de CGV et FAQ |
 | 2026-03-15 | **Page connexion** – Redirect post-login → `/formation` (au lieu de `/membre`) ; lien "Mot de passe oublié" → `/contact?subject=probleme-technique` ; CTA "Pas encore membre ? Découvrir la formation" → `/#prix` |
 | 2026-03-15 | **Navigation** – `/programme` : membres avec accès redirigés vers `/formation` ; ProfileDropdown : ajout "Mes notes" → `/notes` |
