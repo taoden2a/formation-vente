@@ -109,7 +109,7 @@ function NotesIcon({ className = "", size = 18 }: { className?: string; size?: n
 }
 
 const profileMenuItems = [
-  { label: 'Mon compte', href: '/membre', icon: UserIcon },
+  { label: 'Mon espace', href: '/membre', icon: UserIcon },
   { label: 'Mes notes', href: '/notes', icon: NotesIcon },
   { label: 'Affiliation', href: '/affiliation', icon: LinkIcon },
   { label: 'Paramètres', href: '/parametres', icon: SettingsIcon },

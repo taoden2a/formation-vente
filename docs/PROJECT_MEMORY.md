@@ -130,11 +130,19 @@ app/
 **Param `next=checkout`** = valeur spéciale qui déclenche le paiement automatique après auth.
 Les pages `/inscription` et `/connexion` affichent un **banner contextuel** (nom formation + prix) quand `next=checkout`.
 
-### Accès membre
-1. `app/membre/layout.tsx` vérifie :
-   - Session NextAuth (sinon redirect `/connexion`)
-   - `userHasAccess(userId)` via `lib/acces.ts` (sinon redirect `/programme?access=denied`)
-2. `userHasAccess` : vérifie `user.role === "admin"` EN PREMIER, puis enrollment `course.slug === "formation-vente"`
+### Accès membre / Formation gating
+`app/(formation)/layout.tsx` — garde d'accès :
+1. Non connecté → redirect `/connexion`
+2. Connecté + **pas payé** → `<PricingGate />` (carte prix 59€ + CheckoutButton — ZÉRO contenu formation exposé)
+3. Connecté + payé → `<>{children}</>` (accès complet)
+
+`app/membre/layout.tsx` vérifie :
+- Session NextAuth (sinon redirect `/connexion`)
+- `userHasAccess(userId)` via `lib/acces.ts` (sinon redirect `/programme?access=denied`)
+
+`userHasAccess` : vérifie `user.role === "admin"` EN PREMIER, puis enrollment `course.slug === "formation-vente"`
+
+`components/PricingGate.tsx` — Client Component : carte prix identique à landing page, `CheckoutButton` intégré, styles `cta-card-v6`. Affiché par le layout quand accès refusé.
 
 ### Page /programme (hub du programme)
 Sert de vue globale de la formation, 4 sections :
@@ -292,6 +300,7 @@ Sécurité :
 | 2026-03-15 | **Menu mobile V2** – Fixes visibilité : bouton `bg-white/5`→`bg-white/10` + `border border-white/20` + `active:bg-white/20` ; drawer `bg-[#0a0a0f]/98`→`bg-[#0a0a0f]` (opaque, plus transparent) ; `z-40`→`z-50` ; liens `text-gray-400`→`text-white/80` ; `py-3`→`py-3.5` |
 | 2026-03-19 | **Inscription + tunnel achat** – `app/inscription/page.tsx` + `app/api/auth/register/route.ts` créés ; pages connexion/inscription : param `next=checkout` déclenche POST `/api/stripe/checkout` automatiquement après auth (0 clic supplémentaire) ; banner contextuel formation (59€ + Stripe) affiché si `next=checkout` ; `CheckoutButton` : 401 → `/inscription?next=checkout` ; loadingStep "login/register" → "checkout" avec message dédié |
 | 2026-03-19 | **Fix spinner infini signup** – 3 causes corrigées : (1) `register/route.ts` : try/catch global sur Prisma + bcrypt, cost réduit 12→10 (évite timeout Vercel), logs `[register]` ; (2) frontend `inscription/page.tsx` : `res.json()` défensif + `onSubmit` wrappé try/catch global + `setLoading(false)` garanti ; (3) `connexion/page.tsx` : même pattern |
+| 2026-03-19 | **PricingGate + UX accès** – `components/PricingGate.tsx` créé (Client Component, carte prix 59€ + CheckoutButton identique landing) ; `app/(formation)/layout.tsx` : `redirect("/programme?access=denied")` remplacé par `<PricingGate />` (user connecté non payé voit le pricing, 0 contenu formation exposé) ; `/paiement/annule` : page entièrement refaite (dark theme + icône X orange + card rassurante + btn-premium) ; `ProfileDropdown` : "Mon compte" → "Mon espace" |
 | 2026-03-15 | **Cohérence contenu produit** – Garantie partout → 14 jours (FAQ, CGV) ; Commission → 25% (FAQ, AffiliationClient, compte) ; Paiement affiliés → dès 1ère vente, aucun seuil (AffiliationClient FAQ) ; Paiement en 3 fois → supprimé de CGV et FAQ |
 | 2026-03-15 | **Page connexion** – Redirect post-login → `/formation` (au lieu de `/membre`) ; lien "Mot de passe oublié" → `/contact?subject=probleme-technique` ; CTA "Pas encore membre ? Découvrir la formation" → `/#prix` |
 | 2026-03-15 | **Navigation** – `/programme` : membres avec accès redirigés vers `/formation` ; ProfileDropdown : ajout "Mes notes" → `/notes` |

@@ -42,6 +42,7 @@ function InscriptionForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [emailExists, setEmailExists] = useState(false);
   const [loading, setLoading] = useState(false);
   const [loadingStep, setLoadingStep] = useState<"register" | "checkout">("register");
   const [shake, setShake] = useState(false);
@@ -84,6 +85,7 @@ function InscriptionForm() {
 
     setLoading(true);
     setLoadingStep("register");
+    setEmailExists(false);
 
     try {
       const res = await fetch("/api/auth/register", {
@@ -93,10 +95,16 @@ function InscriptionForm() {
       });
 
       // Lecture défensive : le serveur peut renvoyer du HTML en cas d'erreur 500
-      let data: { error?: string } = {};
+      let data: { error?: string; code?: string } = {};
       try { data = await res.json(); } catch { /* réponse non-JSON */ }
 
       if (!res.ok) {
+        // Cas spécial : email déjà existant → proposer la connexion
+        if (res.status === 409 && data.code === "EMAIL_EXISTS") {
+          setEmailExists(true);
+          setLoading(false);
+          return;
+        }
         setError(data.error ?? "Une erreur est survenue. Veuillez réessayer.");
         triggerShake();
         setLoading(false);
@@ -252,6 +260,22 @@ function InscriptionForm() {
                       </button>
                     </div>
                   </div>
+
+                  {/* Email déjà existant — CTA connexion */}
+                  {emailExists && (
+                    <div className="rounded-xl bg-blue-500/10 border border-blue-500/20 p-4 space-y-3">
+                      <p className="text-sm text-blue-300 leading-snug">
+                        Un compte existe déjà avec cette adresse email.
+                        {isCheckout ? " Connecte-toi pour continuer ton achat." : " Connecte-toi pour accéder à ton espace."}
+                      </p>
+                      <Link
+                        href={`/connexion?next=${encodeURIComponent(next)}`}
+                        className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-blue-500 hover:bg-blue-400 transition-colors text-white font-medium text-sm"
+                      >
+                        Se connecter et continuer
+                      </Link>
+                    </div>
+                  )}
 
                   {/* Error */}
                   {error && (

@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
     if (existing) {
       console.log("[register] Email déjà utilisé");
       return NextResponse.json(
-        { error: "Un compte existe déjà avec cet email." },
+        { error: "Un compte existe déjà avec cette adresse email.", code: "EMAIL_EXISTS" },
         { status: 409 }
       );
     }

@@ -12,6 +12,7 @@ export async function POST(req: NextRequest) {
   const signature = req.headers.get("stripe-signature");
 
   if (!signature) {
+    console.error("[webhook] signature manquante");
     return NextResponse.json({ error: "Missing signature" }, { status: 400 });
   }
 
@@ -25,16 +26,18 @@ export async function POST(req: NextRequest) {
     );
   } catch (err) {
     const message = err instanceof Error ? err.message : "Unknown error";
-    console.error("Webhook signature verification failed:", message);
+    console.error("[webhook] vérification signature échouée:", message);
     return NextResponse.json({ error: message }, { status: 400 });
   }
+
+  console.log("[webhook] paiement reçu — event type:", event.type);
 
   if (event.type === "checkout.session.completed") {
     const session = event.data.object as Stripe.Checkout.Session;
     try {
       await handleCheckoutCompleted(session);
     } catch (err) {
-      console.error("Webhook: erreur lors du traitement checkout:", err);
+      console.error("[webhook] erreur lors du traitement checkout:", err);
       return NextResponse.json(
         { error: "Erreur de traitement" },
         { status: 500 },
@@ -60,11 +63,13 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
 
   if (!resolvedUserId) {
     console.error(
-      "Webhook: impossible de trouver l'utilisateur pour la session",
+      "[webhook] impossible de trouver l'utilisateur pour la session",
       session.id,
     );
     return;
   }
+
+  console.log("[webhook] userId trouvé:", resolvedUserId);
 
   // Trouver le cours principal
   const course = await prisma.course.findUnique({
@@ -72,13 +77,19 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   });
 
   if (!course) {
-    console.error("Webhook: cours principal introuvable (slug:", MAIN_COURSE_SLUG, ")");
+    console.error("[webhook] cours principal introuvable (slug:", MAIN_COURSE_SLUG, ")");
     return;
   }
 
-  // Créer le Payment
-  await prisma.payment.create({
-    data: {
+  // Upsert Payment (dédoublonnage sur stripeSessionId @unique)
+  await prisma.payment.upsert({
+    where: { stripeSessionId: session.id },
+    update: {
+      status: "completed",
+      stripePaymentId: session.payment_intent as string | null,
+      completedAt: new Date(),
+    },
+    create: {
       userId: resolvedUserId,
       courseId: course.id,
       stripeSessionId: session.id,
@@ -104,9 +115,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     },
   });
 
-  if (process.env.NODE_ENV === "development") {
-    console.log("Webhook: accès créé pour user", resolvedUserId, "cours", course.id);
-  }
+  console.log("[webhook] accès activé pour user", resolvedUserId, "cours", course.id);
 
   // Attribution de commission affilié
   const affiliateCode = session.metadata?.affiliate;
@@ -141,22 +150,20 @@ async function handleAffiliateCommission({
   });
 
   if (!affiliate || !affiliate.isActive) {
-    console.warn("Webhook affiliation: code affilié invalide ou inactif:", affiliateCode);
+    console.warn("[webhook] affiliation: code affilié invalide ou inactif:", affiliateCode);
     return;
   }
 
   // Ne pas attribuer de commission si c'est l'affilié lui-même qui achète
   if (affiliate.userId === buyerUserId) {
-    if (process.env.NODE_ENV === "development") {
-      console.log("Webhook affiliation: auto-achat ignoré pour", affiliateCode);
-    }
+    console.log("[webhook] affiliation: auto-achat ignoré pour", affiliateCode);
     return;
   }
 
   // Calculer la commission (25%)
   const commissionCents = Math.round(amountCents * (affiliate.commissionRate / 100));
 
-  // Créer la vente affiliée (upsert par stripeSessionId pour dédoublonnage)
+  // Créer la vente affiliée (create avec contrainte unique pour dédoublonnage)
   try {
     await prisma.affiliateSale.create({
       data: {
@@ -175,19 +182,17 @@ async function handleAffiliateCommission({
       data: { totalEarnings: { increment: commissionCents } },
     });
 
-    if (process.env.NODE_ENV === "development") {
-      console.log(
-        `Webhook affiliation: commission ${commissionCents / 100}€ enregistrée pour affilié ${affiliateCode}`
-      );
-    }
+    console.log(
+      `[webhook] affiliation: commission ${commissionCents / 100}€ pour affilié ${affiliateCode}`
+    );
   } catch (err: unknown) {
     // Erreur de contrainte unique = vente déjà traitée (dédoublonnage)
     const isUniqueConstraint =
       err instanceof Error && err.message.includes("Unique constraint");
     if (isUniqueConstraint) {
-      console.warn("Webhook affiliation: session déjà traitée:", stripeSessionId);
+      console.warn("[webhook] affiliation: session déjà traitée:", stripeSessionId);
     } else {
-      console.error("Webhook affiliation: erreur création commission:", err);
+      console.error("[webhook] affiliation: erreur création commission:", err);
     }
   }
 }
