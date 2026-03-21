@@ -5,6 +5,14 @@ import crypto from "crypto";
 
 const ONE_HOUR = 60 * 60 * 1000;
 
+// Diagnostic au démarrage — visible dans les logs Vercel
+const MISSING_VARS = ["NEXTAUTH_URL", "RESEND_API_KEY", "RESEND_FROM_EMAIL"].filter(
+  (v) => !process.env[v]
+);
+if (MISSING_VARS.length > 0) {
+  console.warn("[reset-password/request] Variables manquantes :", MISSING_VARS.join(", "));
+}
+
 export async function POST(req: Request) {
   try {
     const body = await req.json();
@@ -34,8 +42,7 @@ export async function POST(req: Request) {
     // Envoyer l'email via Resend
     const apiKey = process.env.RESEND_API_KEY;
     if (!apiKey) {
-      console.error("[reset-password] RESEND_API_KEY non configuré");
-      // On continue sans email en dev — ne pas bloquer la démo
+      console.error("[reset-password] RESEND_API_KEY non configuré — email non envoyé");
       return NextResponse.json({ success: true });
     }
 
@@ -44,24 +51,29 @@ export async function POST(req: Request) {
     const resetUrl = `${baseUrl}/reinitialisation-mdp?token=${token}`;
     const fromEmail = process.env.RESEND_FROM_EMAIL ?? "onboarding@resend.dev";
 
-    const { error } = await resend.emails.send({
-      from: `Comprendre pour Vendre <${fromEmail}>`,
-      to: email,
-      subject: "Réinitialisation de ton mot de passe",
-      html: buildResetEmailHtml({ resetUrl }),
-    });
+    try {
+      const { error: resendError } = await resend.emails.send({
+        from: `Comprendre pour Vendre <${fromEmail}>`,
+        to: email,
+        subject: "Réinitialisation de ton mot de passe",
+        html: buildResetEmailHtml({ resetUrl }),
+      });
 
-    if (error) {
-      console.error("[reset-password] Resend error:", error);
+      if (resendError) {
+        console.error("[reset-password] Resend API error:", JSON.stringify(resendError));
+      }
+    } catch (resendErr) {
+      // Ne pas bloquer — le token est créé, l'email a échoué
+      const msg = resendErr instanceof Error ? resendErr.message : String(resendErr);
+      console.error("[reset-password] Resend exception:", msg);
     }
 
     return NextResponse.json({ success: true });
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     console.error("[reset-password/request] Unexpected error:", message, err);
-    const isDev = process.env.NODE_ENV === "development";
     return NextResponse.json(
-      { error: isDev ? `Erreur serveur : ${message}` : "Erreur serveur inattendue." },
+      { error: `Erreur serveur : ${message}` },
       { status: 500 }
     );
   }
