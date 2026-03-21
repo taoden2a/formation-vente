@@ -23,7 +23,7 @@ export async function POST(req: Request) {
     }
 
     // Toujours retourner 200 — ne pas révéler si l'email existe
-    const user = await prisma.user.findUnique({ where: { email } });
+    const user = await prisma.user.findFirst({ where: { email } });
     console.log(`[reset-password] User lookup for ${email}: ${user ? `found (id=${user.id})` : "NOT FOUND — early return"}`);
     if (!user) {
       return NextResponse.json({ success: true });

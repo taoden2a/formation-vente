@@ -18,7 +18,7 @@ export async function POST(request: Request) {
 
   const userId = (session.user as { id: string }).id;
 
-  const existing = await prisma.user.findUnique({ where: { email } });
+  const existing = await prisma.user.findFirst({ where: { email } });
   if (existing && existing.id !== userId) {
     return NextResponse.json({ error: "Cet email est déjà utilisé par un autre compte" }, { status: 409 });
   }

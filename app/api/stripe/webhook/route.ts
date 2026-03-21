@@ -55,7 +55,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   // Résoudre l'utilisateur : metadata d'abord, fallback sur l'email
   let resolvedUserId = userId;
   if (!resolvedUserId && customerEmail) {
-    const user = await prisma.user.findUnique({
+    const user = await prisma.user.findFirst({
       where: { email: customerEmail },
     });
     resolvedUserId = user?.id;
@@ -72,7 +72,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   console.log("[webhook] userId trouvé:", resolvedUserId);
 
   // Trouver le cours principal
-  const course = await prisma.course.findUnique({
+  const course = await prisma.course.findFirst({
     where: { slug: MAIN_COURSE_SLUG },
   });
 
@@ -136,7 +136,7 @@ async function handleAffiliateCommission({
   amountCents: number;
 }) {
   // Trouver l'affilié
-  const affiliate = await prisma.affiliate.findUnique({
+  const affiliate = await prisma.affiliate.findFirst({
     where: { code: affiliateCode },
   });
 

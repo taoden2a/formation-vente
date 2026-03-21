@@ -26,7 +26,7 @@ export async function POST(request: Request) {
   }
 
   const userId = (session.user as { id: string }).id;
-  const user = await prisma.user.findUnique({ where: { id: userId } });
+  const user = await prisma.user.findFirst({ where: { id: userId } });
 
   if (!user?.passwordHash) {
     return NextResponse.json({ error: "Utilisateur introuvable" }, { status: 404 });

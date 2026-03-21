@@ -35,7 +35,7 @@ export async function POST() {
   }
 
   // Vérifier si un compte affilié existe déjà
-  const existing = await prisma.affiliate.findUnique({ where: { userId } });
+  const existing = await prisma.affiliate.findFirst({ where: { userId } });
   if (existing) {
     return NextResponse.json({
       code: existing.code,
@@ -48,7 +48,7 @@ export async function POST() {
   let code = generateCode();
   let attempts = 0;
   while (attempts < 10) {
-    const collision = await prisma.affiliate.findUnique({ where: { code } });
+    const collision = await prisma.affiliate.findFirst({ where: { code } });
     if (!collision) break;
     code = generateCode();
     attempts++;

@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
   // 3. DB + bcrypt — tout dans un try/catch global
   try {
     console.log("[register] Vérification email existant...");
-    const existing = await prisma.user.findUnique({ where: { email } });
+    const existing = await prisma.user.findFirst({ where: { email } });
     if (existing) {
       console.log("[register] Email déjà utilisé");
       return NextResponse.json(

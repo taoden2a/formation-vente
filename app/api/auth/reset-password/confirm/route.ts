@@ -18,7 +18,7 @@ export async function POST(req: Request) {
       );
     }
 
-    const record = await prisma.passwordResetToken.findUnique({
+    const record = await prisma.passwordResetToken.findFirst({
       where: { token },
     });
 

@@ -9,7 +9,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Code manquant." }, { status: 400 });
     }
 
-    const affiliate = await prisma.affiliate.findUnique({ where: { code } });
+    const affiliate = await prisma.affiliate.findFirst({ where: { code } });
     if (!affiliate || !affiliate.isActive) {
       return NextResponse.json({ error: "Code invalide." }, { status: 404 });
     }

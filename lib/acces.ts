@@ -13,7 +13,7 @@ export const MAIN_COURSE_SLUG = "formation-vente";
  * @returns true si l'utilisateur a acces, false sinon
  */
 export async function userHasAccess(userId: string): Promise<boolean> {
-  const user = await prisma.user.findUnique({
+  const user = await prisma.user.findFirst({
     where: { id: userId },
     select: { role: true, paid: true },
   });
@@ -34,7 +34,7 @@ export async function userHasAccess(userId: string): Promise<boolean> {
  * @returns true si l'utilisateur est admin
  */
 export async function isAdmin(userId: string): Promise<boolean> {
-  const user = await prisma.user.findUnique({
+  const user = await prisma.user.findFirst({
     where: { id: userId },
     select: { role: true },
   });

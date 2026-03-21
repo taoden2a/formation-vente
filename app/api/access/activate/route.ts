@@ -56,7 +56,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Trouver le cours (pour le Payment record)
-    const course = await prisma.course.findUnique({
+    const course = await prisma.course.findFirst({
       where: { slug: MAIN_COURSE_SLUG },
     });
 

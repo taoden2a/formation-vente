@@ -15,7 +15,7 @@ export async function GET() {
     return NextResponse.json({ error: "Utilisateur invalide." }, { status: 401 });
   }
 
-  const affiliate = await prisma.affiliate.findUnique({
+  const affiliate = await prisma.affiliate.findFirst({
     where: { userId },
     include: {
       _count: {

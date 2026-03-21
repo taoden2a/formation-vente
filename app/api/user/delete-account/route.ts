@@ -18,7 +18,7 @@ export async function POST() {
   await prisma.enrollment.deleteMany({ where: { userId } });
 
   // Affiliate cascade: clicks and sales first
-  const affiliate = await prisma.affiliate.findUnique({ where: { userId } });
+  const affiliate = await prisma.affiliate.findFirst({ where: { userId } });
   if (affiliate) {
     await prisma.affiliateClick.deleteMany({ where: { affiliateId: affiliate.id } });
     await prisma.affiliateSale.deleteMany({ where: { affiliateId: affiliate.id } });
