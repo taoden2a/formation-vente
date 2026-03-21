@@ -27,7 +27,12 @@ export async function GET(req: Request) {
 
     return NextResponse.json({ valid: true, email: record.user.email });
   } catch (err) {
-    console.error("[reset-password/verify] Error:", err);
-    return NextResponse.json({ valid: false, reason: "Erreur serveur." });
+    const message = err instanceof Error ? err.message : String(err);
+    console.error("[reset-password/verify] Error:", message, err);
+    const isDev = process.env.NODE_ENV === "development";
+    return NextResponse.json({
+      valid: false,
+      reason: isDev ? `Erreur serveur : ${message}` : "Erreur serveur. Réessaie ou contacte le support.",
+    });
   }
 }

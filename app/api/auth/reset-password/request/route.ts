@@ -57,8 +57,13 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ success: true });
   } catch (err) {
-    console.error("[reset-password/request] Unexpected error:", err);
-    return NextResponse.json({ error: "Erreur serveur." }, { status: 500 });
+    const message = err instanceof Error ? err.message : String(err);
+    console.error("[reset-password/request] Unexpected error:", message, err);
+    const isDev = process.env.NODE_ENV === "development";
+    return NextResponse.json(
+      { error: isDev ? `Erreur serveur : ${message}` : "Erreur serveur inattendue." },
+      { status: 500 }
+    );
   }
 }
 
