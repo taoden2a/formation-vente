@@ -39,6 +39,19 @@ La vente est la compétence mère. Sans savoir vendre, aucun projet ne tient. On
 ✅ /affiliation : accès conditionnel côté serveur (getServerSession + userHasAccess) — non-clients voient page marketing, clients voient dashboard affilié
 ✅ /membre : bloc "Ressources exclusives" remplacé par "Dernière activité" — dernière leçon/exercice/note depuis localStorage + programPreview pour résoudre les titres
 ✅ Refonte responsive mobile-first complète — breakpoints 320px→640px→1024px→1440px — voir section 8
+✅ Landing page V2 déployée (2026-03-21) — hero stat counters, typewriter, ROI calculator, FAQ, footer CTA, sticky mobile CTA, testimonials avant modules
+✅ Navbar SlideTabs déployée (framer-motion) — `components/layout/Navbar.tsx` remplace `Header.tsx` dans layout.tsx — masquée sur /connexion et /inscription
+✅ PricingCard SquishyCard déployée — `components/pricing/PricingCard.tsx` — hover scale + animated SVG circles — utilisée dans page.tsx et Paywall.tsx
+✅ Navbar unifiée (2026-03-21) — pill flottante identique sur toutes les pages, spacer h-16 uniquement hors landing, CTA "Accéder à la formation" visible uniquement sur `/`
+✅ Hero restauré (2026-03-21) — CognitiveOrbs + BackgroundAnimated hero-v8 + titre + sous-titre + 2 CTAs + 3 stats statiques (8 modules · 43 leçons · +2,4k apprenants)
+✅ Prix supprimés des CTAs (2026-03-21) — "Accéder — 59€" → "Accéder à la formation" partout sauf section pricing dédiée
+✅ Accordéons unifiés Radix UI (2026-03-21) — `@radix-ui/react-accordion` + `@radix-ui/react-icons` installés — 4 fichiers migrés : `app/page.tsx` (FAQ homepage), `app/affiliation/AffiliationClient.tsx` (FAQ affiliation), `app/faq/page.tsx` (FAQ multi-open, type="multiple"), `app/(formation)/formation/SommaireClient.tsx` (modules, type="single" contrôlé) — animations accordion-down/accordion-up ajoutées dans tailwind.config.js
+✅ Barre blanche navbar corrigée (2026-03-21) — spacer `h-16` dans `Navbar.tsx` manquait `bg-[#0a0a0f]` → héritait du `bg-gray-50` du `body` → barre blanche visible sur toutes les pages hors landing
+✅ Espacement cards /formation (2026-03-21) — `space-y-3` → `space-y-4` (16px gap), `py-0` → `py-4` sur AccordionTrigger dans `SommaireClient.tsx`
+✅ Style accordéon unifié (2026-03-21) — style référence homepage appliqué partout : AccordionItem `rounded-xl overflow-hidden bg-white/[0.04] border border-white/8 hover:border-white/15 transition-colors duration-200` · AccordionTrigger `p-4 sm:p-5 py-0 font-medium text-white hover:no-underline [&>svg]:text-gray-400` · AccordionContent `px-4 sm:px-5 sm:pb-5` — fichiers mis à jour : `app/affiliation/AffiliationClient.tsx`, `app/faq/page.tsx`, `app/(formation)/formation/SommaireClient.tsx`
+✅ Pages auth refaites glassmorphisme (2026-03-21) — `GlassAuthCard` (`components/ui/GlassAuthCard.tsx`) : fond noir + gradient orange, faisceaux lumineux animés (framer-motion), effet 3D hover, glassmorphism — utilisée dans `/connexion`, `/inscription`, `/deconnexion` — Navbar masquée sur `/deconnexion` (ajouté à HIDDEN_PATHS) — `EyeOff` utilisé (pas `EyeClosed` absent de lucide-react v0.316.0)
+✅ Page déconnexion custom (2026-03-21) — `lib/auth.ts` : `pages.signOut = '/deconnexion'` — NextAuth redirige vers `/deconnexion` au lieu de la page par défaut
+✅ Flux réinitialisation mot de passe complet (2026-03-21) — Prisma : modèle `PasswordResetToken` (token unique, userId, expiresAt 1h) — 3 API routes : `POST /api/auth/reset-password/request` (génère token + email Resend), `GET /api/auth/reset-password/verify?token=` (vérifie validité), `POST /api/auth/reset-password/confirm` (hash bcrypt + update user + delete token) — Pages : `/mot-de-passe-oublie` (formulaire email, état succès), `/reinitialisation-mdp?token=` (vérifie token au load, formulaire nouveau mdp, états : checking/invalid/form/success) — Lien "Mot de passe oublié ?" dans `/connexion` → `/mot-de-passe-oublie` — Navbar masquée sur `/mot-de-passe-oublie` et `/reinitialisation-mdp` — **IMPORTANT** : migration DB requise → `npx prisma migrate dev --name add-password-reset-token`
 
 ---
 
@@ -53,6 +66,7 @@ La vente est la compétence mère. Sans savoir vendre, aucun projet ne tient. On
 | Paiement | Stripe Checkout | 14.25.0 |
 | Hébergement | Vercel | - |
 | Styling | Tailwind CSS | 3.4.1 |
+| Animations | framer-motion | 12.38.0 |
 
 ---
 

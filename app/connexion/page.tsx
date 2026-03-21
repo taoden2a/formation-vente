@@ -1,243 +1,310 @@
-"use client";
+'use client'
 
-import { signIn } from "next-auth/react";
-import { useState, Suspense } from "react";
-import Link from "next/link";
-import { useSearchParams } from "next/navigation";
-import { BackgroundAnimated } from "@/components/ui/BackgroundAnimated";
-import { PageTransition } from "@/components/ui/PageTransition";
-
-function EyeIcon({ off = false }: { off?: boolean }) {
-  if (off) return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
-      <line x1="1" y1="1" x2="23" y2="23" />
-    </svg>
-  );
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-      <circle cx="12" cy="12" r="3" />
-    </svg>
-  );
-}
+import { signIn } from 'next-auth/react'
+import { useState, Suspense } from 'react'
+import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
+import { motion, AnimatePresence } from 'framer-motion'
+import { Mail, Lock, EyeOff, Eye, ArrowRight } from 'lucide-react'
+import { GlassAuthCard } from '@/components/ui/GlassAuthCard'
 
 function Spinner() {
   return (
     <svg className="animate-spin" width="16" height="16" viewBox="0 0 24 24" fill="none">
       <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" strokeDasharray="32" strokeDashoffset="12" />
     </svg>
-  );
+  )
 }
 
 function ConnexionForm() {
-  const searchParams = useSearchParams();
-  const next = searchParams.get("next") ?? "/formation";
-  const isCheckout = next === "checkout";
+  const searchParams = useSearchParams()
+  const next = searchParams.get('next') ?? '/formation'
+  const isCheckout = next === 'checkout'
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [loadingStep, setLoadingStep] = useState<"login" | "checkout">("login");
-  const [shake, setShake] = useState(false);
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+  const [rememberMe, setRememberMe] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [loading, setLoading] = useState(false)
+  const [loadingStep, setLoadingStep] = useState<'login' | 'checkout'>('login')
+  const [shake, setShake] = useState(false)
+  const [focusedInput, setFocusedInput] = useState<string | null>(null)
 
   async function triggerCheckout() {
-    setLoadingStep("checkout");
+    setLoadingStep('checkout')
     try {
-      const res = await fetch("/api/stripe/checkout", { method: "POST" });
-      const data = await res.json();
-      if (data.url) {
-        window.location.href = data.url;
-        return;
-      }
-      setError("Impossible de lancer le paiement. Veuillez réessayer.");
+      const res = await fetch('/api/stripe/checkout', { method: 'POST' })
+      const data = await res.json()
+      if (data.url) { window.location.href = data.url; return }
+      setError('Impossible de lancer le paiement. Veuillez réessayer.')
     } catch {
-      setError("Connexion impossible. Vérifiez votre connexion internet.");
+      setError('Connexion impossible. Vérifiez votre connexion internet.')
     }
-    setLoading(false);
+    setLoading(false)
   }
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    setError(null);
-    setLoading(true);
-    setLoadingStep("login");
+    e.preventDefault()
+    setError(null)
+    setLoading(true)
+    setLoadingStep('login')
 
     try {
-      const res = await signIn("credentials", {
+      const res = await signIn('credentials', {
         email: email.trim().toLowerCase(),
         password,
         redirect: false,
-        callbackUrl: isCheckout ? "/" : next,
-      });
+        callbackUrl: isCheckout ? '/' : next,
+      })
 
       if (!res || res.error) {
-        setLoading(false);
-        setError("Email ou mot de passe incorrect.");
-        setShake(true);
-        setTimeout(() => setShake(false), 400);
-        return;
+        setLoading(false)
+        setError('Email ou mot de passe incorrect.')
+        setShake(true)
+        setTimeout(() => setShake(false), 400)
+        return
       }
 
       if (isCheckout) {
-        await triggerCheckout();
+        await triggerCheckout()
       } else {
-        window.location.href = res.url ?? next;
+        window.location.href = res.url ?? next
       }
     } catch {
-      setError("Connexion impossible. Vérifiez votre connexion internet.");
-      setShake(true);
-      setTimeout(() => setShake(false), 400);
-      setLoading(false);
+      setError('Connexion impossible. Vérifiez votre connexion internet.')
+      setShake(true)
+      setTimeout(() => setShake(false), 400)
+      setLoading(false)
     }
   }
 
-  const inscriptionHref = `/inscription?next=${encodeURIComponent(next)}`;
+  const inscriptionHref = `/inscription?next=${encodeURIComponent(next)}`
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f] text-white">
-      <PageTransition>
-        <BackgroundAnimated variant="dark" className="min-h-[calc(100vh-4rem)]">
-          <div className="flex items-center justify-center px-4 py-8 sm:py-16 min-h-[calc(100vh-4rem)]">
-            <div className="w-full max-w-sm">
+    <GlassAuthCard>
+      {/* Logo */}
+      <div className="text-center space-y-1 mb-5">
+        <motion.div
+          initial={{ scale: 0.5, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ type: 'spring', duration: 0.8 }}
+          className="mx-auto w-10 h-10 rounded-full border border-white/10 flex items-center justify-center relative overflow-hidden bg-orange-500/10"
+        >
+          <span className="text-sm font-bold text-orange-400">CpV</span>
+          <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-50" />
+        </motion.div>
 
-              {/* Header */}
-              <div className="text-center mb-8">
-                <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-blue-500/10 border border-blue-500/20 mb-5">
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-blue-400">
-                    <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
-                    <polyline points="10 17 15 12 10 7" />
-                    <line x1="15" y1="12" x2="3" y2="12" />
-                  </svg>
-                </div>
-                <h1 className="text-2xl font-bold text-white mb-1">Connexion</h1>
-                <p className="text-sm text-gray-500">
-                  {isCheckout
-                    ? "Connecte-toi pour accéder directement au paiement."
-                    : "Accédez à votre espace de formation."}
-                </p>
-              </div>
+        <motion.h1
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-b from-white to-white/80"
+        >
+          Connexion
+        </motion.h1>
 
-              {/* Purchase context banner — visible uniquement quand next=checkout */}
-              {isCheckout && (
-                <div className="mb-5 flex items-center gap-3 px-4 py-3 rounded-xl bg-blue-500/[0.07] border border-blue-500/20">
-                  <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-blue-400">
-                      <path d="M12 2L2 7l10 5 10-5-10-5z" />
-                      <path d="M2 17l10 5 10-5" />
-                      <path d="M2 12l10 5 10-5" />
-                    </svg>
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-sm font-medium text-white leading-tight">Comprendre pour Vendre</p>
-                    <p className="text-xs text-gray-500 mt-0.5">59€ · Accès à vie · Paiement sécurisé Stripe</p>
-                  </div>
-                </div>
-              )}
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3 }}
+          className="text-white/60 text-xs"
+        >
+          {isCheckout
+            ? 'Connecte-toi pour accéder directement au paiement.'
+            : 'Accédez à votre espace de formation.'}
+        </motion.p>
+      </div>
 
-              {/* Card */}
-              <div className="bg-white/[0.07] border border-white/10 rounded-2xl p-6">
-                <form onSubmit={onSubmit} className="space-y-4">
-
-                  {/* Email */}
-                  <div>
-                    <label className="block text-xs font-medium text-gray-400 mb-1.5 uppercase tracking-wide">
-                      Email
-                    </label>
-                    <input
-                      className="auth-input w-full rounded-xl px-4 py-2.5 text-sm"
-                      placeholder="vous@exemple.com"
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      autoComplete="email"
-                      required
-                    />
-                  </div>
-
-                  {/* Password */}
-                  <div>
-                    <div className="flex items-center justify-between mb-1.5">
-                      <label className="block text-xs font-medium text-gray-400 uppercase tracking-wide">
-                        Mot de passe
-                      </label>
-                      <a
-                        href="/contact?subject=probleme-technique"
-                        className="text-xs text-gray-500 hover:text-blue-400 transition-colors"
-                      >
-                        Mot de passe oublié ?
-                      </a>
-                    </div>
-                    <div className="relative">
-                      <input
-                        className="auth-input w-full rounded-xl px-4 py-2.5 pr-11 text-sm"
-                        placeholder="••••••••"
-                        type={showPassword ? "text" : "password"}
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        autoComplete="current-password"
-                        required
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword((v) => !v)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300 transition-colors"
-                        tabIndex={-1}
-                      >
-                        <EyeIcon off={showPassword} />
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Error */}
-                  {error && (
-                    <div className={`flex items-center gap-2 px-3 py-2.5 rounded-xl bg-red-500/10 border border-red-500/20 ${shake ? "animate-shake" : ""}`}>
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-red-400 flex-shrink-0">
-                        <circle cx="12" cy="12" r="10" />
-                        <line x1="12" y1="8" x2="12" y2="12" />
-                        <line x1="12" y1="16" x2="12.01" y2="16" />
-                      </svg>
-                      <p className="text-sm text-red-400">{error}</p>
-                    </div>
-                  )}
-
-                  {/* Submit */}
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    className="btn-interactive w-full py-2.5 rounded-xl bg-blue-500 hover:bg-blue-400 text-white font-medium text-sm disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                  >
-                    {loading ? (
-                      <>
-                        <Spinner />
-                        {loadingStep === "checkout" ? "Redirection vers le paiement..." : "Connexion..."}
-                      </>
-                    ) : (
-                      isCheckout ? "Se connecter et payer" : "Se connecter"
-                    )}
-                  </button>
-                </form>
-              </div>
-
-              {/* Create account */}
-              <p className="text-center mt-5 text-sm text-gray-500">
-                Pas encore membre ?{" "}
-                <Link
-                  href={inscriptionHref}
-                  className="text-orange-400 hover:text-orange-300 transition-colors font-medium"
-                >
-                  Créer un compte
-                </Link>
-              </p>
-
-            </div>
+      {/* Purchase context banner */}
+      {isCheckout && (
+        <motion.div
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-4 flex items-center gap-3 px-4 py-3 rounded-xl bg-orange-500/[0.07] border border-orange-500/20"
+        >
+          <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-orange-500/10 flex items-center justify-center">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-orange-400">
+              <path d="M12 2L2 7l10 5 10-5-10-5z" /><path d="M2 17l10 5 10-5" /><path d="M2 12l10 5 10-5" />
+            </svg>
           </div>
-        </BackgroundAnimated>
-      </PageTransition>
-    </div>
-  );
+          <div className="min-w-0">
+            <p className="text-sm font-medium text-white leading-tight">Comprendre pour Vendre</p>
+            <p className="text-xs text-white/40 mt-0.5">59€ · Accès à vie · Paiement sécurisé Stripe</p>
+          </div>
+        </motion.div>
+      )}
+
+      {/* Form */}
+      <form onSubmit={onSubmit} className="space-y-3">
+
+        {/* Email */}
+        <motion.div
+          className="relative"
+          whileHover={{ scale: 1.01 }}
+          transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+        >
+          <div className="relative flex items-center overflow-hidden rounded-lg">
+            <Mail className={`absolute left-3 w-4 h-4 transition-colors duration-300 ${focusedInput === 'email' ? 'text-orange-400' : 'text-white/40'}`} />
+            <input
+              type="email"
+              placeholder="vous@exemple.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              onFocus={() => setFocusedInput('email')}
+              onBlur={() => setFocusedInput(null)}
+              autoComplete="email"
+              required
+              className="w-full h-10 bg-white/5 border border-transparent focus:border-orange-500/40 text-white placeholder:text-white/30 text-sm pl-10 pr-3 rounded-lg outline-none transition-all duration-300 focus:bg-white/10"
+            />
+            {focusedInput === 'email' && (
+              <motion.div
+                layoutId="input-highlight"
+                className="absolute inset-0 bg-orange-500/5 -z-10 rounded-lg"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+              />
+            )}
+          </div>
+        </motion.div>
+
+        {/* Password */}
+        <motion.div
+          className="relative"
+          whileHover={{ scale: 1.01 }}
+          transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+        >
+          <div className="relative flex items-center overflow-hidden rounded-lg">
+            <Lock className={`absolute left-3 w-4 h-4 transition-colors duration-300 ${focusedInput === 'password' ? 'text-orange-400' : 'text-white/40'}`} />
+            <input
+              type={showPassword ? 'text' : 'password'}
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              onFocus={() => setFocusedInput('password')}
+              onBlur={() => setFocusedInput(null)}
+              autoComplete="current-password"
+              required
+              className="w-full h-10 bg-white/5 border border-transparent focus:border-orange-500/40 text-white placeholder:text-white/30 text-sm pl-10 pr-10 rounded-lg outline-none transition-all duration-300 focus:bg-white/10"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword((v) => !v)}
+              tabIndex={-1}
+              className="absolute right-3 text-white/40 hover:text-white transition-colors duration-300"
+            >
+              {showPassword ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+            </button>
+            {focusedInput === 'password' && (
+              <motion.div
+                layoutId="input-highlight"
+                className="absolute inset-0 bg-orange-500/5 -z-10 rounded-lg"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+              />
+            )}
+          </div>
+        </motion.div>
+
+        {/* Remember me + forgot password */}
+        <div className="flex items-center justify-between pt-0.5">
+          <label className="flex items-center gap-2 cursor-pointer select-none">
+            <div className="relative">
+              <input
+                type="checkbox"
+                checked={rememberMe}
+                onChange={() => setRememberMe((v) => !v)}
+                className="appearance-none h-4 w-4 rounded border border-white/20 bg-white/5 checked:bg-orange-500 checked:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500/30 transition-all duration-200"
+              />
+              {rememberMe && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.5 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="absolute inset-0 flex items-center justify-center text-white pointer-events-none"
+                >
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                </motion.div>
+              )}
+            </div>
+            <span className="text-xs text-white/60">Se souvenir de moi</span>
+          </label>
+
+          <Link
+            href="/mot-de-passe-oublie"
+            className="text-xs text-white/50 hover:text-white/80 transition-colors duration-200"
+          >
+            Mot de passe oublié ?
+          </Link>
+        </div>
+
+        {/* Error */}
+        {error && (
+          <div className={`flex items-center gap-2 px-3 py-2.5 rounded-xl bg-red-500/10 border border-red-500/20 ${shake ? 'animate-shake' : ''}`}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-red-400 flex-shrink-0">
+              <circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" />
+            </svg>
+            <p className="text-sm text-red-400">{error}</p>
+          </div>
+        )}
+
+        {/* Submit */}
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          type="submit"
+          disabled={loading}
+          className="w-full relative group/btn mt-2"
+        >
+          <div className="absolute inset-0 bg-orange-500/20 rounded-lg blur-lg opacity-0 group-hover/btn:opacity-70 transition-opacity duration-300" />
+          <div className="relative overflow-hidden bg-orange-500 hover:bg-orange-400 text-white font-medium h-10 rounded-lg transition-all duration-300 flex items-center justify-center disabled:opacity-60 disabled:cursor-not-allowed">
+            {/* Loading shimmer */}
+            <motion.div
+              className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0"
+              animate={{ x: ['-100%', '100%'] }}
+              transition={{ duration: 1.5, ease: 'easeInOut', repeat: Infinity, repeatDelay: 1 }}
+              style={{ opacity: loading ? 1 : 0, transition: 'opacity 0.3s ease' }}
+            />
+            <AnimatePresence mode="wait">
+              {loading ? (
+                <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex items-center gap-2">
+                  <Spinner />
+                  <span className="text-sm">{loadingStep === 'checkout' ? 'Redirection vers le paiement...' : 'Connexion...'}</span>
+                </motion.div>
+              ) : (
+                <motion.span key="label" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex items-center gap-1 text-sm font-medium">
+                  {isCheckout ? 'Se connecter et payer' : 'Se connecter'}
+                  <ArrowRight className="w-3 h-3 group-hover/btn:translate-x-1 transition-transform duration-300" />
+                </motion.span>
+              )}
+            </AnimatePresence>
+          </div>
+        </motion.button>
+
+        {/* Sign up link */}
+        <motion.p
+          className="text-center text-xs text-white/50 pt-1"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.5 }}
+        >
+          Pas encore membre ?{' '}
+          <Link href={inscriptionHref} className="relative inline-block group/link">
+            <span className="relative z-10 text-white group-hover/link:text-white/70 transition-colors duration-300 font-medium">
+              Créer un compte
+            </span>
+            <span className="absolute bottom-0 left-0 w-0 h-[1px] bg-white group-hover/link:w-full transition-all duration-300" />
+          </Link>
+        </motion.p>
+
+      </form>
+    </GlassAuthCard>
+  )
 }
 
 export default function ConnexionPage() {
@@ -245,5 +312,5 @@ export default function ConnexionPage() {
     <Suspense>
       <ConnexionForm />
     </Suspense>
-  );
+  )
 }

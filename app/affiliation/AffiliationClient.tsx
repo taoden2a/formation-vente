@@ -14,6 +14,7 @@ import Link from "next/link";
 import { BackgroundAnimated } from "@/components/ui/BackgroundAnimated";
 import { PageTransition } from "@/components/ui/PageTransition";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -450,11 +451,6 @@ const affiliateFAQs = [
 // ─── Main export ──────────────────────────────────────────────────────────────
 
 export function AffiliationClient({ hasAccess }: { hasAccess: boolean }) {
-  const [openFaq, setOpenFaq] = useState<number | null>(null);
-
-  const toggleFaq = (index: number) => {
-    setOpenFaq(openFaq === index ? null : index);
-  };
 
   return (
     <div className="min-h-screen bg-[#0a0a0f] text-white">
@@ -595,34 +591,22 @@ export function AffiliationClient({ hasAccess }: { hasAccess: boolean }) {
                 <h2 className="text-2xl font-bold text-white text-center mb-8">
                   Questions fréquentes
                 </h2>
-                <div className="space-y-3">
-                  {affiliateFAQs.map((faq, index) => {
-                    const isOpen = openFaq === index;
-                    return (
-                      <div key={index} className="affiliation-faq-item rounded-xl overflow-hidden">
-                        <button
-                          onClick={() => toggleFaq(index)}
-                          className="w-full p-5 flex items-center justify-between text-left group"
-                        >
-                          <span className="text-white font-medium group-hover:text-orange-300 transition-colors">
-                            {faq.question}
-                          </span>
-                          <ChevronDownIcon
-                            size={20}
-                            className={`text-gray-500 transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`}
-                          />
-                        </button>
-                        <div className={`accordion-grid ${isOpen ? "accordion-grid-open" : ""}`}>
-                          <div className="overflow-hidden">
-                            <div className="px-5 pb-5">
-                              <p className="text-gray-400 text-sm">{faq.answer}</p>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
+                <Accordion type="single" collapsible className="space-y-3">
+                  {affiliateFAQs.map((faq, index) => (
+                    <AccordionItem
+                      key={index}
+                      value={String(index)}
+                      className="rounded-xl overflow-hidden bg-white/[0.04] border border-white/8 hover:border-white/15 transition-colors duration-200"
+                    >
+                      <AccordionTrigger className="p-4 sm:p-5 py-0 font-medium text-sm sm:text-base text-white hover:no-underline gap-4 [&>svg]:text-gray-400 [&>svg]:flex-shrink-0">
+                        <span className="leading-snug text-left">{faq.question}</span>
+                      </AccordionTrigger>
+                      <AccordionContent className="px-4 sm:px-5 sm:pb-5">
+                        <p className="text-gray-400 text-sm sm:text-base leading-relaxed">{faq.answer}</p>
+                      </AccordionContent>
+                    </AccordionItem>
+                  ))}
+                </Accordion>
               </div>
             </ScrollReveal>
 

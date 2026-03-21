@@ -5,6 +5,7 @@ import Link from "next/link";
 import { BackgroundAnimated } from "@/components/ui/BackgroundAnimated";
 import { PageTransition } from "@/components/ui/PageTransition";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
 // Icons
 function SearchIcon({ className = "", size = 20 }: { className?: string; size?: number }) {
@@ -126,8 +127,6 @@ const faqData = [
 export default function FAQPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState("all");
-  const [openItems, setOpenItems] = useState<number[]>([]);
-
   // Filter FAQs based on search and category
   const filteredFaqs = useMemo(() => {
     return faqData.filter((faq) => {
@@ -139,12 +138,6 @@ export default function FAQPage() {
       return matchesCategory && matchesSearch;
     });
   }, [searchQuery, activeCategory]);
-
-  const toggleItem = (index: number) => {
-    setOpenItems((prev) =>
-      prev.includes(index) ? prev.filter((i) => i !== index) : [...prev, index]
-    );
-  };
 
   return (
     <div className="min-h-screen bg-[#0a0a0f] text-white">
@@ -203,7 +196,7 @@ export default function FAQPage() {
             </ScrollReveal>
 
             {/* FAQ Accordion */}
-            <div className="max-w-3xl mx-auto space-y-4">
+            <div className="max-w-3xl mx-auto">
               {filteredFaqs.length === 0 ? (
                 <ScrollReveal>
                   <div className="text-center py-12">
@@ -220,40 +213,23 @@ export default function FAQPage() {
                   </div>
                 </ScrollReveal>
               ) : (
-                filteredFaqs.map((faq, index) => {
-                  const isOpen = openItems.includes(index);
-                  return (
+                <Accordion type="multiple" className="space-y-3">
+                  {filteredFaqs.map((faq, index) => (
                     <ScrollReveal key={index} delay={index * 0.03}>
-                      <div className="faq-accordion-item rounded-xl overflow-hidden">
-                        <button
-                          onClick={() => toggleItem(index)}
-                          className="w-full p-5 flex items-start gap-4 text-left group"
-                        >
-                          <div className="flex-1">
-                            <h3 className="text-base font-medium text-white group-hover:text-blue-300 transition-colors duration-300">
-                              {faq.question}
-                            </h3>
-                          </div>
-                          <ChevronDownIcon
-                            size={20}
-                            className={`flex-shrink-0 text-gray-500 transition-transform duration-400 ${
-                              isOpen ? "rotate-180" : ""
-                            }`}
-                          />
-                        </button>
-                        <div className={`accordion-grid ${isOpen ? "accordion-grid-open" : ""}`}>
-                          <div className="overflow-hidden">
-                            <div className="px-5 pb-5">
-                              <p className="text-gray-400 leading-relaxed">
-                                {faq.answer}
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
+                      <AccordionItem
+                        value={String(index)}
+                        className="rounded-xl overflow-hidden bg-white/[0.04] border border-white/8 hover:border-white/15 transition-colors duration-200"
+                      >
+                        <AccordionTrigger className="p-4 sm:p-5 py-0 font-medium text-sm sm:text-base text-white hover:no-underline gap-4 [&>svg]:text-gray-400 [&>svg]:flex-shrink-0">
+                          <span className="leading-snug text-left">{faq.question}</span>
+                        </AccordionTrigger>
+                        <AccordionContent className="px-4 sm:px-5 sm:pb-5">
+                          <p className="text-gray-400 text-sm sm:text-base leading-relaxed">{faq.answer}</p>
+                        </AccordionContent>
+                      </AccordionItem>
                     </ScrollReveal>
-                  );
-                })
+                  ))}
+                </Accordion>
               )}
             </div>
 

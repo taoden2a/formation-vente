@@ -96,6 +96,8 @@ export function Header({ authSlot }: { authSlot?: ReactNode }) {
     return pathname?.startsWith(href) ?? false
   }
 
+  const isLanding = pathname === '/'
+
   return (
     <>
       {/* Spacer prevents content from going under the fixed header */}
@@ -117,22 +119,25 @@ export function Header({ authSlot }: { authSlot?: ReactNode }) {
                 Comprendre pour Vendre
               </Link>
 
-              <nav className="hidden md:flex items-center gap-1">
-                {nav.map(({ label, href, exact }) => (
-                  <Link
-                    key={href}
-                    href={href}
-                    className={clsx(
-                      'px-3 py-1.5 rounded-lg text-sm transition-colors',
-                      isActive(href, exact)
-                        ? 'text-white bg-white/10'
-                        : 'text-gray-400 hover:text-white hover:bg-white/5'
-                    )}
-                  >
-                    {label}
-                  </Link>
-                ))}
-              </nav>
+              {/* Nav links — hidden on landing page */}
+              {!isLanding && (
+                <nav className="hidden md:flex items-center gap-1">
+                  {nav.map(({ label, href, exact }) => (
+                    <Link
+                      key={href}
+                      href={href}
+                      className={clsx(
+                        'px-3 py-1.5 rounded-lg text-sm transition-colors',
+                        isActive(href, exact)
+                          ? 'text-white bg-white/10'
+                          : 'text-gray-400 hover:text-white hover:bg-white/5'
+                      )}
+                    >
+                      {label}
+                    </Link>
+                  ))}
+                </nav>
+              )}
             </div>
 
             {/* Progress bar — /formation* only, desktop */}
@@ -154,84 +159,99 @@ export function Header({ authSlot }: { authSlot?: ReactNode }) {
               </div>
             )}
 
-            {/* Right — auth slot + mobile hamburger */}
+            {/* Right — CTA (landing) / auth slot + hamburger (app) */}
             <div className="flex items-center gap-3">
               {showProgress && progress && (
                 <span className="lg:hidden text-xs font-semibold text-orange-400">
                   {progress.progressPercent}%
                 </span>
               )}
+
+              {/* Landing CTA — desktop */}
+              {isLanding && (
+                <Link
+                  href="#prix"
+                  className="hidden sm:inline-flex btn-premium items-center justify-center rounded-lg px-4 py-2 text-sm font-semibold text-white"
+                >
+                  Accéder à la formation
+                </Link>
+              )}
+
               {authSlot}
 
-              {/* Hamburger — mobile only */}
-              <button
-                onClick={() => setMobileOpen((v) => !v)}
-                className="md:hidden flex flex-col items-center justify-center w-11 h-11 rounded-lg bg-white/10 hover:bg-white/[0.15] active:bg-white/20 border border-white/20 transition-colors"
-                aria-label={mobileOpen ? 'Fermer le menu' : 'Ouvrir le menu'}
-                aria-expanded={mobileOpen}
-              >
-                <span
-                  className={clsx(
-                    'block w-4.5 h-0.5 bg-white rounded-full transition-transform duration-300',
-                    mobileOpen && 'translate-y-[5px] rotate-45'
-                  )}
-                  style={{ width: '18px', marginBottom: mobileOpen ? '0' : '4px' }}
-                />
-                <span
-                  className={clsx(
-                    'block h-0.5 bg-white rounded-full transition-opacity duration-300',
-                    mobileOpen ? 'opacity-0' : 'opacity-100'
-                  )}
-                  style={{ width: '18px', marginBottom: '4px' }}
-                />
-                <span
-                  className={clsx(
-                    'block h-0.5 bg-white rounded-full transition-transform duration-300',
-                    mobileOpen && '-translate-y-[9px] -rotate-45'
-                  )}
-                  style={{ width: '18px' }}
-                />
-              </button>
+              {/* Hamburger — mobile only, hidden on landing */}
+              {!isLanding && (
+                <button
+                  onClick={() => setMobileOpen((v) => !v)}
+                  className="md:hidden flex flex-col items-center justify-center w-11 h-11 rounded-lg bg-white/10 hover:bg-white/[0.15] active:bg-white/20 border border-white/20 transition-colors"
+                  aria-label={mobileOpen ? 'Fermer le menu' : 'Ouvrir le menu'}
+                  aria-expanded={mobileOpen}
+                >
+                  <span
+                    className={clsx(
+                      'block h-0.5 bg-white rounded-full transition-transform duration-300',
+                      mobileOpen && 'translate-y-[5px] rotate-45'
+                    )}
+                    style={{ width: '18px', marginBottom: mobileOpen ? '0' : '4px' }}
+                  />
+                  <span
+                    className={clsx(
+                      'block h-0.5 bg-white rounded-full transition-opacity duration-300',
+                      mobileOpen ? 'opacity-0' : 'opacity-100'
+                    )}
+                    style={{ width: '18px', marginBottom: '4px' }}
+                  />
+                  <span
+                    className={clsx(
+                      'block h-0.5 bg-white rounded-full transition-transform duration-300',
+                      mobileOpen && '-translate-y-[9px] -rotate-45'
+                    )}
+                    style={{ width: '18px' }}
+                  />
+                </button>
+              )}
             </div>
 
           </div>
         </div>
 
-        {/* Mobile menu drawer */}
-        <div
-          ref={mobileMenuRef}
-          className={clsx(
-            'md:hidden absolute left-0 right-0 top-16 z-50',
-            'bg-[#0a0a0f] border-b border-white/10',
-            'transition-[opacity,transform] duration-300',
-            mobileOpen
-              ? 'opacity-100 translate-y-0 pointer-events-auto'
-              : 'opacity-0 -translate-y-2 pointer-events-none'
-          )}
-        >
-          <nav className="container-width py-4 flex flex-col gap-1">
-            {nav.map(({ label, href, exact }) => (
-              <Link
-                key={href}
-                href={href}
-                onClick={() => setMobileOpen(false)}
-                className={clsx(
-                  'px-4 py-3.5 rounded-xl text-sm font-medium transition-colors',
-                  isActive(href, exact)
-                    ? 'text-white bg-white/10'
-                    : 'text-white/80 hover:text-white hover:bg-white/10'
-                )}
-              >
-                {label}
-              </Link>
-            ))}
+        {/* Mobile menu drawer — hidden on landing */}
+        {!isLanding && (
+          <div
+            ref={mobileMenuRef}
+            className={clsx(
+              'md:hidden absolute left-0 right-0 top-16 z-50',
+              'bg-[#0a0a0f] border-b border-white/10',
+              'transition-[opacity,transform] duration-300',
+              mobileOpen
+                ? 'opacity-100 translate-y-0 pointer-events-auto'
+                : 'opacity-0 -translate-y-2 pointer-events-none'
+            )}
+          >
+            <nav className="container-width py-4 flex flex-col gap-1">
+              {nav.map(({ label, href, exact }) => (
+                <Link
+                  key={href}
+                  href={href}
+                  onClick={() => setMobileOpen(false)}
+                  className={clsx(
+                    'px-4 py-3.5 rounded-xl text-sm font-medium transition-colors',
+                    isActive(href, exact)
+                      ? 'text-white bg-white/10'
+                      : 'text-white/80 hover:text-white hover:bg-white/10'
+                  )}
+                >
+                  {label}
+                </Link>
+              ))}
 
-            {/* Auth slot in mobile menu */}
-            <div className="mt-2 pt-4 border-t border-white/10 px-4">
-              {authSlot}
-            </div>
-          </nav>
-        </div>
+              {/* Auth slot in mobile menu */}
+              <div className="mt-2 pt-4 border-t border-white/10 px-4">
+                {authSlot}
+              </div>
+            </nav>
+          </div>
+        )}
       </header>
     </>
   )

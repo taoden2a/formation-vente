@@ -1,12 +1,11 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import Link from "next/link";
-import { CheckoutButton } from "@/components/CheckoutButton";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 import { BackgroundAnimated } from "@/components/ui/BackgroundAnimated";
-import { CognitiveOrbs } from "@/components/ui/CognitiveOrbs";
 import { ScrollProgress } from "@/components/ui/ScrollProgress";
+import { CognitiveOrbs } from "@/components/ui/CognitiveOrbs";
 import {
   BrainIcon,
   TargetIcon,
@@ -15,23 +14,101 @@ import {
   CheckIcon,
 } from "@/components/ui/Icons";
 import { TestimonialsScroll } from "@/components/sections/TestimonialsScroll";
+import { PricingCard } from "@/components/pricing/PricingCard";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+
+// ─── Countdown helpers ────────────────────────────────────────────────────────
+
+const PROMO_END = new Date("2026-03-22T23:59:59");
+
+function useCountdown(target: Date) {
+  const [left, setLeft] = useState({ d: 0, h: 0, m: 0, s: 0 });
+
+  useEffect(() => {
+    const update = () => {
+      const diff = target.getTime() - Date.now();
+      if (diff <= 0) return;
+      setLeft({
+        d: Math.floor(diff / 86400000),
+        h: Math.floor((diff % 86400000) / 3600000),
+        m: Math.floor((diff % 3600000) / 60000),
+        s: Math.floor((diff % 60000) / 1000),
+      });
+    };
+    update();
+    const id = setInterval(update, 1000);
+    return () => clearInterval(id);
+  }, [target]);
+
+  return left;
+}
+
+// ─── Page component ───────────────────────────────────────────────────────────
 
 export default function Home() {
+  const countdown = useCountdown(PROMO_END);
   const titleRef = useRef<HTMLHeadingElement>(null);
+
+  // ── Typewriter ──────────────────────────────────────────────────────────────
+  const [typeText, setTypeText] = useState("");
+  const typeState = useRef({ phrase: 0, char: 0, deleting: false });
+
+  useEffect(() => {
+    const phrases = typePhrases;
+    let id: ReturnType<typeof setTimeout>;
+
+    function tick() {
+      const s = typeState.current;
+      const cur = phrases[s.phrase];
+      if (!s.deleting) {
+        if (s.char < cur.length) {
+          s.char++;
+          setTypeText(cur.slice(0, s.char));
+          id = setTimeout(tick, 65);
+        } else {
+          id = setTimeout(() => { s.deleting = true; tick(); }, 2000);
+        }
+      } else {
+        if (s.char > 0) {
+          s.char--;
+          setTypeText(cur.slice(0, s.char));
+          id = setTimeout(tick, 32);
+        } else {
+          s.deleting = false;
+          s.phrase = (s.phrase + 1) % phrases.length;
+          id = setTimeout(tick, 400);
+        }
+      }
+    }
+
+    id = setTimeout(tick, 900);
+    return () => clearTimeout(id);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ── ROI Calculator ──────────────────────────────────────────────────────────
+  const [prospects, setProspects] = useState(20);
+  const [panier, setPanier] = useState(500);
+  const closedExtra = Math.max(1, Math.round(prospects * 0.15));
+  const gain = closedExtra * panier;
+  const paybackVentes = Math.ceil(59 / panier);
+
+  // ── Sticky CTA ──────────────────────────────────────────────────────────────
+  const [showSticky, setShowSticky] = useState(false);
+  useEffect(() => {
+    const handle = () => setShowSticky(window.scrollY > 700);
+    window.addEventListener("scroll", handle, { passive: true });
+    return () => window.removeEventListener("scroll", handle);
+  }, []);
 
   return (
     <div className="bg-[#0a0a0f] text-white">
-      {/* Scroll progress bar */}
       <ScrollProgress />
 
-      {/* BLOC 1 — HERO IMMERSIF V8 */}
+      {/* ── HERO ─────────────────────────────────────────────────────────────── */}
       <section className="hero-container relative min-h-screen flex items-center justify-center overflow-hidden">
-        {/* Background layer */}
         <BackgroundAnimated variant="hero-v8" className="absolute inset-0">
           <span />
         </BackgroundAnimated>
-
-        {/* Cognitive Orbs V8 - Strategic animated orbs (positioned at section level) */}
         <CognitiveOrbs titleRef={titleRef} className="z-[5]" />
 
         <div className="relative z-10 w-full max-w-5xl mx-auto px-4 sm:px-8 lg:px-12 py-14 sm:py-20">
@@ -48,7 +125,8 @@ export default function Home() {
 
             <ScrollReveal delay={0.3} duration={0.8}>
               <p className="text-base sm:text-lg md:text-xl text-gray-400 font-medium max-w-xl sm:max-w-2xl mx-auto leading-relaxed">
-                Apprends la psychologie réelle de l&apos;achat pour vendre plus sans manipuler et sans scripts artificiels.
+                Apprends la psychologie réelle de l&apos;achat pour vendre plus
+                sans manipuler et sans scripts artificiels.
               </p>
             </ScrollReveal>
 
@@ -68,18 +146,38 @@ export default function Home() {
                 </Link>
               </div>
             </ScrollReveal>
+
+            {/* Stats */}
+            <ScrollReveal delay={0.64} duration={0.8}>
+              <div className="flex justify-center items-center gap-6 sm:gap-12 pt-4 sm:pt-8">
+                <div className="text-center">
+                  <p className="text-2xl sm:text-3xl font-bold text-white tabular-nums">8</p>
+                  <p className="text-xs sm:text-sm text-gray-500 mt-0.5">modules</p>
+                </div>
+                <div className="w-px h-8 bg-white/10" />
+                <div className="text-center">
+                  <p className="text-2xl sm:text-3xl font-bold text-white tabular-nums">43</p>
+                  <p className="text-xs sm:text-sm text-gray-500 mt-0.5">leçons</p>
+                </div>
+                <div className="w-px h-8 bg-white/10" />
+                <div className="text-center">
+                  <p className="text-2xl sm:text-3xl font-bold text-orange-400 tabular-nums">+2,4k</p>
+                  <p className="text-xs sm:text-sm text-gray-500 mt-0.5">apprenants</p>
+                </div>
+              </div>
+            </ScrollReveal>
           </div>
         </div>
       </section>
 
-      {/* BLOC 2 — LE CHOC */}
+      {/* ── PROBLÈME + TYPEWRITER ─────────────────────────────────────────────── */}
       <BackgroundAnimated variant="dark" className="section-spacing">
         <div className="container-width">
           <div className="max-w-4xl mx-auto text-center space-y-8 sm:space-y-12">
             <ScrollReveal>
               <div className="space-y-3 sm:space-y-4">
                 <p className="text-base sm:text-lg md:text-xl text-gray-400">Tu peux avoir :</p>
-                <ul className="text-lg sm:text-xl md:text-2xl text-gray-300 space-y-2 font-medium">
+                <ul className="text-lg sm:text-xl md:text-2xl text-gray-300 space-y-2 font-medium list-none">
                   <li>• un bon produit</li>
                   <li>• une expertise réelle</li>
                   <li>• une idée brillante</li>
@@ -90,19 +188,28 @@ export default function Home() {
               </div>
             </ScrollReveal>
 
-            <ScrollReveal delay={0.2}>
+            <ScrollReveal delay={0.15}>
               <div className="space-y-2">
-                <p className="text-base text-gray-500">Pourquoi ?</p>
-                <p className="text-xl sm:text-2xl md:text-3xl font-bold text-orange-400 text-glow-orange">
-                  Parce que la vente n&apos;est pas une technique.
-                  <span className="block mt-1 text-white">C&apos;est une compréhension.</span>
+                <p className="text-base text-gray-500">La vraie cause ?</p>
+                <p className="text-xl sm:text-2xl md:text-3xl font-bold min-h-[2.5rem] sm:min-h-[3rem]">
+                  <span className="text-orange-400">
+                    {typeText}
+                    <span className="inline-block w-0.5 h-6 sm:h-7 bg-orange-400 ml-0.5 align-middle animate-pulse" />
+                  </span>
                 </p>
               </div>
             </ScrollReveal>
 
+            <ScrollReveal delay={0.25}>
+              <p className="text-xl sm:text-2xl md:text-3xl font-bold text-orange-400 text-glow-orange">
+                Parce que la vente n&apos;est pas une technique.
+                <span className="block mt-1 text-white">C&apos;est une compréhension.</span>
+              </p>
+            </ScrollReveal>
+
             <div className="grid md:grid-cols-3 gap-4 sm:gap-6 pt-2 sm:pt-4">
-              {shockCards.map((card, index) => (
-                <ScrollReveal key={index} delay={0.2 + index * 0.1}>
+              {shockCards.map((card, i) => (
+                <ScrollReveal key={i} delay={0.2 + i * 0.1}>
                   <div className="glass-card-hover rounded-2xl p-5 md:p-8 h-full">
                     <p className="text-lg text-gray-300 font-medium">{card}</p>
                   </div>
@@ -113,7 +220,7 @@ export default function Home() {
         </div>
       </BackgroundAnimated>
 
-      {/* BLOC 3 — LA SOLUTION */}
+      {/* ── PILLIERS ─────────────────────────────────────────────────────────── */}
       <BackgroundAnimated variant="dark" className="section-spacing">
         <div className="container-width">
           <div className="max-w-5xl mx-auto space-y-8 sm:space-y-12 py-4 sm:py-8 md:py-16">
@@ -125,15 +232,16 @@ export default function Home() {
             </ScrollReveal>
 
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-              {pillars.map((pillar, index) => (
-                <ScrollReveal key={index} delay={index * 0.1} direction="scale">
-                  <div className="glass-card-hover rounded-2xl p-5 sm:p-6 h-full space-y-3 sm:space-y-4">
-                    <div className="icon-glow w-12 h-12 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center">
+              {pillars.map((pillar, i) => (
+                <ScrollReveal key={i} delay={i * 0.1} direction="scale">
+                  <div className="group glass-card-hover rounded-2xl p-5 sm:p-6 h-full space-y-3 sm:space-y-4 cursor-default transition-all duration-300 hover:border-blue-500/30 hover:bg-white/[0.08]">
+                    <div className="icon-glow w-12 h-12 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center transition-transform duration-300 group-hover:scale-110">
                       {pillar.icon}
                     </div>
-                    <p className="text-sm sm:text-base text-gray-300 font-medium leading-relaxed">
-                      {pillar.text}
-                    </p>
+                    <h3 className="text-sm sm:text-base font-semibold text-white group-hover:text-blue-300 transition-colors duration-300 leading-snug">
+                      {pillar.title}
+                    </h3>
+                    <p className="text-xs sm:text-sm text-gray-400 leading-relaxed">{pillar.desc}</p>
                   </div>
                 </ScrollReveal>
               ))}
@@ -142,7 +250,97 @@ export default function Home() {
         </div>
       </BackgroundAnimated>
 
-      {/* BLOC 4 — LES 9 MODULES */}
+      {/* ── TÉMOIGNAGES (avant modules) ──────────────────────────────────────── */}
+      <TestimonialsScroll />
+
+      {/* ── ROI CALCULATOR ───────────────────────────────────────────────────── */}
+      <BackgroundAnimated variant="dark" className="section-spacing">
+        <div className="container-width">
+          <div className="max-w-3xl mx-auto space-y-8">
+            <ScrollReveal>
+              <div className="text-center">
+                <p className="text-xs font-semibold tracking-widest text-gray-500 uppercase mb-3">
+                  Calculateur ROI
+                </p>
+                <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white">
+                  Combien vaut cette formation pour toi ?
+                </h2>
+              </div>
+            </ScrollReveal>
+
+            <ScrollReveal delay={0.2} direction="scale">
+              <div className="glass-card-hover rounded-2xl p-6 sm:p-8 space-y-6">
+                {/* Slider — prospects */}
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <label className="text-gray-300">Prospects contactés / mois</label>
+                    <span className="text-white font-semibold">{prospects}</span>
+                  </div>
+                  <input
+                    type="range"
+                    min={5}
+                    max={100}
+                    value={prospects}
+                    onChange={(e) => setProspects(Number(e.target.value))}
+                    className="w-full h-2 rounded-full appearance-none bg-white/10 accent-orange-500 cursor-pointer"
+                  />
+                  <div className="flex justify-between text-xs text-gray-600">
+                    <span>5</span>
+                    <span>100</span>
+                  </div>
+                </div>
+
+                {/* Slider — panier */}
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <label className="text-gray-300">Panier moyen (€)</label>
+                    <span className="text-white font-semibold">{panier.toLocaleString("fr-FR")} €</span>
+                  </div>
+                  <input
+                    type="range"
+                    min={100}
+                    max={5000}
+                    step={50}
+                    value={panier}
+                    onChange={(e) => setPanier(Number(e.target.value))}
+                    className="w-full h-2 rounded-full appearance-none bg-white/10 accent-orange-500 cursor-pointer"
+                  />
+                  <div className="flex justify-between text-xs text-gray-600">
+                    <span>100 €</span>
+                    <span>5 000 €</span>
+                  </div>
+                </div>
+
+                {/* Result */}
+                <div className="border-t border-white/10 pt-5 space-y-3">
+                  <p className="text-gray-500 text-xs sm:text-sm">
+                    En améliorant ton taux de closing de 15 points — résultat moyen rapporté par nos membres :
+                  </p>
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    <div>
+                      <p className="text-3xl sm:text-4xl font-bold text-orange-400">
+                        +{gain.toLocaleString("fr-FR")} €
+                      </p>
+                      <p className="text-gray-500 text-sm mt-0.5">
+                        de revenus supplémentaires / mois
+                        <span className="block text-gray-600 text-xs">({closedExtra} client{closedExtra > 1 ? "s" : ""} supplémentaire{closedExtra > 1 ? "s" : ""} / mois)</span>
+                      </p>
+                    </div>
+                    <div className="text-left sm:text-right bg-white/[0.05] rounded-xl p-3 sm:p-4">
+                      <p className="text-white font-semibold text-sm sm:text-base">
+                        Remboursée {paybackVentes <= 1 ? "dès la 1ère vente" : `en ${paybackVentes} ventes`}
+                      </p>
+                      <p className="text-gray-600 text-xs mt-0.5">Formation à 59€ — paiement unique</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </ScrollReveal>
+          </div>
+        </div>
+      </BackgroundAnimated>
+
+      {/* ── 8 MODULES ────────────────────────────────────────────────────────── */}
       <BackgroundAnimated variant="dark" className="section-spacing">
         <div className="container-width">
           <div className="max-w-4xl mx-auto space-y-8 sm:space-y-12">
@@ -153,24 +351,22 @@ export default function Home() {
             </ScrollReveal>
 
             <div className="relative">
-              {/* Animated timeline line */}
               <div className="absolute left-7 top-0 bottom-0 w-0.5 timeline-line-v6 hidden md:block" />
-
               <div className="space-y-3 sm:space-y-4">
-                {modules.map((module, index) => (
-                  <ScrollReveal key={index} delay={index * 0.07} direction="left" distance={25} duration={0.7}>
+                {modules.map((mod, i) => (
+                  <ScrollReveal key={i} delay={i * 0.07} direction="left" distance={25} duration={0.7}>
                     <div className="module-card-v6 flex items-center gap-3 sm:gap-6 p-4 sm:p-5 rounded-2xl relative group">
                       <div className="module-number-v6 flex-shrink-0 w-11 h-11 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center z-10">
                         <span className="text-base sm:text-xl font-bold text-white">
-                          {String(index + 1).padStart(2, "0")}
+                          {String(i + 1).padStart(2, "0")}
                         </span>
                       </div>
                       <div className="flex-1 min-w-0">
                         <h3 className="text-base sm:text-lg font-semibold text-white group-hover:text-blue-300 transition-colors duration-300 leading-snug">
-                          {module.title}
+                          {mod.title}
                         </h3>
                         <p className="text-gray-500 text-xs sm:text-sm mt-0.5 group-hover:text-gray-400 transition-colors duration-300 leading-snug">
-                          {module.transformation}
+                          {mod.transformation}
                         </p>
                       </div>
                     </div>
@@ -185,7 +381,7 @@ export default function Home() {
                   href="/programme"
                   className="btn-premium-secondary inline-flex items-center justify-center rounded-xl px-6 py-3 font-medium text-gray-300"
                 >
-                  Voir la formation
+                  Voir le programme complet
                 </Link>
               </div>
             </ScrollReveal>
@@ -193,27 +389,22 @@ export default function Home() {
         </div>
       </BackgroundAnimated>
 
-      {/* BLOC 5 — TÉMOIGNAGES */}
-      <TestimonialsScroll />
-
-      {/* BLOC 6 — POUR QUI */}
+      {/* ── POUR QUI ─────────────────────────────────────────────────────────── */}
       <BackgroundAnimated variant="dark" className="section-spacing">
         <div className="container-width">
           <div className="max-w-4xl mx-auto space-y-8 sm:space-y-12">
             <ScrollReveal>
               <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center text-white">
-                Cette formation est faite pour toi si :
+                Cette formation est faite pour toi si&nbsp;:
               </h2>
             </ScrollReveal>
 
             <div className="grid sm:grid-cols-2 gap-3 sm:gap-5">
-              {forWhoCards.map((card, index) => (
-                <ScrollReveal key={index} delay={index * 0.1} direction="scale">
+              {forWhoCards.map((card, i) => (
+                <ScrollReveal key={i} delay={i * 0.12} direction="left" distance={20}>
                   <div className="glass-card-hover rounded-2xl p-4 sm:p-6 h-full flex items-start gap-3 sm:gap-4">
-                    <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-orange-500/10 border border-orange-500/20 flex items-center justify-center">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="text-orange-400">
-                        <path d="M20 6 9 17l-5-5" />
-                      </svg>
+                    <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-orange-500/10 border border-orange-500/20 flex items-center justify-center mt-0.5">
+                      <CheckIcon size={14} className="text-orange-400" />
                     </div>
                     <p className="text-gray-300 font-medium leading-relaxed">{card}</p>
                   </div>
@@ -224,7 +415,7 @@ export default function Home() {
         </div>
       </BackgroundAnimated>
 
-      {/* BLOC 7 — CTA FINAL */}
+      {/* ── PRICING + COUNTDOWN ──────────────────────────────────────────────── */}
       <BackgroundAnimated variant="darker" className="section-spacing" id="prix">
         <div className="container-width">
           <div className="max-w-3xl mx-auto text-center space-y-6 sm:space-y-10">
@@ -235,50 +426,143 @@ export default function Home() {
               </h2>
             </ScrollReveal>
 
-            <ScrollReveal delay={0.2} direction="scale" duration={0.9}>
-              <div className="cta-card-v6 rounded-2xl sm:rounded-3xl p-5 sm:p-8 md:p-12 text-gray-900 space-y-5 sm:space-y-8">
-                <div className="space-y-1">
-                  <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">
-                    Comprendre pour Vendre
-                  </h3>
-                  <p className="text-sm sm:text-base text-gray-600">
-                    Accès immédiat à l&apos;ensemble de la formation.
-                  </p>
-                </div>
-
-                <div className="space-y-1">
-                  <div className="flex items-end gap-2 sm:gap-3 justify-center">
-                    <span className="text-gray-400 line-through text-lg sm:text-xl">199€</span>
-                    <span className="text-4xl sm:text-5xl md:text-6xl font-bold text-gray-900">59€</span>
-                  </div>
-                  <p className="text-gray-500 text-sm">Paiement unique • Accès à vie</p>
-                  <p className="text-gray-400 text-xs pt-0.5 sm:pt-1 italic">Moins cher qu&apos;un seul prospect perdu.</p>
-                </div>
-
-                <ul className="text-left space-y-2.5 sm:space-y-3 text-sm sm:text-base text-gray-600 max-w-full sm:max-w-sm mx-auto">
-                  {features.map((feature, index) => (
-                    <li key={index} className="flex items-center gap-3">
-                      <span className="flex-shrink-0 w-5 h-5 rounded-full bg-green-100 flex items-center justify-center">
-                        <CheckIcon size={12} className="text-green-600" />
-                      </span>
-                      <span>{feature}</span>
-                    </li>
+            {/* Countdown */}
+            <ScrollReveal delay={0.1}>
+              <div className="space-y-2">
+                <div className="flex justify-center gap-2 sm:gap-3">
+                  {[
+                    { val: countdown.d, label: "jours" },
+                    { val: countdown.h, label: "heures" },
+                    { val: countdown.m, label: "min" },
+                    { val: countdown.s, label: "sec" },
+                  ].map(({ val, label }, i) => (
+                    <div key={i} className="text-center">
+                      <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center">
+                        <span className="text-xl sm:text-2xl font-bold text-orange-400 tabular-nums">
+                          {String(val).padStart(2, "0")}
+                        </span>
+                      </div>
+                      <p className="text-xs text-gray-600 mt-1">{label}</p>
+                    </div>
                   ))}
-                </ul>
-
-                <CheckoutButton />
-
-                <p className="text-xs text-gray-500">
-                  Paiement sécurisé par Stripe. Satisfait ou remboursé sous 14 jours.
-                </p>
+                </div>
+                <p className="text-xs text-gray-600">Prix de lancement — peut augmenter à tout moment</p>
               </div>
+            </ScrollReveal>
+
+            {/* Places restantes */}
+            <ScrollReveal delay={0.15}>
+              <div className="space-y-1.5 max-w-xs mx-auto">
+                <div className="flex justify-between text-xs text-gray-400">
+                  <span>Places au tarif lancement</span>
+                  <span className="font-semibold text-orange-400">11 restantes</span>
+                </div>
+                <div className="h-1.5 rounded-full bg-white/10 overflow-hidden">
+                  <div
+                    className="h-full rounded-full bg-gradient-to-r from-orange-500 to-orange-400"
+                    style={{ width: "78%" }}
+                  />
+                </div>
+                <p className="text-xs text-gray-600 text-center">39 / 50 places déjà prises</p>
+              </div>
+            </ScrollReveal>
+
+            {/* PricingCard animée */}
+            <ScrollReveal delay={0.2} direction="scale" duration={0.9}>
+              <PricingCard />
             </ScrollReveal>
           </div>
         </div>
       </BackgroundAnimated>
+
+      {/* ── FAQ ───────────────────────────────────────────────────────────────── */}
+      <BackgroundAnimated variant="dark" className="section-spacing">
+        <div className="container-width">
+          <div className="max-w-3xl mx-auto space-y-8">
+            <ScrollReveal>
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center text-white">
+                Questions fréquentes
+              </h2>
+            </ScrollReveal>
+
+            <Accordion type="single" collapsible className="space-y-3">
+              {faqs.map((faq, i) => (
+                <ScrollReveal key={i} delay={i * 0.07}>
+                  <AccordionItem
+                    value={String(i)}
+                    className="rounded-xl overflow-hidden bg-white/[0.04] border border-white/8 hover:border-white/15 transition-colors duration-200"
+                  >
+                    <AccordionTrigger className="p-4 sm:p-5 py-0 font-medium text-sm sm:text-base text-white hover:no-underline gap-4 [&>svg]:text-gray-400 [&>svg]:flex-shrink-0">
+                      <span className="leading-snug text-left">{faq.q}</span>
+                    </AccordionTrigger>
+                    <AccordionContent className="px-4 sm:px-5 sm:pb-5">
+                      <p className="text-gray-400 text-sm sm:text-base leading-relaxed">{faq.a}</p>
+                    </AccordionContent>
+                  </AccordionItem>
+                </ScrollReveal>
+              ))}
+            </Accordion>
+          </div>
+        </div>
+      </BackgroundAnimated>
+
+      {/* ── FOOTER CTA ───────────────────────────────────────────────────────── */}
+      <section className="section-spacing border-t border-white/5">
+        <div className="container-width text-center space-y-4 sm:space-y-6">
+          <ScrollReveal>
+            <p className="text-gray-600 text-sm tracking-wide uppercase font-medium">Encore là ?</p>
+            <h2 className="text-2xl sm:text-3xl font-bold text-white mt-2">
+              La formation t&apos;attend.
+            </h2>
+            <p className="text-gray-400 mt-2 text-base">Une seule décision. 59€. À vie.</p>
+          </ScrollReveal>
+          <ScrollReveal delay={0.15}>
+            <Link
+              href="#prix"
+              className="btn-premium inline-flex items-center justify-center rounded-xl px-8 py-4 text-base sm:text-lg font-semibold text-white mt-2"
+            >
+              Accéder à la formation
+            </Link>
+          </ScrollReveal>
+          <ScrollReveal delay={0.25}>
+            <p className="text-xs text-gray-700 pt-2">
+              © {new Date().getFullYear()} Comprendre pour Vendre. Tous droits réservés.{" "}
+              <Link href="/cgv" className="hover:text-gray-500 transition-colors">CGV</Link>
+              {" · "}
+              <Link href="/mentions-legales" className="hover:text-gray-500 transition-colors">Mentions légales</Link>
+              {" · "}
+              <Link href="/confidentialite" className="hover:text-gray-500 transition-colors">Confidentialité</Link>
+            </p>
+          </ScrollReveal>
+        </div>
+      </section>
+
+      {/* ── STICKY MOBILE CTA ────────────────────────────────────────────────── */}
+      <div
+        className={`md:hidden fixed bottom-0 left-0 right-0 z-50 px-4 pb-4 pt-2 bg-[#0a0a0f]/95 backdrop-blur-md border-t border-white/10 transition-transform duration-300 ${
+          showSticky ? "translate-y-0" : "translate-y-full"
+        }`}
+      >
+        <Link
+          href="#prix"
+          className="btn-premium flex items-center justify-center rounded-xl px-6 py-4 text-base font-semibold text-white w-full"
+        >
+          Accéder à la formation
+        </Link>
+      </div>
     </div>
   );
 }
+
+// ─── Data ─────────────────────────────────────────────────────────────────────
+
+const typePhrases = [
+  "tu n'as pas les bons mots",
+  "tu ne sais pas pourquoi ils disent non",
+  "tu parles sans vraiment comprendre ton client",
+  "tes arguments ne résonnent pas",
+  "tu perds des ventes évitables",
+];
 
 const shockCards = [
   "Un bon produit ne suffit pas.",
@@ -289,19 +573,23 @@ const shockCards = [
 const pillars = [
   {
     icon: <BrainIcon size={28} className="text-blue-400" />,
-    text: "Comprendre comment le cerveau décide",
+    title: "Psychologie d'achat",
+    desc: "Comprends les mécanismes invisibles qui font décider ton client — avant même qu'il le sache.",
   },
   {
     icon: <TargetIcon size={28} className="text-blue-400" />,
-    text: "Identifier les leviers émotionnels réels",
+    title: "Leviers émotionnels",
+    desc: "Identifie et active les vrais moteurs de décision : peur, désir, appartenance.",
   },
   {
     icon: <BlueprintIcon size={28} className="text-blue-400" />,
-    text: "Structurer une offre claire",
+    title: "Offre irrésistible",
+    desc: "Structure une proposition que le client veut dire oui — pas juste comprendre.",
   },
   {
     icon: <VoiceIcon size={28} className="text-blue-400" />,
-    text: "Vendre à l'oral et à l'écrit",
+    title: "Vendre à l'oral et à l'écrit",
+    desc: "Maîtrise la persuasion dans tes pitchs, emails, pages de vente et appels.",
   },
 ];
 
@@ -340,17 +628,38 @@ const modules = [
   },
 ];
 
-const features = [
-  "8 modules structurés",
-  "43 leçons",
-  "Exercices concrets",
-  "Templates utilisables",
-  "Mises à jour incluses",
-];
-
 const forWhoCards = [
   "Tu as un bon produit mais les ventes stagnent",
   "Tu veux comprendre pourquoi les gens achètent vraiment",
   "Tu ne veux pas manipuler tes clients — juste mieux les servir",
   "Tu veux transformer ta valeur en revenus concrets",
+  "Tu es entrepreneur, freelance ou créateur de contenu",
+  "Tu veux une méthode durable, pas des scripts artificiels",
+];
+
+const faqs = [
+  {
+    q: "C'est quoi exactement la formation ?",
+    a: "8 modules sur la psychologie de la vente, les biais cognitifs, la construction d'offres, la communication persuasive et le marketing digital. 43 leçons, des exercices pratiques, et des templates réutilisables. Accès à vie, depuis n'importe quel appareil.",
+  },
+  {
+    q: "Je ne suis pas commercial — est-ce fait pour moi ?",
+    a: "Oui. La formation s'adresse à tout porteur de projet qui doit vendre : entrepreneur, freelance, créateur de contenu, consultant. Aucune expérience en vente n'est requise — on repart de zéro avec la psychologie réelle.",
+  },
+  {
+    q: "Est-ce que ça fonctionne pour les services digitaux ?",
+    a: "Absolument. La formation couvre la vente à l'écrit (emails, pages de vente, posts réseaux) et à l'oral (appels, pitchs), avec des exemples concrets adaptés aux services digitaux et au freelancing.",
+  },
+  {
+    q: "Combien de temps faut-il pour terminer la formation ?",
+    a: "À raison de 30 à 45 minutes par jour, tu peux compléter la formation en 2 à 3 semaines. Chaque leçon est courte, dense, et directement applicable sur ton projet.",
+  },
+  {
+    q: "Y a-t-il une garantie de remboursement ?",
+    a: "Oui. Satisfait ou remboursé sous 14 jours, sans aucune question posée. Si la formation ne te convient pas pour quelque raison que ce soit, on te rembourse immédiatement.",
+  },
+  {
+    q: "Le prix va-t-il augmenter ?",
+    a: "Oui. 59€ est le tarif de lancement. Le prix définitif sera de 199€. Plus tu attends, plus tu paies — et les places au tarif lancement sont limitées.",
+  },
 ];

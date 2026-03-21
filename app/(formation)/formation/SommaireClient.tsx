@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useProgress } from "@/hooks/useProgress";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -122,28 +123,29 @@ export function SommaireClient({ modules, totalLessons, totalExercises }: Props)
       </div>
 
       {/* ── Modules ─────────────────────────────────────────────────────────── */}
-      <div className="space-y-3">
+      <Accordion
+        type="single"
+        collapsible
+        value={openModuleId !== null ? String(openModuleId) : ""}
+        onValueChange={(val) => setOpenModuleId(val ? Number(val) : null)}
+        className="space-y-4"
+      >
         {modules.map((mod) => {
           const isModuleOpen = openModuleId === mod.id;
           const modulePercent = isLoaded ? getModuleProgress(mod.id, mod.lessons.length) : 0;
 
           return (
-            <div
+            <AccordionItem
               key={mod.id}
-              className={`bg-white/5 border rounded-2xl overflow-hidden transition-colors duration-200 ${
-                isModuleOpen ? "border-white/20" : "border-white/10"
-              }`}
+              value={String(mod.id)}
+              className="rounded-xl overflow-hidden bg-white/[0.04] border border-white/8 hover:border-white/15 transition-colors duration-200"
             >
-              {/* Header module */}
-              <button
-                onClick={() => setOpenModuleId(isModuleOpen ? null : mod.id)}
-                className="w-full flex items-center gap-4 p-5 text-left hover:bg-white/[0.04] transition-colors group"
-              >
+              <AccordionTrigger className="w-full flex items-center gap-4 p-5 hover:bg-white/[0.04] hover:no-underline transition-colors group py-4 font-normal justify-start [&>svg:last-child]:hidden">
                 <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-orange-500/20 to-orange-600/20 flex items-center justify-center text-base font-bold text-orange-400 flex-shrink-0 transition-transform duration-200 group-hover:scale-105">
                   {String(mod.id).padStart(2, "0")}
                 </div>
 
-                <div className="flex-1 min-w-0">
+                <div className="flex-1 min-w-0 text-left">
                   <h2 className="text-white font-semibold text-base leading-snug">{mod.title}</h2>
                   <div className="flex items-center gap-2 mt-1 flex-wrap">
                     <span className="text-xs px-2 py-0.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400">
@@ -160,12 +162,16 @@ export function SommaireClient({ modules, totalLessons, totalExercises }: Props)
                   </div>
                 </div>
 
-                <ChevronDown open={isModuleOpen} />
-              </button>
+                <svg
+                  width="18" height="18" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" strokeWidth="2"
+                  className={`flex-shrink-0 text-gray-400 transition-transform duration-300 ml-auto ${isModuleOpen ? "rotate-180" : ""}`}
+                >
+                  <path d="m6 9 6 6 6-6" />
+                </svg>
+              </AccordionTrigger>
 
-              {/* Contenu module — CSS grid-rows accordion for smooth animation */}
-              <div className={`accordion-grid ${isModuleOpen ? "accordion-grid-open" : ""}`}>
-                <div className="overflow-hidden">
+              <AccordionContent className="p-0 pb-0">
                 <div className="border-t border-white/10">
 
                   {/* Objectif */}
@@ -176,7 +182,7 @@ export function SommaireClient({ modules, totalLessons, totalExercises }: Props)
                     </div>
                   )}
 
-                  {/* Module 9 : 100% pratique */}
+                  {/* Module 100% pratique */}
                   {mod.lessons.length === 0 && (
                     <div className="px-5 py-4 text-sm text-gray-500 italic">
                       Ce module est entièrement pratique — voir les exercices ci-dessous.
@@ -233,12 +239,11 @@ export function SommaireClient({ modules, totalLessons, totalExercises }: Props)
                     </div>
                   )}
                 </div>
-                </div>
-              </div>
-            </div>
+              </AccordionContent>
+            </AccordionItem>
           );
         })}
-      </div>
+      </Accordion>
 
       {/* ── Lien Exercices ──────────────────────────────────────────────────── */}
       <div className="mt-10 pt-8 border-t border-white/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
