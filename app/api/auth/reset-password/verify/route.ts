@@ -2,39 +2,35 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
 export async function GET(req: Request) {
+  const { searchParams } = new URL(req.url);
+  const token = searchParams.get("token");
+
+  if (!token) {
+    return NextResponse.json({ valid: false, reason: "Token manquant." });
+  }
+
+  console.log(`[verify] token reçu: ${token.substring(0, 8)}... (length=${token.length})`);
+
   try {
-    const { searchParams } = new URL(req.url);
-    const token = searchParams.get("token");
-
-    if (!token) {
-      return NextResponse.json({ valid: false, reason: "Token manquant." });
-    }
-
-    console.log(`[reset-password/verify] Token received: ${token.substring(0, 8)}... (length=${token.length})`);
-
-    const record = await prisma.passwordResetToken.findUnique({
+    const record = await prisma.passwordResetToken.findFirst({
       where: { token },
-      include: { user: { select: { email: true } } },
     });
 
+    console.log(`[verify] record trouvé: ${!!record}`);
+
     if (!record) {
-      return NextResponse.json({ valid: false, reason: "Token invalide." });
+      return NextResponse.json({ valid: false, reason: "Token introuvable." });
     }
 
     if (record.expiresAt < new Date()) {
-      // Nettoyer les tokens expirés
       await prisma.passwordResetToken.delete({ where: { token } });
       return NextResponse.json({ valid: false, reason: "Token expiré." });
     }
 
-    return NextResponse.json({ valid: true, email: record.user.email });
+    return NextResponse.json({ valid: true });
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
-    console.error("[reset-password/verify] Error:", message, err);
-    const isDev = process.env.NODE_ENV === "development";
-    return NextResponse.json({
-      valid: false,
-      reason: isDev ? `Erreur serveur : ${message}` : "Erreur serveur. Réessaie ou contacte le support.",
-    });
+    console.error("[verify] erreur:", message, err);
+    return NextResponse.json({ valid: false, reason: message });
   }
 }
