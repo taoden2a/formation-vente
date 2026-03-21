@@ -7,8 +7,6 @@ import { FooterV2 } from '@/components/layout/FooterV2'
 import { AuthStatus } from '@/components/layout/AuthStatus'
 import { AffiliateTracker } from '@/components/AffiliateTracker'
 import { Providers } from '@/components/Providers'
-import { ClientAurora } from '@/components/ui/ClientAurora'
-import { PageTransition } from '@/components/ui/PageTransition'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -26,16 +24,12 @@ export default function RootLayout({
     <html lang="fr">
       <body className={inter.className}>
         <Providers>
-          {/* Aurora globale — masquée automatiquement sur les pages auth */}
-          <ClientAurora />
           <div className="flex flex-col min-h-screen">
             <Navbar authSlot={<AuthStatus />} />
             <Suspense fallback={null}>
               <AffiliateTracker />
             </Suspense>
-            <main className="flex-1">
-              <PageTransition>{children}</PageTransition>
-            </main>
+            <main className="flex-1">{children}</main>
             <FooterV2 />
           </div>
         </Providers>

@@ -10,7 +10,6 @@
  */
 
 import { useState, useMemo, memo, useRef, useEffect, useCallback } from "react";
-import { AnimatedButton } from "@/components/ui/animated-button";
 import Link from "next/link";
 import { BackgroundAnimated } from "@/components/ui/BackgroundAnimated";
 import { PageTransition } from "@/components/ui/PageTransition";
@@ -306,14 +305,13 @@ function AffiliateDashboard() {
           {error && (
             <p className="text-red-400 text-sm mb-4">{error}</p>
           )}
-          <AnimatedButton
+          <button
             onClick={handleCreate}
             disabled={creating}
-            variant="primary"
-            className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-semibold"
+            className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 text-white font-semibold hover:from-orange-600 hover:to-orange-700 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {creating ? "Activation en cours…" : "Activer mon programme d'affiliation"}
-          </AnimatedButton>
+          </button>
         </div>
       </div>
     );
@@ -339,18 +337,17 @@ function AffiliateDashboard() {
               value={affiliateLink}
               className="flex-1 px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-gray-300 text-sm"
             />
-            <AnimatedButton
+            <button
               onClick={copyLink}
-              shimmer={!copied}
-              className={`px-6 py-3 rounded-xl font-medium flex items-center gap-2 ${
+              className={`px-6 py-3 rounded-xl font-medium transition-all duration-300 flex items-center gap-2 ${
                 copied
                   ? "bg-green-500/20 text-green-400 border border-green-500/30"
-                  : "bg-orange-500 text-white hover:bg-orange-400"
+                  : "bg-orange-500 text-white hover:bg-orange-600"
               }`}
             >
               <CopyIcon size={18} />
               {copied ? "Copié !" : "Copier"}
-            </AnimatedButton>
+            </button>
           </div>
         </div>
 

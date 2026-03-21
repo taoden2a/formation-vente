@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { AnimatedButton } from "@/components/ui/animated-button";
+import { Button } from "@/components/ui/Button";
 
 export function CheckoutButton() {
   const [loading, setLoading] = useState(false);
@@ -40,14 +40,15 @@ export function CheckoutButton() {
 
   return (
     <div className="w-full space-y-2">
-      <AnimatedButton
-        variant="primary"
+      <Button
+        variant="action"
+        size="lg"
+        fullWidth
         onClick={handleClick}
         disabled={loading}
-        className="w-full rounded-xl px-8 py-4 text-lg"
       >
         {loading ? "Redirection…" : "Commencer maintenant"}
-      </AnimatedButton>
+      </Button>
       {error && <p className="text-sm text-red-600 text-center">{error}</p>}
     </div>
   );
