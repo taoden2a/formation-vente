@@ -24,6 +24,7 @@ export async function POST(req: Request) {
 
     // Toujours retourner 200 — ne pas révéler si l'email existe
     const user = await prisma.user.findUnique({ where: { email } });
+    console.log(`[reset-password] User lookup for ${email}: ${user ? `found (id=${user.id})` : "NOT FOUND — early return"}`);
     if (!user) {
       return NextResponse.json({ success: true });
     }
@@ -38,6 +39,7 @@ export async function POST(req: Request) {
     await prisma.passwordResetToken.create({
       data: { token, userId: user.id, expiresAt },
     });
+    console.log(`[reset-password] Token created for user ${user.id}, expires ${expiresAt.toISOString()}`);
 
     // Envoyer l'email via Resend
     const apiKey = process.env.RESEND_API_KEY;

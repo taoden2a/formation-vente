@@ -10,6 +10,8 @@ export async function GET(req: Request) {
       return NextResponse.json({ valid: false, reason: "Token manquant." });
     }
 
+    console.log(`[reset-password/verify] Token received: ${token.substring(0, 8)}... (length=${token.length})`);
+
     const record = await prisma.passwordResetToken.findUnique({
       where: { token },
       include: { user: { select: { email: true } } },
