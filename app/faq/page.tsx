@@ -84,8 +84,8 @@ const faqData = [
   },
   {
     category: "paiement",
-    question: "Y a-t-il une garantie de remboursement ?",
-    answer: "Oui, nous offrons une garantie satisfait ou remboursé de 14 jours. Si la formation ne correspond pas à vos attentes dans les 14 jours suivant votre achat, vous pouvez demander un remboursement complet sans justification.",
+    question: "Et si la formation ne me convient pas ?",
+    answer: "Toute réclamation doit être adressée via le formulaire de contact dans les 7 jours suivant l'achat, en précisant les motifs. Chaque demande est examinée individuellement par le Vendeur. Conformément à l'article L221-28 du Code de la consommation, l'accès immédiat au contenu numérique implique la renonciation au droit de rétractation.",
   },
   {
     category: "affiliation",

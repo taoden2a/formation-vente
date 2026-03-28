@@ -76,12 +76,12 @@ export function PricingCard() {
           ))}
         </ul>
 
-        {/* Guarantee */}
+        {/* Payment security badge */}
         <div className="flex items-center gap-2 text-xs text-gray-500 bg-gray-50 rounded-xl py-2.5 px-3.5">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-gray-400 flex-shrink-0">
             <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
           </svg>
-          <span>Satisfait ou remboursé 14 jours — sans questions</span>
+          <span>Paiement sécurisé par Stripe</span>
         </div>
 
         {/* CTA */}

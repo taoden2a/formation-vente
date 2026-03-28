@@ -640,8 +640,8 @@ const faqs = [
     a: "À raison de 30 à 45 minutes par jour, tu peux compléter la formation en 2 à 3 semaines. Chaque leçon est courte, dense, et directement applicable sur ton projet.",
   },
   {
-    q: "Y a-t-il une garantie de remboursement ?",
-    a: "Oui. Satisfait ou remboursé sous 14 jours, sans aucune question posée. Si la formation ne te convient pas pour quelque raison que ce soit, on te rembourse immédiatement.",
+    q: "Et si la formation ne me convient pas ?",
+    a: "Toute réclamation peut être adressée via le formulaire de contact dans les 7 jours suivant l'achat. Chaque demande est examinée individuellement. En accédant à la formation, tu acceptes les conditions générales de vente.",
   },
   {
     q: "Le prix va-t-il augmenter ?",

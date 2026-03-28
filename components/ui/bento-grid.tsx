@@ -162,7 +162,7 @@ export function BentoGrid() {
         </div>
       </BentoCard>
 
-      {/* Grande card bas droite — Garantie */}
+      {/* Grande card bas droite — Paiement sécurisé */}
       <BentoCard className="md:col-span-2 p-5 sm:p-6" delay={0.24}>
         <div className="flex flex-col sm:flex-row sm:items-center gap-5 sm:gap-8 relative z-10">
           <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center">
@@ -170,14 +170,14 @@ export function BentoGrid() {
           </div>
           <div className="flex-1 space-y-1.5">
             <h3 className="text-base sm:text-lg font-bold text-white leading-snug">
-              Satisfait ou remboursé
+              Paiement sécurisé
             </h3>
             <p className="text-xs sm:text-sm text-white/55 leading-relaxed">
-              14 jours pour tester. Sans justification.
+              Transaction chiffrée par Stripe. Aucune donnée bancaire stockée.
             </p>
           </div>
           <span className="inline-block flex-shrink-0 bg-orange-500/20 text-orange-400 rounded-full px-3 py-1 text-xs font-semibold self-start sm:self-center">
-            Garantie incluse
+            Stripe
           </span>
         </div>
       </BentoCard>

@@ -57,6 +57,7 @@ const subjectOptions = [
   { value: "question-formation", label: "Question sur la formation" },
   { value: "probleme-technique", label: "Problème technique" },
   { value: "paiement", label: "Question sur le paiement" },
+  { value: "reclamation", label: "Réclamation" },
   { value: "affiliation", label: "Programme d'affiliation" },
   { value: "partenariat", label: "Proposition de partenariat" },
   { value: "autre", label: "Autre" },

@@ -654,8 +654,8 @@ const affiliateFAQs = [
     answer: "Oui, tant que vous respectez nos conditions d'utilisation et ne faites pas de fausses promesses dans vos annonces.",
   },
   {
-    question: "Que se passe-t-il si un client demande un remboursement ?",
-    answer: "La commission liée à cette vente est automatiquement déduite de votre solde.",
+    question: "Que se passe-t-il si une vente est annulée ou remboursée ?",
+    answer: "Si le Vendeur décide d'accorder un remboursement, la commission liée à cette vente est automatiquement déduite de votre solde.",
   },
   {
     question: "Combien de temps dure le suivi d'affiliation ?",

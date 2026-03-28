@@ -167,13 +167,13 @@ export default function CGVPage() {
                       <h2 className="text-xl font-semibold text-white mb-4">Article 4 — Droit de rétractation</h2>
                       <div className="space-y-3 text-gray-300 leading-relaxed">
                         <p>
-                          <strong>4.1 Garantie satisfait ou remboursé :</strong> Le Vendeur offre une garantie satisfait ou remboursé de 14 jours à compter de la date d&apos;achat. Durant cette période, le Client peut demander un remboursement intégral sans justification.
+                          <strong>4.1</strong> Conformément à l&apos;article L221-28 du Code de la consommation, le droit de rétractation ne peut être exercé pour les contenus numériques dont l&apos;exécution a commencé avec l&apos;accord préalable du consommateur. En accédant à la formation après l&apos;achat, le Client reconnaît renoncer expressément à son droit de rétractation.
                         </p>
                         <p>
-                          <strong>4.2 Procédure :</strong> Pour exercer ce droit, le Client doit envoyer une demande via le formulaire de contact ou par email. Le remboursement est effectué dans un délai de 14 jours suivant la réception de la demande, via le même moyen de paiement que celui utilisé lors de l&apos;achat.
+                          <strong>4.2 Réclamations :</strong> Toute réclamation concernant la formation doit être adressée via le formulaire de contact dans un délai de 7 jours suivant l&apos;achat, en exposant précisément les motifs de la demande. Le Vendeur se réserve le droit d&apos;examiner chaque demande au cas par cas et d&apos;y répondre dans un délai de 14 jours ouvrés.
                         </p>
                         <p>
-                          <strong>4.3 Après la période de garantie :</strong> Passé le délai de 14 jours, conformément à l&apos;article L221-28 du Code de la consommation, le droit de rétractation ne peut être exercé pour les contenus numériques fournis sur un support immatériel dont l&apos;exécution a commencé avec l&apos;accord du consommateur.
+                          <strong>4.3</strong> Le Vendeur ne procède à aucun remboursement automatique. Toute décision de remboursement est laissée à la seule appréciation du Vendeur après examen de la demande.
                         </p>
                       </div>
                     </section>
