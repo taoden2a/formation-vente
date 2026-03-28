@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/Icons";
 import { TestimonialsScroll } from "@/components/sections/TestimonialsScroll";
 import { PricingCard } from "@/components/pricing/PricingCard";
+import { BentoGrid } from "@/components/ui/bento-grid";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
 // ─── Countdown helpers ────────────────────────────────────────────────────────
@@ -292,15 +293,15 @@ export default function Home() {
                   {/* TODO: remplacer par ton prénom et titre réels */}
                   <div>
                     <p className="text-xl sm:text-2xl font-bold text-white">Tao</p>
-                    <p className="text-orange-400 text-sm font-medium mt-0.5">Entrepreneur &amp; formateur</p>
+                    <p className="text-orange-400 text-sm font-medium mt-0.5">Entrepreneur</p>
                   </div>
                   {/* TODO: remplacer par ta vraie bio (2-3 lignes de crédibilité) */}
                   <p className="text-gray-300 text-sm sm:text-base leading-relaxed max-w-xl">
-                    Entrepreneur depuis ses premières années d&apos;études, j&apos;ai construit cette formation pour transmettre ce que j&apos;aurais voulu apprendre plus tôt : la psychologie réelle derrière chaque décision d&apos;achat.
+                    Entrepreneur depuis mes premières années d&apos;études dans un BUT de vente, j&apos;ai construit cette formation pour transmettre ce que j&apos;aurais voulu apprendre plus tôt : la psychologie réelle derrière chaque décision d&apos;achat, ce qui m'aurait évité mes premières erreurs.
                   </p>
                   {/* TODO: remplacer par ta vraie citation sur la vente */}
                   <blockquote className="border-l-2 border-orange-500/40 pl-4 text-gray-400 italic text-sm sm:text-base">
-                    &ldquo;La vente n&apos;est pas un talent. C&apos;est une compréhension que tout le monde peut acquérir.&rdquo;
+                    &ldquo;La vente n&apos;est pas un talent. C&apos;est une compétence de compréhension que tout le monde peut acquérir.&rdquo;
                   </blockquote>
                 </div>
               </div>
@@ -309,26 +310,16 @@ export default function Home() {
         </div>
       </BackgroundAnimated>
 
-      {/* ── CE QUE TU VAS VRAIMENT APPRENDRE (remplace ROI calculator) ───────── */}
+      {/* ── BENTO GRID — Transformation avant/après ──────────────────────────── */}
       <BackgroundAnimated variant="dark" className="section-spacing">
         <div className="container-width">
-          <div className="max-w-3xl mx-auto space-y-8">
+          <div className="max-w-5xl mx-auto space-y-8">
             <ScrollReveal>
               <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center text-white">
                 Ce que tu vas vraiment apprendre
               </h2>
             </ScrollReveal>
-
-            <div className="grid sm:grid-cols-3 gap-4 sm:gap-6">
-              {outcomeStats.map((stat, i) => (
-                <ScrollReveal key={i} delay={i * 0.12} direction="scale">
-                  <div className="glass-card-hover rounded-2xl p-6 sm:p-8 h-full text-center space-y-3">
-                    <p className="text-4xl sm:text-5xl font-black text-orange-400">{stat.figure}</p>
-                    <p className="text-sm text-gray-300 leading-relaxed">{stat.desc}</p>
-                  </div>
-                </ScrollReveal>
-              ))}
-            </div>
+            <BentoGrid />
           </div>
         </div>
       </BackgroundAnimated>
@@ -620,12 +611,6 @@ const modules = [
     title: "Mise en pratique finale",
     transformation: "Appliquer l'ensemble sur ton projet concret.",
   },
-];
-
-const outcomeStats = [
-  { figure: "×2", desc: "taux de closing moyen rapporté par nos membres" },
-  { figure: "+60%", desc: "prospects qualifiés en moins de 90 jours" },
-  { figure: "8h", desc: "de contenu dense, zéro remplissage" },
 ];
 
 const forWhoCards = [
