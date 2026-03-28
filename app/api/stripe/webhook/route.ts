@@ -156,36 +156,62 @@ async function handleChargeRefunded(charge: Stripe.Charge) {
     return;
   }
 
-  // Retrouver l'AffiliateSale via stripeSessionId
-  const sale = await prisma.affiliateSale.findFirst({
-    where: { stripeSessionId: payment.stripeSessionId },
-  });
-
-  if (!sale) {
-    // Pas de commission sur cette vente — rien à faire
-    return;
-  }
-
-  if (sale.status === "refunded") {
+  // Idempotence : si déjà traité, ne pas re-révoquer
+  if (payment.status === "refunded") {
     console.warn("[webhook] remboursement déjà traité pour session", payment.stripeSessionId);
     return;
   }
 
-  // Transaction atomique : marquer "refunded" + décrémenter totalEarnings
-  await prisma.$transaction([
-    prisma.affiliateSale.update({
-      where: { id: sale.id },
-      data: { status: "refunded" },
-    }),
-    prisma.affiliate.update({
-      where: { id: sale.affiliateId },
-      data: { totalEarnings: { decrement: sale.commission } },
-    }),
-  ]);
+  // Retrouver l'AffiliateSale via stripeSessionId (peut ne pas exister)
+  const sale = await prisma.affiliateSale.findFirst({
+    where: { stripeSessionId: payment.stripeSessionId },
+  });
 
-  console.log(
-    `[webhook] remboursement: commission ${sale.commission / 100}€ déduite pour affilié ${sale.affiliateId}`
-  );
+  const hasActiveCommission = sale && sale.status !== "refunded";
+
+  // Transaction atomique : révocation accès + marquage paiement + (si applicable) annulation commission
+  if (hasActiveCommission) {
+    await prisma.$transaction([
+      // 1. Révoquer l'accès immédiatement
+      prisma.user.update({
+        where: { id: payment.userId },
+        data: { paid: false },
+      }),
+      // 2. Marquer le paiement comme remboursé
+      prisma.payment.update({
+        where: { id: payment.id },
+        data: { status: "refunded" },
+      }),
+      // 3. Annuler la commission affilié
+      prisma.affiliateSale.update({
+        where: { id: sale.id },
+        data: { status: "refunded" },
+      }),
+      prisma.affiliate.update({
+        where: { id: sale.affiliateId },
+        data: { totalEarnings: { decrement: sale.commission } },
+      }),
+    ]);
+    console.log(
+      `[webhook] remboursement: accès révoqué (user ${payment.userId}) + commission ${sale.commission / 100}€ déduite (affilié ${sale.affiliateId})`
+    );
+  } else {
+    await prisma.$transaction([
+      // 1. Révoquer l'accès immédiatement
+      prisma.user.update({
+        where: { id: payment.userId },
+        data: { paid: false },
+      }),
+      // 2. Marquer le paiement comme remboursé
+      prisma.payment.update({
+        where: { id: payment.id },
+        data: { status: "refunded" },
+      }),
+    ]);
+    console.log(
+      `[webhook] remboursement: accès révoqué pour user ${payment.userId} (session ${payment.stripeSessionId})`
+    );
+  }
 }
 
 async function handleAffiliateCommission({
