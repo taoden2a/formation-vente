@@ -297,7 +297,7 @@ export default function Home() {
                   </div>
                   {/* TODO: remplacer par ta vraie bio (2-3 lignes de crédibilité) */}
                   <p className="text-gray-300 text-sm sm:text-base leading-relaxed max-w-xl">
-                    Entrepreneur depuis mes premières années d&apos;études dans un BUT de vente, j&apos;ai construit cette formation pour transmettre ce que j&apos;aurais voulu apprendre plus tôt : la psychologie réelle derrière chaque décision d&apos;achat, ce qui m'aurait évité mes premières erreurs.
+                    Entrepreneur depuis mes premières années d&apos;études dans un BUT de vente, j&apos;ai construit cette formation pour transmettre ce que j&apos;aurais voulu apprendre plus tôt : la psychologie réelle derrière chaque décision d&apos;achat, ce qui m&apos;aurait évité mes premières erreurs.
                   </p>
                   {/* TODO: remplacer par ta vraie citation sur la vente */}
                   <blockquote className="border-l-2 border-orange-500/40 pl-4 text-gray-400 italic text-sm sm:text-base">
