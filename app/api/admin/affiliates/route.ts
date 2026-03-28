@@ -63,6 +63,8 @@ export async function GET() {
       totalSales: aff._count.sales,
       pendingAmountEur: (pendingCents / 100).toFixed(2),
       paidAmountEur: (paidCents / 100).toFixed(2),
+      paymentMethod: aff.paymentMethod,
+      paymentDetails: aff.paymentDetails,
       isSuspect,
       createdAt: aff.createdAt,
       sales: aff.sales.map((s) => ({

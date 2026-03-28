@@ -25,6 +25,8 @@ interface AffiliateRow {
   totalSales: number;
   pendingAmountEur: string;
   paidAmountEur: string;
+  paymentMethod: string | null;
+  paymentDetails: string | null;
   isSuspect: boolean;
   createdAt: string;
   sales: AffiliateSaleRow[];
@@ -128,7 +130,25 @@ function AffiliateCard({ affiliate, onPaid }: { affiliate: AffiliateRow; onPaid:
 
       {/* Détail ventes */}
       {open && (
-        <div className="border-t border-white/10 px-5 py-4">
+        <div className="border-t border-white/10 px-5 py-4 space-y-5">
+
+          {/* Coordonnées de paiement */}
+          <div>
+            <p className="text-xs text-gray-500 uppercase tracking-wider mb-2">Coordonnées de paiement</p>
+            {affiliate.paymentMethod && affiliate.paymentDetails ? (
+              <div className="flex items-center gap-3 p-3 bg-white/5 rounded-xl">
+                <span className="text-xs text-gray-400 font-medium">
+                  {affiliate.paymentMethod === "paypal" ? "PayPal" : "IBAN"}
+                </span>
+                <span className="text-sm text-white font-mono flex-1">{affiliate.paymentDetails}</span>
+              </div>
+            ) : (
+              <span className="inline-flex px-2 py-1 bg-orange-500/10 border border-orange-500/20 text-orange-400 text-xs rounded-lg font-medium">
+                À compléter
+              </span>
+            )}
+          </div>
+
           {affiliate.sales.length === 0 ? (
             <p className="text-sm text-gray-600 italic">Aucune vente générée.</p>
           ) : (

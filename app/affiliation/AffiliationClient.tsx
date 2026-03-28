@@ -231,6 +231,170 @@ interface AffiliateStats {
   conversionRate?: number;
 }
 
+// ─── Constante seuil ──────────────────────────────────────────────────────────
+
+const PAYMENT_THRESHOLD_EUR = 20;
+
+// ─── Formulaire coordonnées de paiement ───────────────────────────────────────
+
+interface PaymentInfo {
+  hasAffiliate: boolean;
+  paymentMethod: string | null;
+  maskedDetails: string | null;
+  hasPaymentInfo: boolean;
+}
+
+function PaymentInfoForm() {
+  const [info, setInfo] = useState<PaymentInfo | null>(null);
+  const [method, setMethod] = useState<"paypal" | "iban">("paypal");
+  const [details, setDetails] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [editing, setEditing] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/affiliation/payment-info")
+      .then((r) => r.ok ? r.json() : null)
+      .then((data) => {
+        if (data) {
+          setInfo(data);
+          if (data.paymentMethod) setMethod(data.paymentMethod as "paypal" | "iban");
+        }
+      })
+      .catch(() => null);
+  }, []);
+
+  const handleSave = async () => {
+    setSaving(true);
+    setSaveError(null);
+    setSaved(false);
+    try {
+      const res = await fetch("/api/affiliation/payment-info", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ paymentMethod: method, paymentDetails: details }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setSaveError(data.error ?? "Erreur lors de la sauvegarde.");
+      } else {
+        setSaved(true);
+        setEditing(false);
+        setDetails("");
+        // Recharger les infos masquées
+        const r2 = await fetch("/api/affiliation/payment-info");
+        if (r2.ok) setInfo(await r2.json());
+      }
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const showForm = editing || !info?.hasPaymentInfo;
+
+  return (
+    <div className="bg-white/[0.04] border border-white/10 rounded-2xl p-5 sm:p-6">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-sm font-semibold text-white">Coordonnées de paiement</h3>
+        {info?.hasPaymentInfo && !editing && (
+          <button
+            onClick={() => setEditing(true)}
+            className="text-xs text-orange-400 hover:text-orange-300 transition-colors"
+          >
+            Modifier
+          </button>
+        )}
+      </div>
+
+      {/* Valeur masquée actuelle */}
+      {info?.hasPaymentInfo && !editing && (
+        <div className="flex items-center gap-3 p-3 bg-white/5 rounded-xl">
+          <div className="w-8 h-8 rounded-lg bg-orange-500/10 border border-orange-500/20 flex items-center justify-center flex-shrink-0">
+            {info.paymentMethod === "paypal" ? (
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-orange-400">
+                <path d="M7 11l2 2 4-4" />
+                <rect width="18" height="11" x="3" y="11" rx="2" />
+                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+              </svg>
+            ) : (
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-orange-400">
+                <rect width="20" height="14" x="2" y="5" rx="2" />
+                <line x1="2" x2="22" y1="10" y2="10" />
+              </svg>
+            )}
+          </div>
+          <div>
+            <p className="text-xs text-gray-500 mb-0.5">
+              {info.paymentMethod === "paypal" ? "PayPal" : "Virement bancaire (IBAN)"}
+            </p>
+            <p className="text-sm text-gray-300 font-mono">{info.maskedDetails}</p>
+          </div>
+        </div>
+      )}
+
+      {/* Formulaire */}
+      {showForm && (
+        <div className="space-y-4">
+          {/* Méthode */}
+          <div className="flex gap-3">
+            {(["paypal", "iban"] as const).map((m) => (
+              <button
+                key={m}
+                onClick={() => setMethod(m)}
+                className={`flex-1 py-2.5 rounded-xl text-sm font-medium border transition-all ${
+                  method === m
+                    ? "bg-orange-500/15 border-orange-500/40 text-orange-400"
+                    : "bg-white/5 border-white/10 text-gray-500 hover:text-gray-300"
+                }`}
+              >
+                {m === "paypal" ? "PayPal" : "Virement IBAN"}
+              </button>
+            ))}
+          </div>
+
+          {/* Input */}
+          <input
+            type={method === "paypal" ? "email" : "text"}
+            value={details}
+            onChange={(e) => setDetails(e.target.value)}
+            placeholder={method === "paypal" ? "email@exemple.com" : "FR76 3000 4028 3700 0100 0000 000"}
+            className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-sm text-white placeholder:text-gray-600 focus:outline-none focus:border-orange-500/40 focus:bg-white/[0.07] transition-all"
+          />
+
+          {saveError && <p className="text-red-400 text-xs">{saveError}</p>}
+
+          <div className="flex gap-3">
+            <button
+              onClick={handleSave}
+              disabled={saving || !details.trim()}
+              className="flex-1 py-2.5 rounded-xl bg-orange-500 text-white text-sm font-medium hover:bg-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {saving ? "Sauvegarde…" : "Sauvegarder"}
+            </button>
+            {editing && (
+              <button
+                onClick={() => { setEditing(false); setDetails(""); setSaveError(null); }}
+                className="px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-gray-400 hover:text-white transition-colors"
+              >
+                Annuler
+              </button>
+            )}
+          </div>
+
+          {saved && (
+            <p className="text-green-400 text-xs text-center">Coordonnées sauvegardées.</p>
+          )}
+        </div>
+      )}
+
+      <p className="text-xs text-gray-600 mt-3">
+        Ces informations ne sont visibles que par l&apos;administrateur et servent uniquement à effectuer vos virements.
+      </p>
+    </div>
+  );
+}
+
 // ─── Dashboard affilié (uniquement pour les membres ayant acheté la formation) ─
 
 function AffiliateDashboard() {
@@ -371,34 +535,55 @@ function AffiliateDashboard() {
         </div>
 
         {/* Détail pending / payé */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="bg-orange-500/5 border border-orange-500/20 rounded-xl p-4">
-            <p className="text-xs text-orange-400/70 uppercase tracking-wider mb-1">
-              En attente de paiement
-            </p>
-            <p className="text-2xl font-bold text-orange-400">
-              {stats.pendingAmountEur ?? "0.00"} €
-            </p>
-            <p className="text-xs text-gray-600 mt-1">
-              {stats.pendingCount ?? 0} vente{(stats.pendingCount ?? 0) !== 1 ? "s" : ""} non versée{(stats.pendingCount ?? 0) !== 1 ? "s" : ""}
-            </p>
-          </div>
-          <div className="bg-green-500/5 border border-green-500/20 rounded-xl p-4">
-            <p className="text-xs text-green-400/70 uppercase tracking-wider mb-1">
-              Déjà reçu
-            </p>
-            <p className="text-2xl font-bold text-green-400">
-              {stats.paidAmountEur ?? "0.00"} €
-            </p>
-            <p className="text-xs text-gray-600 mt-1">
-              {stats.paidCount ?? 0} vente{(stats.paidCount ?? 0) !== 1 ? "s" : ""} versée{(stats.paidCount ?? 0) !== 1 ? "s" : ""}
-            </p>
-          </div>
-        </div>
+        {(() => {
+          const pendingEur = parseFloat(stats.pendingAmountEur ?? "0");
+          const manque = Math.max(0, PAYMENT_THRESHOLD_EUR - pendingEur).toFixed(2);
+          const seuilAtteint = pendingEur >= PAYMENT_THRESHOLD_EUR;
 
-        <p className="text-xs text-gray-600 text-center pt-2">
-          Les commissions sont versées mensuellement par virement dès votre première vente.
-        </p>
+          return (
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="bg-orange-500/5 border border-orange-500/20 rounded-xl p-4">
+                  <p className="text-xs text-orange-400/70 uppercase tracking-wider mb-1">
+                    En attente de paiement
+                  </p>
+                  <p className="text-2xl font-bold text-orange-400">
+                    {stats.pendingAmountEur ?? "0.00"} €
+                  </p>
+                  <p className="text-xs text-gray-600 mt-1">
+                    {stats.pendingCount ?? 0} vente{(stats.pendingCount ?? 0) !== 1 ? "s" : ""} non versée{(stats.pendingCount ?? 0) !== 1 ? "s" : ""}
+                  </p>
+                </div>
+                <div className="bg-green-500/5 border border-green-500/20 rounded-xl p-4">
+                  <p className="text-xs text-green-400/70 uppercase tracking-wider mb-1">
+                    Déjà reçu
+                  </p>
+                  <p className="text-2xl font-bold text-green-400">
+                    {stats.paidAmountEur ?? "0.00"} €
+                  </p>
+                  <p className="text-xs text-gray-600 mt-1">
+                    {stats.paidCount ?? 0} vente{(stats.paidCount ?? 0) !== 1 ? "s" : ""} versée{(stats.paidCount ?? 0) !== 1 ? "s" : ""}
+                  </p>
+                </div>
+              </div>
+
+              {/* Message seuil 20€ */}
+              <div className={`px-4 py-3 rounded-xl text-sm border ${
+                seuilAtteint
+                  ? "bg-green-500/5 border-green-500/20 text-green-400"
+                  : "bg-white/5 border-white/10 text-gray-500"
+              }`}>
+                {seuilAtteint
+                  ? `Tu as ${stats.pendingAmountEur} € en attente — nous te contacterons pour procéder au paiement.`
+                  : `Les paiements sont effectués manuellement dès 20 € accumulés. Il te manque ${manque} € pour atteindre le seuil.`
+                }
+              </div>
+            </div>
+          );
+        })()}
+
+        {/* Coordonnées de paiement */}
+        <PaymentInfoForm />
       </div>
     );
   }

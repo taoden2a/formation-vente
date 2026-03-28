@@ -257,13 +257,15 @@ model Payment {
 // ============================================
 
 model Affiliate {
-  id            String    @id @default(cuid())
-  userId        String    @unique
-  code          String    @unique // Code unique de l'affilié
-  commissionRate Float    @default(25.0) // Taux de commission en %
-  totalEarnings  Int      @default(0) // Gains totaux en centimes
-  isActive      Boolean   @default(true)
-  createdAt     DateTime  @default(now())
+  id             String    @id @default(cuid())
+  userId         String    @unique
+  code           String    @unique // Code unique de l'affilié
+  commissionRate Float     @default(25.0) // Taux de commission en %
+  totalEarnings  Int       @default(0) // Gains totaux en centimes
+  isActive       Boolean   @default(true)
+  paymentMethod  String?   // "paypal" | "iban"
+  paymentDetails String?   // email PayPal ou IBAN complet
+  createdAt      DateTime  @default(now())
 
   // Relations
   user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
