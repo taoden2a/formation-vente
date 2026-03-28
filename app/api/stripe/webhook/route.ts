@@ -366,7 +366,7 @@ async function sendPurchaseEmails({
   try {
     const { error } = await resend.emails.send({
       from: `Comprendre pour Vendre <${fromEmail}>`,
-      to: "deneutao@gmail.com",
+      to: process.env.ADMIN_EMAIL ?? "deneutao@gmail.com",
       subject: `Nouvelle vente — ${customerEmail}`,
       html: buildInternalNotificationHtml({
         customerEmail,

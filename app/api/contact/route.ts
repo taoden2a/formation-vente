@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
 
-const RECIPIENT = "deneutao@gmail.com";
+const RECIPIENT = process.env.ADMIN_EMAIL ?? "deneutao@gmail.com";
 
 const SUBJECT_LABELS: Record<string, string> = {
   "question-formation": "Question sur la formation",
@@ -16,7 +16,7 @@ export async function POST(req: Request) {
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) {
     return NextResponse.json(
-      { error: "Service email non configuré. Contactez deneutao@gmail.com directement." },
+      { error: "Service email non configuré. Contactez-nous via le site." },
       { status: 503 }
     );
   }

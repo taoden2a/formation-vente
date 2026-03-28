@@ -351,7 +351,7 @@ export default function ContactPage() {
                       </div>
                       <div>
                         <h4 className="text-sm font-medium text-white">Email direct</h4>
-                        <p className="text-sm text-gray-400">deneutao@gmail.com</p>
+                        <p className="text-sm text-gray-400">{process.env.NEXT_PUBLIC_ADMIN_EMAIL}</p>
                       </div>
                     </div>
                   </div>
