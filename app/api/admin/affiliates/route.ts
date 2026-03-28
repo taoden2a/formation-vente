@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { safeDecrypt } from "@/lib/encryption";
 
 // Vérification admin centralisée
 async function requireAdmin() {
@@ -64,7 +65,8 @@ export async function GET() {
       pendingAmountEur: (pendingCents / 100).toFixed(2),
       paidAmountEur: (paidCents / 100).toFixed(2),
       paymentMethod: aff.paymentMethod,
-      paymentDetails: aff.paymentDetails,
+      // Déchiffrement pour affichage admin (AES-256)
+      paymentDetails: aff.paymentDetails ? safeDecrypt(aff.paymentDetails) : null,
       isSuspect,
       createdAt: aff.createdAt,
       sales: aff.sales.map((s) => ({
