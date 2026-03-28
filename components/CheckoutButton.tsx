@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/Button";
+import { AFFILIATE_LS_KEY } from "@/components/AffiliateTracker";
 
 export function CheckoutButton() {
   const [loading, setLoading] = useState(false);
@@ -12,7 +13,14 @@ export function CheckoutButton() {
     setError(null);
 
     try {
-      const res = await fetch("/api/stripe/checkout", { method: "POST" });
+      // Lire le code affilié depuis localStorage (backup si cookie expiré/absent)
+      const affiliateCode = localStorage.getItem(AFFILIATE_LS_KEY) ?? undefined;
+
+      const res = await fetch("/api/stripe/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ affiliateCode }),
+      });
 
       if (res.status === 401) {
         window.location.href = "/inscription?next=checkout";

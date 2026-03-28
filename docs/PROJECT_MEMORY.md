@@ -328,6 +328,185 @@ Sécurité :
 
 ---
 
+## AUDIT SYSTÈME D'AFFILIATION — 2026-03-28
+
+### Architecture du système
+
+**Fichiers concernés :**
+| Fichier | Rôle |
+|---|---|
+| `components/AffiliateTracker.tsx` | Client Component — pose le cookie + track le clic |
+| `app/api/affiliation/track/route.ts` | POST — crée un `AffiliateClick` en DB |
+| `app/api/affiliation/create/route.ts` | POST — génère le code affilié (membres seulement) |
+| `app/api/affiliation/stats/route.ts` | GET — retourne stats dashboard affilié |
+| `app/api/stripe/checkout/route.ts` | POST — lit cookie affilié + passe en metadata Stripe |
+| `app/api/stripe/webhook/route.ts` | POST — crée `AffiliateSale` + incrémente `totalEarnings` |
+| `app/affiliation/page.tsx` + `AffiliationClient.tsx` | Dashboard public affilié |
+| `prisma/schema.prisma` | Modèles : `Affiliate`, `AffiliateClick`, `AffiliateSale` |
+
+---
+
+### Fonctionnement réel — Étape par étape
+
+**1. Génération du lien**
+- Seul un membre (`paid=true`) peut générer son code via POST `/api/affiliation/create`
+- Code = 8 chars `[a-z0-9]`, généré avec `Math.random()`, loop anti-collision (10 tentatives)
+- Lien final : `https://comprendrepourvendre.com/?ref=CODE`
+
+**2. Tracking du clic**
+- `AffiliateTracker` (chargé dans `app/layout.tsx`) lit `?ref=` à chaque navigation
+- Pose `document.cookie = affiliate_ref=CODE; expires=+30j; SameSite=Lax; path=/`
+- Flag `sessionStorage` pour ne tracker qu'une fois par session navigateur
+- Fire-and-forget POST `/api/affiliation/track` → crée `AffiliateClick` avec IP + userAgent + referer
+
+**3. Lien cookie → checkout Stripe**
+- `app/api/stripe/checkout/route.ts` lit le header `cookie` avec regex `/affiliate_ref=([^;]+)/`
+- Injecte dans `session.metadata.affiliate` de Stripe
+
+**4. Attribution de la commission (webhook)**
+- Stripe fire `checkout.session.completed`
+- `handleAffiliateCommission()` : trouve l'affilié par code, vérifie `isActive`
+- Anti auto-attribution : `affiliate.userId !== buyerUserId`
+- Commission = `amountCents * commissionRate / 100` = 25%
+- Crée `AffiliateSale { status: "pending", stripeSessionId @unique }`
+- Incrémente `affiliate.totalEarnings` (centimes)
+
+**5. Durée du cookie** : 30 jours
+
+**6. Autre appareil** : cookie client-side seulement → si l'acheteur change d'appareil ou de navigateur, la commission est perdue. Pas de fallback par email ou compte. C'est le comportement standard cookie-based.
+
+---
+
+### Vérification étape par étape
+
+| Étape | Status | Détail |
+|---|---|---|
+| Clic → cookie posé | **OK** | `document.cookie` 30j, SameSite=Lax |
+| Cookie → metadata Stripe | **OK** | Regex sur `req.headers.get("cookie")` |
+| Webhook signature | **OK** | `stripe.webhooks.constructEvent` HMAC |
+| Webhook → `AffiliateSale` | **OK** | Dédoublonnage `stripeSessionId @unique` |
+| Anti auto-attribution | **OK** | `affiliate.userId !== buyerUserId` |
+| Stats dashboard | **PARTIEL** | Voir bug #2 ci-dessous |
+
+---
+
+### Bugs identifiés
+
+**BUG #1 — CRITIQUE : Pas de transaction atomique dans le webhook**
+Dans `handleAffiliateCommission()`, deux opérations séparées :
+```
+prisma.affiliateSale.create(...)   ← si ça réussit
+prisma.affiliate.update({ totalEarnings: { increment } })  ← si le process crash ici
+```
+Si crash entre les deux → `AffiliateSale` existe mais `totalEarnings` n'est pas incrémenté (ou l'inverse). Solution : utiliser `prisma.$transaction([...])`.
+
+**BUG #2 — IMPORTANT : `totalEarnings` peut diverger de la somme réelle des commissions**
+`totalEarnings` est incrémenté à chaque vente mais jamais recalculé. Si une vente est remboursée (Stripe refund), `totalEarnings` reste gonflé. Il n'y a pas de handler pour l'event `charge.refunded`. L'affilié voit des gains supérieurs à la réalité si des remboursements surviennent.
+
+**BUG #3 — IMPORTANT : Dashboard affilié ne distingue pas pending/paid**
+`/api/affiliation/stats` retourne `_count.sales` qui compte TOUTES les ventes sans filtre statut. L'affilié ne sait pas combien de ses gains sont "en attente de paiement" vs "déjà payés".
+
+**BUG #4 — MINEUR : Pas de déduplication des clics par IP**
+Un affilié (ou bot) peut envoyer des milliers de clics artificiels sur son propre lien. Chaque POST `/api/affiliation/track` crée un `AffiliateClick` sans vérification de doublons récents. Pas de rate limiting sur cette route.
+
+**BUG #5 — MINEUR : Cookie sans flag `Secure`**
+`document.cookie = affiliate_ref=...; SameSite=Lax` sans `; Secure`. En production HTTPS, ajouter `; Secure` est une bonne pratique.
+
+---
+
+### Accès admin — État actuel
+
+**Il n'existe aucune interface admin.** Zéro route `/admin`, zéro page admin.
+
+Pour auditer les affiliés aujourd'hui, seule option = SQL direct dans Supabase :
+
+```sql
+-- Toutes les ventes affiliées avec détail acheteur
+SELECT
+  a.code,
+  u.email as affilié,
+  s."buyerUserId",
+  s.amount / 100.0 as vente_eur,
+  s.commission / 100.0 as commission_eur,
+  s.status,
+  s."createdAt",
+  s."paidAt"
+FROM affiliate_sales s
+JOIN affiliates a ON s."affiliateId" = a.id
+JOIN users u ON a."userId" = u.id
+ORDER BY s."createdAt" DESC;
+
+-- Détecter fraude : achats par l'affilié lui-même (ne devrait jamais apparaître)
+SELECT a.code, u.email
+FROM affiliate_sales s
+JOIN affiliates a ON s."affiliateId" = a.id
+WHERE s."buyerUserId" = a."userId";
+
+-- Commissions à payer
+SELECT a.code, u.email, SUM(s.commission) / 100.0 as a_payer_eur
+FROM affiliate_sales s
+JOIN affiliates a ON s."affiliateId" = a.id
+JOIN users u ON a."userId" = u.id
+WHERE s.status = 'pending'
+GROUP BY a.code, u.email;
+```
+
+---
+
+### Système de paiement affilié — État actuel
+
+**100% manuel.** Pas de Stripe Connect, pas de paiement automatique.
+
+Workflow actuel pour payer un affilié :
+1. Requête SQL dans Supabase pour trouver les `AffiliateSale` avec `status='pending'`
+2. Virement manuel (virement bancaire / PayPal / etc.)
+3. Mettre à jour `status='paid'` et `paidAt=now()` directement dans Supabase
+
+Le schema est prévu pour ça (`status`, `approvedAt`, `paidAt`) mais il manque l'interface.
+
+---
+
+### Corrections appliquées (2026-03-28)
+
+| Correction | Fichier(s) modifié(s) | Statut |
+|---|---|---|
+| Transaction atomique webhook | `app/api/stripe/webhook/route.ts` | ✅ Appliqué |
+| Tracking permanent (localStorage + cookie 1 an + Secure) | `components/AffiliateTracker.tsx`, `components/CheckoutButton.tsx`, `app/api/stripe/checkout/route.ts` | ✅ Appliqué |
+| Handler `charge.refunded` (remboursements) | `app/api/stripe/webhook/route.ts` | ✅ Appliqué |
+| Déduplication clics par IP (24h) | `app/api/affiliation/track/route.ts` | ✅ Appliqué |
+| Stats pending/paid distincts | `app/api/affiliation/stats/route.ts`, `app/affiliation/AffiliationClient.tsx` | ✅ Appliqué |
+| Page admin affiliés | `app/admin/affilies/page.tsx`, `AdminAffiliatesClient.tsx` | ✅ Appliqué |
+| API admin affiliés | `app/api/admin/affiliates/route.ts`, `.../pay/route.ts` | ✅ Appliqué |
+
+### Architecture d'affiliation — État après corrections
+
+**Tracking :**
+- `AffiliateTracker` écrit dans **localStorage** (`affiliate_ref`) ET cookie (`max-age=1 an, Secure, SameSite=Lax`)
+- `CheckoutButton` lit localStorage et envoie `affiliateCode` dans le body du POST checkout
+- Route checkout utilise le cookie en priorité, sinon fallback `affiliateCode` du body
+- Résultat : l'attribution fonctionne même si le cookie est vidé (localStorage survit)
+
+**Webhook Stripe :**
+- `affiliateSale.create` + `affiliate.update` dans `prisma.$transaction([])`
+- Handler `charge.refunded` : si remboursement complet → `status="refunded"` + `totalEarnings -= commission` (transaction atomique)
+
+**Stats dashboard affilié :**
+- Calcul dynamique via `prisma.affiliateSale.aggregate` (pas `totalEarnings` hardcodé)
+- Retourne `pendingAmountEur` + `paidAmountEur` + `pendingCount` + `paidCount` séparément
+- Dashboard affiche deux blocs distincts (orange = en attente, vert = déjà reçu)
+
+**Clics :**
+- Déduplication : même IP + même affilié dans les 24h → clic ignoré silencieusement
+
+**Admin `/admin/affilies` :**
+- Accès protégé : `user.role === "admin"` vérifié côté serveur
+- Vue globale : total affiliés, total ventes, total à verser, total versé
+- Par affilié : email, code, clics, ventes, pending/paid, badge "Suspect" si > 100 clics et 0 ventes
+- Bouton "Marquer payé" → POST `/api/admin/affiliates/pay` → `status="pending"` → `"paid"` + `paidAt=now()`
+- Détail des ventes par affilié : buyerUserId, stripeSessionId, montant, commission, statut, date
+
+---
+
 ## 10. 🎨 Homepage V2 – Refonte (2026-02-13)
 
 ### Sections supprimées

@@ -222,6 +222,10 @@ interface AffiliateStats {
   commissionRate?: number;
   totalEarnings?: number;
   totalEarningsEur?: string;
+  pendingAmountEur?: string;
+  paidAmountEur?: string;
+  pendingCount?: number;
+  paidCount?: number;
   clicks?: number;
   sales?: number;
   conversionRate?: number;
@@ -351,12 +355,12 @@ function AffiliateDashboard() {
           </div>
         </div>
 
-        {/* Stats */}
+        {/* Stats principales */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <StatCard label="Clics" value={String(stats.clicks ?? 0)} />
           <StatCard label="Ventes" value={String(stats.sales ?? 0)} />
           <StatCard
-            label="Commissions"
+            label="Total gagné"
             value={`${stats.totalEarningsEur ?? "0.00"} €`}
             accent
           />
@@ -364,6 +368,32 @@ function AffiliateDashboard() {
             label="Conversion"
             value={`${stats.conversionRate ?? 0} %`}
           />
+        </div>
+
+        {/* Détail pending / payé */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="bg-orange-500/5 border border-orange-500/20 rounded-xl p-4">
+            <p className="text-xs text-orange-400/70 uppercase tracking-wider mb-1">
+              En attente de paiement
+            </p>
+            <p className="text-2xl font-bold text-orange-400">
+              {stats.pendingAmountEur ?? "0.00"} €
+            </p>
+            <p className="text-xs text-gray-600 mt-1">
+              {stats.pendingCount ?? 0} vente{(stats.pendingCount ?? 0) !== 1 ? "s" : ""} non versée{(stats.pendingCount ?? 0) !== 1 ? "s" : ""}
+            </p>
+          </div>
+          <div className="bg-green-500/5 border border-green-500/20 rounded-xl p-4">
+            <p className="text-xs text-green-400/70 uppercase tracking-wider mb-1">
+              Déjà reçu
+            </p>
+            <p className="text-2xl font-bold text-green-400">
+              {stats.paidAmountEur ?? "0.00"} €
+            </p>
+            <p className="text-xs text-gray-600 mt-1">
+              {stats.paidCount ?? 0} vente{(stats.paidCount ?? 0) !== 1 ? "s" : ""} versée{(stats.paidCount ?? 0) !== 1 ? "s" : ""}
+            </p>
+          </div>
         </div>
 
         <p className="text-xs text-gray-600 text-center pt-2">
@@ -443,8 +473,8 @@ const affiliateFAQs = [
     answer: "La commission liée à cette vente est automatiquement déduite de votre solde.",
   },
   {
-    question: "Combien de temps dure le cookie d'affiliation ?",
-    answer: "30 jours. Si quelqu'un clique sur votre lien, vous êtes crédité même s'il achète un mois plus tard.",
+    question: "Combien de temps dure le suivi d'affiliation ?",
+    answer: "1 an. Le lien de suivi est également stocké en local sur le navigateur du visiteur, ce qui signifie que vous êtes crédité même si le cookie est effacé.",
   },
 ];
 
@@ -478,7 +508,7 @@ export function AffiliationClient({ hasAccess }: { hasAccess: boolean }) {
                   </div>
                   <div className="text-left">
                     <p className="text-base sm:text-lg font-semibold text-white">Commission par vente</p>
-                    <p className="text-xs sm:text-sm text-gray-400">Cookie 30 jours • Dès la 1ère vente • Sans limite</p>
+                    <p className="text-xs sm:text-sm text-gray-400">Suivi 1 an • Dès la 1ère vente • Sans limite</p>
                   </div>
                 </div>
               </div>

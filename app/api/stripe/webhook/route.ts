@@ -45,6 +45,18 @@ export async function POST(req: NextRequest) {
     }
   }
 
+  if (event.type === "charge.refunded") {
+    const charge = event.data.object as Stripe.Charge;
+    // Traiter uniquement les remboursements complets
+    if (charge.refunded) {
+      try {
+        await handleChargeRefunded(charge);
+      } catch (err) {
+        console.error("[webhook] erreur lors du traitement remboursement:", err);
+      }
+    }
+  }
+
   return NextResponse.json({ received: true });
 }
 
@@ -124,6 +136,58 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   }
 }
 
+async function handleChargeRefunded(charge: Stripe.Charge) {
+  const paymentIntentId = typeof charge.payment_intent === "string"
+    ? charge.payment_intent
+    : charge.payment_intent?.id;
+
+  if (!paymentIntentId) {
+    console.warn("[webhook] remboursement: pas de payment_intent sur le charge", charge.id);
+    return;
+  }
+
+  // Retrouver le Payment via stripePaymentId
+  const payment = await prisma.payment.findFirst({
+    where: { stripePaymentId: paymentIntentId },
+  });
+
+  if (!payment) {
+    console.warn("[webhook] remboursement: Payment introuvable pour payment_intent", paymentIntentId);
+    return;
+  }
+
+  // Retrouver l'AffiliateSale via stripeSessionId
+  const sale = await prisma.affiliateSale.findFirst({
+    where: { stripeSessionId: payment.stripeSessionId },
+  });
+
+  if (!sale) {
+    // Pas de commission sur cette vente — rien à faire
+    return;
+  }
+
+  if (sale.status === "refunded") {
+    console.warn("[webhook] remboursement déjà traité pour session", payment.stripeSessionId);
+    return;
+  }
+
+  // Transaction atomique : marquer "refunded" + décrémenter totalEarnings
+  await prisma.$transaction([
+    prisma.affiliateSale.update({
+      where: { id: sale.id },
+      data: { status: "refunded" },
+    }),
+    prisma.affiliate.update({
+      where: { id: sale.affiliateId },
+      data: { totalEarnings: { decrement: sale.commission } },
+    }),
+  ]);
+
+  console.log(
+    `[webhook] remboursement: commission ${sale.commission / 100}€ déduite pour affilié ${sale.affiliateId}`
+  );
+}
+
 async function handleAffiliateCommission({
   affiliateCode,
   buyerUserId,
@@ -154,24 +218,24 @@ async function handleAffiliateCommission({
   // Calculer la commission (25%)
   const commissionCents = Math.round(amountCents * (affiliate.commissionRate / 100));
 
-  // Créer la vente affiliée (create avec contrainte unique pour dédoublonnage)
+  // Transaction atomique : create + increment dans la même opération DB
   try {
-    await prisma.affiliateSale.create({
-      data: {
-        affiliateId: affiliate.id,
-        buyerUserId,
-        stripeSessionId,
-        amount: amountCents,
-        commission: commissionCents,
-        status: "pending",
-      },
-    });
-
-    // Mettre à jour le total des gains
-    await prisma.affiliate.update({
-      where: { id: affiliate.id },
-      data: { totalEarnings: { increment: commissionCents } },
-    });
+    await prisma.$transaction([
+      prisma.affiliateSale.create({
+        data: {
+          affiliateId: affiliate.id,
+          buyerUserId,
+          stripeSessionId,
+          amount: amountCents,
+          commission: commissionCents,
+          status: "pending",
+        },
+      }),
+      prisma.affiliate.update({
+        where: { id: affiliate.id },
+        data: { totalEarnings: { increment: commissionCents } },
+      }),
+    ]);
 
     console.log(
       `[webhook] affiliation: commission ${commissionCents / 100}€ pour affilié ${affiliateCode}`

@@ -14,11 +14,29 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Code invalide." }, { status: 404 });
     }
 
+    const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? null;
+
+    // Déduplication : ignorer si même IP a déjà cliqué sur ce même affilié dans les 24h
+    if (ip) {
+      const cutoff = new Date(Date.now() - 24 * 60 * 60 * 1000);
+      const recentClick = await prisma.affiliateClick.findFirst({
+        where: {
+          affiliateId: affiliate.id,
+          ip,
+          createdAt: { gte: cutoff },
+        },
+      });
+      if (recentClick) {
+        // Clic dupliqué — on le silencieusement ignore
+        return NextResponse.json({ ok: true });
+      }
+    }
+
     // Enregistrer le clic
     await prisma.affiliateClick.create({
       data: {
         affiliateId: affiliate.id,
-        ip: req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? null,
+        ip,
         userAgent: req.headers.get("user-agent") ?? null,
         referer: req.headers.get("referer") ?? null,
       },

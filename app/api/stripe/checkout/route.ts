@@ -26,12 +26,22 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // Lire le cookie d'affiliation
+  // Lire affiliateCode depuis le body (envoyé par CheckoutButton depuis localStorage)
+  let bodyAffiliateCode: string | undefined;
+  try {
+    const body = await req.json();
+    bodyAffiliateCode = typeof body?.affiliateCode === "string" ? body.affiliateCode : undefined;
+  } catch {
+    // body vide ou non-JSON : pas de problème
+  }
+
+  // Lire le cookie d'affiliation (priorité au cookie)
   const cookieHeader = req.headers.get("cookie") ?? "";
   const affiliateMatch = cookieHeader.match(/affiliate_ref=([^;]+)/);
-  const affiliateRef = affiliateMatch
-    ? decodeURIComponent(affiliateMatch[1])
-    : undefined;
+  const cookieRef = affiliateMatch ? decodeURIComponent(affiliateMatch[1]) : undefined;
+
+  // Cookie en priorité, sinon fallback localStorage (body)
+  const affiliateRef = cookieRef ?? bodyAffiliateCode;
 
   try {
     const metadata: Record<string, string> = {

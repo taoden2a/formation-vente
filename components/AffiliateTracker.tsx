@@ -3,8 +3,10 @@
 import { useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 
-const COOKIE_DAYS = 30;
+// 1 an en secondes — le cookie ne doit pas expirer rapidement
+const COOKIE_MAX_AGE = 365 * 24 * 60 * 60;
 const SESSION_KEY = "cpv_affiliate_tracked";
+export const AFFILIATE_LS_KEY = "affiliate_ref";
 
 export function AffiliateTracker() {
   const searchParams = useSearchParams();
@@ -17,10 +19,11 @@ export function AffiliateTracker() {
     const alreadyTracked = sessionStorage.getItem(SESSION_KEY);
     if (alreadyTracked === ref) return;
 
-    // Stocker le cookie côté client (fallback — le checkout le lit aussi)
-    const expires = new Date();
-    expires.setDate(expires.getDate() + COOKIE_DAYS);
-    document.cookie = `affiliate_ref=${encodeURIComponent(ref)}; expires=${expires.toUTCString()}; path=/; SameSite=Lax`;
+    // localStorage : ne expire jamais (backup si cookie vidé)
+    localStorage.setItem(AFFILIATE_LS_KEY, ref);
+
+    // Cookie : 1 an, Secure, SameSite=Lax
+    document.cookie = `affiliate_ref=${encodeURIComponent(ref)}; max-age=${COOKIE_MAX_AGE}; path=/; SameSite=Lax; Secure`;
 
     // Enregistrer le clic en base (fire-and-forget)
     fetch("/api/affiliation/track", {
