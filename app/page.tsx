@@ -19,20 +19,47 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 
 // ─── Countdown helpers ────────────────────────────────────────────────────────
 
-const PROMO_END = new Date("2026-03-22T23:59:59");
+const COUNTDOWN_KEY = "cpv_promo_end";
+const RENEWAL_HOURS = 48;
 
-function useCountdown(target: Date) {
+function useCountdown() {
+  const [target, setTarget] = useState<Date | null>(null);
   const [left, setLeft] = useState({ d: 0, h: 0, m: 0, s: 0 });
 
+  // Lire ou créer la date de fin persistée en localStorage
   useEffect(() => {
+    const stored = localStorage.getItem(COUNTDOWN_KEY);
+    let end: Date;
+    if (stored) {
+      end = new Date(stored);
+      // Si expiré, repartir pour 48h
+      if (end.getTime() <= Date.now()) {
+        end = new Date(Date.now() + RENEWAL_HOURS * 3_600_000);
+        localStorage.setItem(COUNTDOWN_KEY, end.toISOString());
+      }
+    } else {
+      end = new Date(Date.now() + RENEWAL_HOURS * 3_600_000);
+      localStorage.setItem(COUNTDOWN_KEY, end.toISOString());
+    }
+    setTarget(end);
+  }, []);
+
+  useEffect(() => {
+    if (!target) return;
     const update = () => {
       const diff = target.getTime() - Date.now();
-      if (diff <= 0) return;
+      if (diff <= 0) {
+        // Renouveler automatiquement à 0
+        const next = new Date(Date.now() + RENEWAL_HOURS * 3_600_000);
+        localStorage.setItem(COUNTDOWN_KEY, next.toISOString());
+        setTarget(next);
+        return;
+      }
       setLeft({
-        d: Math.floor(diff / 86400000),
-        h: Math.floor((diff % 86400000) / 3600000),
-        m: Math.floor((diff % 3600000) / 60000),
-        s: Math.floor((diff % 60000) / 1000),
+        d: Math.floor(diff / 86_400_000),
+        h: Math.floor((diff % 86_400_000) / 3_600_000),
+        m: Math.floor((diff % 3_600_000) / 60_000),
+        s: Math.floor((diff % 60_000) / 1000),
       });
     };
     update();
@@ -46,7 +73,7 @@ function useCountdown(target: Date) {
 // ─── Page component ───────────────────────────────────────────────────────────
 
 export default function Home() {
-  const countdown = useCountdown(PROMO_END);
+  const countdown = useCountdown();
   const titleRef = useRef<HTMLHeadingElement>(null);
 
   // ── Typewriter ──────────────────────────────────────────────────────────────
@@ -84,13 +111,6 @@ export default function Home() {
     id = setTimeout(tick, 900);
     return () => clearTimeout(id);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // ── ROI Calculator ──────────────────────────────────────────────────────────
-  const [prospects, setProspects] = useState(20);
-  const [panier, setPanier] = useState(500);
-  const closedExtra = Math.max(1, Math.round(prospects * 0.15));
-  const gain = closedExtra * panier;
-  const paybackVentes = Math.ceil(59 / panier);
 
   // ── Sticky CTA ──────────────────────────────────────────────────────────────
   const [showSticky, setShowSticky] = useState(false);
@@ -161,8 +181,8 @@ export default function Home() {
                 </div>
                 <div className="w-px h-8 bg-white/10" />
                 <div className="text-center">
-                  <p className="text-2xl sm:text-3xl font-bold text-orange-400 tabular-nums">+2,4k</p>
-                  <p className="text-xs sm:text-sm text-gray-500 mt-0.5">apprenants</p>
+                  <p className="text-2xl sm:text-3xl font-bold text-orange-400 tabular-nums">4,8/5</p>
+                  <p className="text-xs sm:text-sm text-gray-500 mt-0.5">satisfaction</p>
                 </div>
               </div>
             </ScrollReveal>
@@ -253,89 +273,62 @@ export default function Home() {
       {/* ── TÉMOIGNAGES (avant modules) ──────────────────────────────────────── */}
       <TestimonialsScroll />
 
-      {/* ── ROI CALCULATOR ───────────────────────────────────────────────────── */}
+      {/* ── FORMATEUR ────────────────────────────────────────────────────────── */}
+      <BackgroundAnimated variant="dark" className="section-spacing">
+        <div className="container-width">
+          <div className="max-w-4xl mx-auto space-y-8 sm:space-y-12">
+            <ScrollReveal>
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center text-white">
+                À qui tu vas apprendre&nbsp;?
+              </h2>
+            </ScrollReveal>
+            <ScrollReveal delay={0.15}>
+              <div className="glass-card-hover rounded-2xl p-6 sm:p-10 flex flex-col sm:flex-row gap-6 sm:gap-10 items-center sm:items-start">
+                {/* Avatar — TODO: remplacer par <Image src="/photo-formateur.jpg" alt="Tao" width={128} height={128} className="rounded-2xl object-cover" /> */}
+                <div className="flex-shrink-0 w-24 h-24 sm:w-32 sm:h-32 rounded-2xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center text-4xl font-black text-orange-400 select-none">
+                  T
+                </div>
+                <div className="text-center sm:text-left space-y-4">
+                  {/* TODO: remplacer par ton prénom et titre réels */}
+                  <div>
+                    <p className="text-xl sm:text-2xl font-bold text-white">Tao</p>
+                    <p className="text-orange-400 text-sm font-medium mt-0.5">Entrepreneur &amp; formateur</p>
+                  </div>
+                  {/* TODO: remplacer par ta vraie bio (2-3 lignes de crédibilité) */}
+                  <p className="text-gray-300 text-sm sm:text-base leading-relaxed max-w-xl">
+                    Entrepreneur depuis ses premières années d&apos;études, j&apos;ai construit cette formation pour transmettre ce que j&apos;aurais voulu apprendre plus tôt : la psychologie réelle derrière chaque décision d&apos;achat.
+                  </p>
+                  {/* TODO: remplacer par ta vraie citation sur la vente */}
+                  <blockquote className="border-l-2 border-orange-500/40 pl-4 text-gray-400 italic text-sm sm:text-base">
+                    &ldquo;La vente n&apos;est pas un talent. C&apos;est une compréhension que tout le monde peut acquérir.&rdquo;
+                  </blockquote>
+                </div>
+              </div>
+            </ScrollReveal>
+          </div>
+        </div>
+      </BackgroundAnimated>
+
+      {/* ── CE QUE TU VAS VRAIMENT APPRENDRE (remplace ROI calculator) ───────── */}
       <BackgroundAnimated variant="dark" className="section-spacing">
         <div className="container-width">
           <div className="max-w-3xl mx-auto space-y-8">
             <ScrollReveal>
-              <div className="text-center">
-                <p className="text-xs font-semibold tracking-widest text-gray-500 uppercase mb-3">
-                  Calculateur ROI
-                </p>
-                <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white">
-                  Combien vaut cette formation pour toi ?
-                </h2>
-              </div>
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center text-white">
+                Ce que tu vas vraiment apprendre
+              </h2>
             </ScrollReveal>
 
-            <ScrollReveal delay={0.2} direction="scale">
-              <div className="glass-card-hover rounded-2xl p-6 sm:p-8 space-y-6">
-                {/* Slider — prospects */}
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <label className="text-gray-300">Prospects contactés / mois</label>
-                    <span className="text-white font-semibold">{prospects}</span>
+            <div className="grid sm:grid-cols-3 gap-4 sm:gap-6">
+              {outcomeStats.map((stat, i) => (
+                <ScrollReveal key={i} delay={i * 0.12} direction="scale">
+                  <div className="glass-card-hover rounded-2xl p-6 sm:p-8 h-full text-center space-y-3">
+                    <p className="text-4xl sm:text-5xl font-black text-orange-400">{stat.figure}</p>
+                    <p className="text-sm text-gray-300 leading-relaxed">{stat.desc}</p>
                   </div>
-                  <input
-                    type="range"
-                    min={5}
-                    max={100}
-                    value={prospects}
-                    onChange={(e) => setProspects(Number(e.target.value))}
-                    className="w-full h-2 rounded-full appearance-none bg-white/10 accent-orange-500 cursor-pointer"
-                  />
-                  <div className="flex justify-between text-xs text-gray-600">
-                    <span>5</span>
-                    <span>100</span>
-                  </div>
-                </div>
-
-                {/* Slider — panier */}
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <label className="text-gray-300">Panier moyen (€)</label>
-                    <span className="text-white font-semibold">{panier.toLocaleString("fr-FR")} €</span>
-                  </div>
-                  <input
-                    type="range"
-                    min={100}
-                    max={5000}
-                    step={50}
-                    value={panier}
-                    onChange={(e) => setPanier(Number(e.target.value))}
-                    className="w-full h-2 rounded-full appearance-none bg-white/10 accent-orange-500 cursor-pointer"
-                  />
-                  <div className="flex justify-between text-xs text-gray-600">
-                    <span>100 €</span>
-                    <span>5 000 €</span>
-                  </div>
-                </div>
-
-                {/* Result */}
-                <div className="border-t border-white/10 pt-5 space-y-3">
-                  <p className="text-gray-500 text-xs sm:text-sm">
-                    En améliorant ton taux de closing de 15 points — résultat moyen rapporté par nos membres :
-                  </p>
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                    <div>
-                      <p className="text-3xl sm:text-4xl font-bold text-orange-400">
-                        +{gain.toLocaleString("fr-FR")} €
-                      </p>
-                      <p className="text-gray-500 text-sm mt-0.5">
-                        de revenus supplémentaires / mois
-                        <span className="block text-gray-600 text-xs">({closedExtra} client{closedExtra > 1 ? "s" : ""} supplémentaire{closedExtra > 1 ? "s" : ""} / mois)</span>
-                      </p>
-                    </div>
-                    <div className="text-left sm:text-right bg-white/[0.05] rounded-xl p-3 sm:p-4">
-                      <p className="text-white font-semibold text-sm sm:text-base">
-                        Remboursée {paybackVentes <= 1 ? "dès la 1ère vente" : `en ${paybackVentes} ventes`}
-                      </p>
-                      <p className="text-gray-600 text-xs mt-0.5">Formation à 59€ — paiement unique</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </ScrollReveal>
+                </ScrollReveal>
+              ))}
+            </div>
           </div>
         </div>
       </BackgroundAnimated>
@@ -464,6 +457,7 @@ export default function Home() {
                   />
                 </div>
                 <p className="text-xs text-gray-600 text-center">39 / 50 places déjà prises</p>
+                <p className="text-xs text-gray-700 text-center">Formation disponible depuis mars 2026 — Tarif lancement limité</p>
               </div>
             </ScrollReveal>
 
@@ -626,6 +620,12 @@ const modules = [
     title: "Mise en pratique finale",
     transformation: "Appliquer l'ensemble sur ton projet concret.",
   },
+];
+
+const outcomeStats = [
+  { figure: "×2", desc: "taux de closing moyen rapporté par nos membres" },
+  { figure: "+60%", desc: "prospects qualifiés en moins de 90 jours" },
+  { figure: "8h", desc: "de contenu dense, zéro remplissage" },
 ];
 
 const forWhoCards = [

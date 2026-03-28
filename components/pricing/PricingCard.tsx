@@ -45,9 +45,12 @@ export function PricingCard() {
         </div>
 
         {/* Price */}
-        <div className="space-y-0.5">
+        <div className="space-y-1">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-2xl sm:text-3xl font-bold text-red-500 line-through decoration-2">199€</span>
+            <span className="inline-block px-2 py-0.5 rounded-full bg-red-100 text-red-600 text-xs font-bold tracking-wide">−70%</span>
+          </div>
           <div className="flex items-end gap-2 sm:gap-3">
-            <span className="text-gray-400 line-through text-lg sm:text-xl">199€</span>
             <motion.span
               initial={{ scale: 0.95 }}
               variants={{ hover: { scale: 1.06 } }}
@@ -56,8 +59,8 @@ export function PricingCard() {
             >
               59€
             </motion.span>
+            <span className="text-gray-500 text-sm mb-2">paiement unique</span>
           </div>
-          <p className="text-gray-500 text-sm">Paiement unique • Accès à vie</p>
           <p className="text-gray-400 text-xs italic">Moins cher qu&apos;un seul prospect perdu.</p>
         </div>
 
@@ -84,7 +87,30 @@ export function PricingCard() {
         {/* CTA */}
         <CheckoutButton />
 
-        <p className="text-xs text-gray-400 text-center">Paiement sécurisé par Stripe.</p>
+        {/* Payment security */}
+        <div className="space-y-2">
+          <div className="flex items-center justify-center gap-1.5 text-xs text-gray-400">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="text-gray-400 flex-shrink-0">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+            </svg>
+            Paiement 100% sécurisé par Stripe
+          </div>
+          <div className="flex items-center justify-center gap-2">
+            {/* Visa */}
+            <div className="px-2.5 py-1 rounded border border-gray-200 bg-white shadow-sm">
+              <span className="text-[#1A1F71] font-extrabold text-xs tracking-tight italic">VISA</span>
+            </div>
+            {/* Mastercard */}
+            <div className="flex items-center px-2 py-1 rounded border border-gray-200 bg-white shadow-sm gap-0.5">
+              <div className="w-4 h-4 rounded-full bg-[#EB001B]" style={{ marginRight: '-6px' }} />
+              <div className="w-4 h-4 rounded-full bg-[#F79E1B] opacity-95" />
+            </div>
+            {/* Stripe */}
+            <div className="px-2.5 py-1 rounded border border-gray-200 bg-white shadow-sm">
+              <span className="text-[#635BFF] font-bold text-xs">stripe</span>
+            </div>
+          </div>
+        </div>
       </div>
     </motion.div>
   )
