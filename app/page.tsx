@@ -280,7 +280,7 @@ export default function Home() {
           <div className="max-w-4xl mx-auto space-y-8 sm:space-y-12">
             <ScrollReveal>
               <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center text-white">
-                À qui tu vas apprendre&nbsp;?
+                Créé par quelqu&apos;un qui est passé par là
               </h2>
             </ScrollReveal>
             <ScrollReveal delay={0.15}>
@@ -293,7 +293,7 @@ export default function Home() {
                   {/* TODO: remplacer par ton prénom et titre réels */}
                   <div>
                     <p className="text-xl sm:text-2xl font-bold text-white">Tao</p>
-                    <p className="text-orange-400 text-sm font-medium mt-0.5">Entrepreneur</p>
+                    <p className="text-orange-400 text-sm font-medium mt-0.5">Étudiant &amp; Entrepreneur</p>
                   </div>
                   {/* TODO: remplacer par ta vraie bio (2-3 lignes de crédibilité) */}
                   <p className="text-gray-300 text-sm sm:text-base leading-relaxed max-w-xl">
