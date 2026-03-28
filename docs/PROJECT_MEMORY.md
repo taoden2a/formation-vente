@@ -466,6 +466,25 @@ Le schema est prévu pour ça (`status`, `approvedAt`, `paidAt`) mais il manque 
 
 ---
 
+### Coordonnées de paiement affiliés (2026-03-28)
+
+**Schéma :** `Affiliate.paymentMethod String?` + `Affiliate.paymentDetails String?`
+
+**API :**
+- `PUT /api/affiliation/payment-info` : valide et sauvegarde (paypal = email valide, iban = format 2 lettres + chiffres)
+- `GET /api/affiliation/payment-info` : retourne les données **masquées** (FR76****1234, mon***@gmail.com)
+
+**Dashboard affilié (`/affiliation`) :**
+- Formulaire radio PayPal / IBAN, input contextuel, sauvegarde
+- Affichage masqué si déjà renseigné (bouton "Modifier")
+- Message seuil 20€ dynamique dans le bloc "En attente" :
+  - `< 20€` → "Il te manque X€ pour atteindre le seuil."
+  - `>= 20€` → "Tu as X€ en attente — nous te contacterons."
+
+**Admin (`/admin/affilies`) :**
+- `paymentDetails` affiché **en clair** pour l'admin (IBAN ou email PayPal complet)
+- Badge orange "À compléter" si aucune coordonnée renseignée
+
 ### Corrections appliquées (2026-03-28)
 
 | Correction | Fichier(s) modifié(s) | Statut |
