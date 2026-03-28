@@ -1,7 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
+import { Resend } from "resend";
 import { prisma } from "@/lib/prisma";
 import { MAIN_COURSE_SLUG } from "@/lib/acces";
+import { generateInvoicePDF } from "@/lib/generate-invoice";
+import {
+  buildWelcomeEmailHtml,
+  buildInternalNotificationHtml,
+} from "@/lib/emails/welcome-email";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2023-10-16",
@@ -119,6 +125,19 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   });
 
   console.log("[webhook] accès activé pour user", resolvedUserId, "cours", course.id);
+
+  // Envoi email bienvenue + facture PDF (fire-and-forget — ne bloque pas la réponse webhook)
+  const buyerEmail = customerEmail ?? session.customer_details?.email ?? null;
+  if (buyerEmail) {
+    sendPurchaseEmails({
+      customerEmail: buyerEmail,
+      amountCents: session.amount_total ?? 0,
+      stripeSessionId: session.id,
+      date: new Date(),
+    }).catch((err) => {
+      console.error("[webhook] erreur envoi email bienvenue:", err);
+    });
+  }
 
   // Attribution de commission affilié
   const affiliateCode = session.metadata?.affiliate;
@@ -275,5 +294,91 @@ async function handleAffiliateCommission({
     } else {
       console.error("[webhook] affiliation: erreur création commission:", err);
     }
+  }
+}
+
+// ─── Envoi emails achat ────────────────────────────────────────────────────────
+
+async function sendPurchaseEmails({
+  customerEmail,
+  amountCents,
+  stripeSessionId,
+  date,
+}: {
+  customerEmail: string;
+  amountCents: number;
+  stripeSessionId: string;
+  date: Date;
+}) {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) {
+    console.warn("[webhook] RESEND_API_KEY absent — emails non envoyés");
+    return;
+  }
+
+  const resend = new Resend(apiKey);
+  const fromEmail = process.env.RESEND_FROM_EMAIL ?? "onboarding@resend.dev";
+  const amountEur = Math.round(amountCents / 100);
+
+  // Numéro de facture séquentiel : CPV-[ANNÉE]-[NNNN]
+  const paymentCount = await prisma.payment.count();
+  const year = date.getFullYear();
+  const seq = String(paymentCount).padStart(4, "0");
+  const invoiceNumber = `CPV-${year}-${seq}`;
+
+  // Générer la facture PDF
+  let pdfBuffer: Buffer | null = null;
+  try {
+    pdfBuffer = await generateInvoicePDF({
+      invoiceNumber,
+      date,
+      customerEmail,
+      amount: amountEur,
+    });
+  } catch (pdfErr) {
+    console.error("[webhook] erreur génération PDF:", pdfErr);
+    // On continue — l'email bienvenue est envoyé sans pièce jointe
+  }
+
+  // Email 1 — Bienvenue à l'acheteur
+  const attachments = pdfBuffer
+    ? [{ filename: `facture-${invoiceNumber}.pdf`, content: pdfBuffer }]
+    : [];
+
+  try {
+    const { error } = await resend.emails.send({
+      from: `Comprendre pour Vendre <${fromEmail}>`,
+      to: customerEmail,
+      subject: "Bienvenue dans Comprendre pour Vendre",
+      html: buildWelcomeEmailHtml(),
+      attachments,
+    });
+    if (error) {
+      console.error("[webhook] Resend email bienvenue error:", JSON.stringify(error));
+    } else {
+      console.log(`[webhook] email bienvenue envoyé à ${customerEmail} (facture ${invoiceNumber})`);
+    }
+  } catch (err) {
+    console.error("[webhook] Resend email bienvenue exception:", err);
+  }
+
+  // Email 2 — Notification interne
+  try {
+    const { error } = await resend.emails.send({
+      from: `Comprendre pour Vendre <${fromEmail}>`,
+      to: "deneutao@gmail.com",
+      subject: `Nouvelle vente — ${customerEmail}`,
+      html: buildInternalNotificationHtml({
+        customerEmail,
+        amount: amountEur,
+        date,
+        stripeSessionId,
+      }),
+    });
+    if (error) {
+      console.error("[webhook] Resend notif interne error:", JSON.stringify(error));
+    }
+  } catch (err) {
+    console.error("[webhook] Resend notif interne exception:", err);
   }
 }
