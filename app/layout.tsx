@@ -14,6 +14,7 @@ const inter = Inter({ subsets: ['latin'] })
 export const metadata: Metadata = {
   title: "Comprendre pour Vendre - Formation en vente",
   description: 'Apprenez à vendre et convaincre, basé sur la psychologie, les biais cognitifs et le marketing digital.',
+  themeColor: '#09090b',
 }
 
 export default function RootLayout({
@@ -23,7 +24,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="fr">
-      <body className={inter.className}>
+      <body className={`${inter.className} bg-zinc-950 text-white`}>
         <Providers>
           <div className="flex flex-col min-h-screen">
             <Navbar authSlot={<AuthStatus />} />

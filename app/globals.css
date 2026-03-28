@@ -19,7 +19,9 @@
   }
 
   body {
-    @apply bg-gray-50 text-gray-900 font-sans antialiased;
+    @apply font-sans antialiased;
+    background-color: #09090b;
+    color: white;
   }
 
   /* Typographie claire et lisible — mobile-first */
@@ -488,6 +490,13 @@
 
 .section-fade-bottom {
   background: linear-gradient(0deg, transparent 0%, currentColor 100%);
+}
+
+/* Fond global noir — évite le flash blanc entre les transitions */
+html,
+body {
+  background-color: #09090b;
+  color: white;
 }
 
 /* Smooth scroll behavior */
