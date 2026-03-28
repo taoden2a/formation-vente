@@ -7,6 +7,7 @@ import { FooterV2 } from '@/components/layout/FooterV2'
 import { AuthStatus } from '@/components/layout/AuthStatus'
 import { AffiliateTracker } from '@/components/AffiliateTracker'
 import { Providers } from '@/components/Providers'
+import { PageTransition } from '@/components/ui/PageTransition'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -29,7 +30,9 @@ export default function RootLayout({
             <Suspense fallback={null}>
               <AffiliateTracker />
             </Suspense>
-            <main className="flex-1">{children}</main>
+            <main className="flex-1">
+              <PageTransition>{children}</PageTransition>
+            </main>
             <FooterV2 />
           </div>
         </Providers>
