@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useProgress } from "@/hooks/useProgress";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { ScrollReveal } from "@/components/ui/scroll-reveal";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -92,7 +93,7 @@ export function SommaireClient({ modules, totalLessons, totalExercises }: Props)
     <main className="max-w-4xl mx-auto px-4 sm:px-6 py-8 md:py-12">
 
       {/* ── En-tête ─────────────────────────────────────────────────────────── */}
-      <div className="mb-10">
+      <ScrollReveal className="mb-10">
         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-orange-500/10 border border-orange-500/20 mb-5">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-orange-400">
             <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20" />
@@ -103,9 +104,10 @@ export function SommaireClient({ modules, totalLessons, totalExercises }: Props)
         </div>
         <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">Formation</h1>
         <p className="text-gray-400">8 modules progressifs pour maîtriser la vente par la compréhension.</p>
-      </div>
+      </ScrollReveal>
 
       {/* ── Barre de progression globale ────────────────────────────────────── */}
+      <ScrollReveal delay={100}>
       <div className="bg-white/5 border border-white/10 rounded-2xl p-6 mb-8">
         <div className="flex items-center justify-between mb-3">
           <span className="text-sm font-medium text-white">Progression globale</span>
@@ -121,6 +123,7 @@ export function SommaireClient({ modules, totalLessons, totalExercises }: Props)
           {completedLessonsCount} leçon{completedLessonsCount !== 1 ? "s" : ""} · {completedExercisesCount} exercice{completedExercisesCount !== 1 ? "s" : ""} terminés sur {totalLessons + totalExercises} éléments
         </p>
       </div>
+      </ScrollReveal>
 
       {/* ── Modules ─────────────────────────────────────────────────────────── */}
       <Accordion
@@ -130,11 +133,12 @@ export function SommaireClient({ modules, totalLessons, totalExercises }: Props)
         onValueChange={(val) => setOpenModuleId(val ? Number(val) : null)}
         className="space-y-4"
       >
-        {modules.map((mod) => {
+        {modules.map((mod, index) => {
           const isModuleOpen = openModuleId === mod.id;
           const modulePercent = isLoaded ? getModuleProgress(mod.id, mod.lessons.length) : 0;
 
           return (
+            <ScrollReveal key={mod.id} delay={index * 70}>
             <AccordionItem
               key={mod.id}
               value={String(mod.id)}
@@ -241,11 +245,13 @@ export function SommaireClient({ modules, totalLessons, totalExercises }: Props)
                 </div>
               </AccordionContent>
             </AccordionItem>
+            </ScrollReveal>
           );
         })}
       </Accordion>
 
       {/* ── Lien Exercices ──────────────────────────────────────────────────── */}
+      <ScrollReveal delay={80}>
       <div className="mt-10 pt-8 border-t border-white/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <p className="text-sm text-gray-500">Tous les exercices de la formation</p>
         <Link
@@ -259,6 +265,7 @@ export function SommaireClient({ modules, totalLessons, totalExercises }: Props)
           </svg>
         </Link>
       </div>
+      </ScrollReveal>
     </main>
   );
 }

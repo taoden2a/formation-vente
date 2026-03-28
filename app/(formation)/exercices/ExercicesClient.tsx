@@ -14,6 +14,7 @@
 import { useState, useCallback } from "react";
 import Link from "next/link";
 import { useProgress } from "@/hooks/useProgress";
+import { ScrollReveal } from "@/components/ui/scroll-reveal";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -166,6 +167,7 @@ export function ExercicesClient({ modules, totalExercises }: ExercicesClientProp
   return (
     <div>
       {/* ── Global progress ───────────────────────────────────────────────── */}
+      <ScrollReveal>
       <div className="mb-8 bg-white/5 border border-white/10 rounded-xl px-5 py-4">
         <div className="flex items-center justify-between mb-2.5 text-sm">
           <span className="text-gray-300 font-medium">Progression exercices</span>
@@ -185,8 +187,10 @@ export function ExercicesClient({ modules, totalExercises }: ExercicesClientProp
           </p>
         )}
       </div>
+      </ScrollReveal>
 
       {/* ── Quick nav ─────────────────────────────────────────────────────── */}
+      <ScrollReveal delay={80}>
       <div className="mb-6 flex flex-wrap gap-2">
         {modules.map((mod) => (
           <button
@@ -198,8 +202,10 @@ export function ExercicesClient({ modules, totalExercises }: ExercicesClientProp
           </button>
         ))}
       </div>
+      </ScrollReveal>
 
       {/* ── Filters ───────────────────────────────────────────────────────── */}
+      <ScrollReveal delay={140}>
       <div className="mb-8 flex items-center gap-1 bg-white/5 border border-white/10 rounded-xl p-1 w-fit">
         {(
           [
@@ -221,6 +227,7 @@ export function ExercicesClient({ modules, totalExercises }: ExercicesClientProp
           </button>
         ))}
       </div>
+      </ScrollReveal>
 
       {/* ── Modules ───────────────────────────────────────────────────────── */}
       {displayModules.length === 0 ? (
@@ -231,8 +238,9 @@ export function ExercicesClient({ modules, totalExercises }: ExercicesClientProp
         </div>
       ) : (
         <div className="space-y-12">
-          {displayModules.map((mod) => (
-            <section key={mod.id} id={`module-${mod.id}`} className="scroll-mt-20">
+          {displayModules.map((mod, index) => (
+            <ScrollReveal key={mod.id} delay={index * 60}>
+            <section id={`module-${mod.id}`} className="scroll-mt-20">
               {/* Module header */}
               <div className="flex items-center gap-3 mb-5">
                 <span className="text-xs font-mono font-bold text-orange-400/70 bg-orange-500/10 border border-orange-500/15 rounded-lg px-2.5 py-1">
@@ -257,6 +265,7 @@ export function ExercicesClient({ modules, totalExercises }: ExercicesClientProp
                 ))}
               </div>
             </section>
+            </ScrollReveal>
           ))}
         </div>
       )}
