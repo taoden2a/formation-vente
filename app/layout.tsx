@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Inter } from 'next/font/google'
 import { Suspense } from 'react'
 import './globals.css'
@@ -14,6 +14,9 @@ const inter = Inter({ subsets: ['latin'] })
 export const metadata: Metadata = {
   title: "Comprendre pour Vendre - Formation en vente",
   description: 'Apprenez à vendre et convaincre, basé sur la psychologie, les biais cognitifs et le marketing digital.',
+}
+
+export const viewport: Viewport = {
   themeColor: '#09090b',
 }
 
