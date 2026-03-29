@@ -83,6 +83,7 @@ function SlideTabs({ items, pathname }: SlideTabsProps) {
         </li>
       ))}
       <motion.li
+        initial={{ left: 0, width: 0, opacity: 0 }}
         animate={{ left: position.left, width: position.width, opacity: position.opacity }}
         transition={{ type: 'spring', stiffness: 500, damping: 35 }}
         className="absolute top-1 bottom-1 z-0 rounded-full bg-white/[0.12] pointer-events-none"

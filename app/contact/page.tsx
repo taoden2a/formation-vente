@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { BackgroundAnimated } from "@/components/ui/BackgroundAnimated";
-import { PageTransition } from "@/components/ui/PageTransition";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 import { ContactForm } from "@/components/contact/ContactForm";
 
@@ -47,8 +46,7 @@ export default function ContactPage() {
 
   return (
     <div className="min-h-screen bg-[#0a0a0f] text-white">
-      <PageTransition>
-        <BackgroundAnimated variant="dark" className="min-h-screen">
+      <BackgroundAnimated variant="dark" className="min-h-screen">
           <div className="container-width py-10 md:py-16 lg:py-24">
 
             {/* Hero */}
@@ -141,8 +139,7 @@ export default function ContactPage() {
               </ScrollReveal>
             </div>
           </div>
-        </BackgroundAnimated>
-      </PageTransition>
+      </BackgroundAnimated>
     </div>
   );
 }
