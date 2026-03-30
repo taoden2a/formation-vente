@@ -159,12 +159,12 @@ export default function Home() {
                 >
                   Accéder à la formation
                 </Link>
-                <Link
+                <a
                   href="/programme"
                   className="btn-premium-secondary inline-flex items-center justify-center rounded-xl px-6 sm:px-8 py-3.5 sm:py-4 text-base sm:text-lg font-medium text-gray-200 w-full sm:w-auto"
                 >
                   Voir la formation
-                </Link>
+                </a>
               </div>
             </ScrollReveal>
 
@@ -361,12 +361,12 @@ export default function Home() {
 
             <ScrollReveal delay={0.5}>
               <div className="text-center">
-                <Link
+                <a
                   href="/programme"
                   className="btn-premium-secondary inline-flex items-center justify-center rounded-xl px-6 py-3 font-medium text-gray-300"
                 >
                   Voir le programme complet
-                </Link>
+                </a>
               </div>
             </ScrollReveal>
           </div>
