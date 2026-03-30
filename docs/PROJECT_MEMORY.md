@@ -5214,3 +5214,406 @@ Après : `5 leçons · 2 exercices terminés sur 68 éléments`
 | `SommaireClient.tsx` | `px-4 sm:px-6`; bottom row `flex-col sm:flex-row` |
 | `exercices/page.tsx` | `px-4 sm:px-6 py-8 md:py-12` |
 | `notes/page.tsx` | `px-4 sm:px-6 py-8 md:py-12` |
+
+---
+
+## 9. Audit sécurité accès (2026-03-28)
+
+### Résultat global : ✅ AUCUNE FAILLE CRITIQUE — 2 améliorations appliquées
+
+### Périmètre audité
+Toutes les routes protégées du site, vérifiées en lecture de code source.
+
+### Résultats par zone
+
+| Zone | Protection | Résultat |
+|---|---|---|
+| `/formation/*` | `app/(formation)/layout.tsx` → `userHasAccess()` | ✅ Protégé (server-side) |
+| `/exercices/*` | Même layout RSC | ✅ Protégé |
+| `/notes/*` | Même layout RSC | ✅ Protégé |
+| `/ressources/*` | Même layout RSC | ✅ Protégé |
+| `/membre/*` | Middleware + `app/membre/layout.tsx` | ✅ Double protection |
+| `/admin/affilies` | RSC page : session + `role === "admin"` → redirect | ✅ Protégé |
+| `/affiliation` | `getServerSession` server-side → flag `hasAccess` | ✅ Accès conditionnel |
+| Contenu premium | `lib/server/programme-content.ts` avec `import "server-only"` | ✅ Jamais exposé client |
+| APIs admin | `requireAdmin()` dans chaque route | ✅ Protégé |
+| APIs affiliation | `getServerSession` dans chaque route | ✅ Protégé |
+| APIs Stripe webhook | Vérification signature Stripe | ✅ Protégé |
+
+### Failles corrigées
+
+**Faille 1 — Middleware incomplet**
+- Avant : `middleware.ts` ne couvrait que `/membre/:path*`
+- Risque : les routes `/formation/*`, `/admin/*`, etc. n'avaient aucune protection au niveau edge
+- Fix : `withAuth({ pages: { signIn: "/connexion" } })` étendu à toutes les zones protégées
+- Commit : `a5bd057`
+
+**Faille 2 — Paywall affiché aux non-authentifiés**
+- Avant : `app/(formation)/layout.tsx` affichait `<Paywall isLoggedIn={false}>` pour les utilisateurs non connectés
+- Risque : expérience incorrecte, et pas de redirection claire vers /connexion
+- Fix : `if (!session?.user) { redirect("/connexion"); }` — la Paywall n'est désormais affichée qu'aux utilisateurs connectés mais sans accès payant
+- Commit : `a5bd057`
+
+### Architecture de protection finale
+
+```
+Requête utilisateur
+  │
+  ├── middleware.ts (edge) ← PREMIER FILTRE
+  │   Matcher : /membre/*, /formation/*, /exercices/*, /notes/*, /ressources/*, /admin/*
+  │   Si pas de session JWT → redirect /connexion
+  │
+  ├── layout RSC (server) ← DEUXIÈME FILTRE
+  │   app/(formation)/layout.tsx : session + userHasAccess → Paywall si non payé
+  │   app/membre/layout.tsx : session + userHasAccess → Paywall si non payé
+  │   app/admin/affilies/page.tsx : session + role==="admin" → redirect / si non admin
+  │
+  └── API routes ← FILTRE AUTONOME
+      Chaque route vérifie session indépendamment (getServerSession ou requireAdmin)
+```
+
+### Règle retenue
+> Le middleware filtre l'authentification (connecté ou non). Les layouts RSC filtrent l'autorisation (payé ou non, admin ou non). Les API routes sont autonomes.
+
+---
+
+## 10. Audit sécurité complet (2026-03-28) — commit bcde492
+
+### Résumé : 2 corrections appliquées, 3 recommandations documentées
+
+---
+
+### PARTIE 1 — Secrets et exposition GitHub ✅
+
+| Vérification | Résultat |
+|---|---|
+| `.gitignore` | ✅ `.env`, `.env.local`, `.env.*` tous exclus |
+| Historique git | ✅ Aucun fichier `.env` dans l'historique (`git log --all --full-history`) |
+| Secrets hardcodés | ✅ Aucun `sk_live`, `pk_live`, `re_`, URL de DB avec credentials dans le code |
+| `NEXT_PUBLIC_` variables | ✅ `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` (intentionnellement public — clé Stripe publishable) + `NEXT_PUBLIC_URL` (URL site, non sensible) |
+
+---
+
+### PARTIE 2 — Base de données ✅
+
+| Vérification | Résultat |
+|---|---|
+| Supabase RLS | ✅ Le projet utilise **uniquement Prisma** — jamais le client Supabase directement côté client. RLS Supabase désactivé est sans impact : aucune requête n'arrive à Supabase sans passer par les API routes Next.js |
+| Injections SQL | ✅ Zéro `$queryRaw` ou `$executeRaw` — 100% ORM Prisma (requêtes préparées) |
+| Mots de passe | ✅ `bcrypt` (rounds 10-12) via `bcryptjs` — jamais en clair |
+| Tokens reset password | ✅ `crypto.randomBytes(32)` — aléatoire cryptographique, expiration 1h |
+| Données Stripe | ✅ Uniquement `stripeSessionId`, `stripePaymentId` — jamais numéros de carte ni CVV |
+| Coordonnées paiement affiliés | 🔴 **CORRIGÉ** — IBAN/emails PayPal chiffrés AES-256-CBC (voir Partie 6) |
+
+---
+
+### PARTIE 3 — Paiements Stripe ✅
+
+| Vérification | Résultat |
+|---|---|
+| Signature webhook | ✅ `stripe.webhooks.constructEvent(body, signature, STRIPE_WEBHOOK_SECRET)` |
+| Données bancaires | ✅ Aucune donnée de carte stockée — uniquement IDs Stripe |
+| HTTPS | ✅ Vercel force HTTPS automatiquement en production |
+| Cookie `affiliate_ref` | ✅ Flag `Secure` + `SameSite=Lax` + durée 1 an |
+
+---
+
+### PARTIE 4 — Headers HTTP de sécurité 🔴 CORRIGÉ (commit bcde492)
+
+**Avant** : `next.config.js` minimal, aucun header de sécurité.
+
+**Après** : `next.config.js` avec `async headers()` sur `"/(.*)"` :
+
+| Header | Valeur | Protection |
+|---|---|---|
+| `X-Frame-Options` | `DENY` | Clickjacking |
+| `X-Content-Type-Options` | `nosniff` | MIME sniffing |
+| `Referrer-Policy` | `strict-origin-when-cross-origin` | Fuite de Referer |
+| `X-DNS-Prefetch-Control` | `on` | Performance DNS |
+| `Permissions-Policy` | `camera=(), microphone=(), geolocation=(), payment=(self)` | APIs navigateur non utilisées |
+| `Strict-Transport-Security` | `max-age=31536000; includeSubDomains` | Force HTTPS 1 an |
+| `Content-Security-Policy` | `default-src 'self' + Stripe + inline` | Injection scripts externes |
+
+**Rate limiting** : 🟠 Non implémenté — recommandation : Upstash Redis + `@upstash/ratelimit` dans middleware (5 req/min sur `/api/auth/register`, `/api/auth/reset-password/request`). Sur Vercel, un compteur en mémoire ne fonctionne pas (serverless = instances éphémères séparées).
+
+**CORS** : 🟡 Next.js accepte par défaut les requêtes same-origin uniquement. Pour API publique inter-domaines, configurer `cors` dans les headers. Non nécessaire actuellement.
+
+---
+
+### PARTIE 5 — Scalabilité ✅
+
+| Vérification | Résultat |
+|---|---|
+| `lib/prisma.ts` singleton | ✅ Pattern `globalForPrisma.prisma` correct — 1 seul PrismaClient par warm lambda |
+| `DATABASE_URL` pooler | ✅ Port 6543 + `?pgbouncer=true&connection_limit=1` (vérifié dans MEMORY.md section DB) |
+| `findUnique` → `findFirst` | ✅ Tous les fichiers migrés (commit `a3ff494`) |
+| Images `next/image` | ✅ Utilisé partout — pas de domaines externes dans `domains[]` (pas nécessaire actuellement) |
+
+**Limites Supabase plan gratuit à documenter :**
+- Max 50 connexions simultanées → `connection_limit=1` par lambda est critique
+- 500MB storage
+- Pas de backups automatiques
+- Passage au plan Pro recommandé à partir de ~100 utilisateurs actifs simultanés
+
+---
+
+### PARTIE 6 — Chiffrement AES-256 coordonnées paiement 🔴 CORRIGÉ (commit bcde492)
+
+**Problème** : IBANs et emails PayPal des affiliés stockés en clair dans `Affiliate.paymentDetails` (colonne PostgreSQL).
+
+**Solution implémentée** :
+
+1. **`lib/encryption.ts`** : fonctions `encrypt(text)`, `decrypt(text)`, `safeDecrypt(text|null)` — AES-256-CBC, IV aléatoire 16 bytes, format stocké `<iv_hex>:<ciphertext_hex>`
+
+2. **`/api/affiliation/payment-info` (PUT)** : `encrypt(details)` avant `prisma.affiliate.update`
+
+3. **`/api/admin/affiliates` (GET)** : `safeDecrypt(aff.paymentDetails)` avant de retourner à l'admin
+
+4. **`ENCRYPTION_KEY`** : variable d'environnement 32 bytes hex — ajoutée dans `.env.local` + **à ajouter sur Vercel dashboard** (Settings → Environment Variables → Production)
+
+> **ACTION REQUISE** : Ajouter `ENCRYPTION_KEY=15a68f47884a0d2fde22459daf0b51860a507af6353daf3f3b7d7c93c5e599af` dans Vercel dashboard (Environment Variables → Production). Sans ça, les routes de paiement affilié lèveront une erreur en production.
+
+> **NOTE MIGRATION** : Les coordonnées existantes en base (si des affiliés ont déjà renseigné leurs infos) sont en clair. `safeDecrypt` retourne `null` si le texte n'est pas au format chiffré — ce qui affichera "À compléter" côté admin. Les affiliés devront re-saisir leurs coordonnées pour les chiffrer.
+
+---
+
+### Récapitulatif gravité
+
+| Gravité | Problème | Statut |
+|---|---|---|
+| 🔴 Critique | Headers HTTP absents (clickjacking, XSS, HSTS) | ✅ Corrigé |
+| 🔴 Critique | IBANs/emails PayPal en clair en base | ✅ Corrigé |
+| 🟠 Important | Rate limiting absent sur register + reset-password | Recommandation — Upstash Redis |
+| 🟡 Mineur | RLS Supabase désactivé (impact nul via Prisma) | Documenté |
+| 🟡 Mineur | CORS non explicitement restreint | Non nécessaire (same-origin) |
+
+---
+
+## 11. Révocation accès après remboursement Stripe (2026-03-28) — commit 4e1b828
+
+### Comportement de handleChargeRefunded (webhook charge.refunded)
+
+**Avant** : seule la commission affiliée était annulée. L'accès utilisateur (`paid`) n'était pas modifié.
+
+**Après** : transaction atomique complète selon le cas :
+
+**Cas 1 — Sans commission affiliée active :**
+```
+prisma.$transaction([
+  user.update({ paid: false }),           // révocation accès immédiate
+  payment.update({ status: "refunded" }), // marquage paiement
+])
+```
+
+**Cas 2 — Avec commission affiliée à annuler :**
+```
+prisma.$transaction([
+  user.update({ paid: false }),                   // révocation accès
+  payment.update({ status: "refunded" }),         // marquage paiement
+  affiliateSale.update({ status: "refunded" }),   // annulation commission
+  affiliate.update({ totalEarnings: decrement }), // correction solde affilié
+])
+```
+
+### Idempotence
+- Check sur `payment.status === "refunded"` (couvre tous les cas, y compris sans affiliation)
+- Stripe peut envoyer le même event plusieurs fois — le deuxième appel retourne sans rien faire
+
+### Flux complet paiement → remboursement
+```
+checkout.session.completed → user.paid = true  → accès accordé
+charge.refunded            → user.paid = false → accès révoqué immédiatement
+```
+
+### Comportement côté utilisateur
+La prochaine requête vers `/formation/*` (ou toute route protégée) renvoie vers le Paywall — le middleware Next.js et le layout RSC vérifient `userHasAccess()` à chaque requête (pas de cache de session côté serveur).
+
+---
+
+## 12. Suppression garantie remboursement (2026-03-28) — commit 1616e51
+
+### Décision produit
+La garantie "satisfait ou remboursé 14 jours sans justification" a été supprimée de l'ensemble du site. Remplacée par un régime de réclamations examinées au cas par cas.
+
+### Fichiers modifiés
+
+| Fichier | Changement |
+|---|---|
+| `app/cgv/page.tsx` | Article 4 réécrit : L221-28 + renonciation accès immédiat + réclamations 7j + aucun remboursement automatique |
+| `components/pricing/PricingCard.tsx` | Badge "Satisfait ou remboursé 14j" → "Paiement sécurisé par Stripe" |
+| `components/ui/bento-grid.tsx` | Card "Garantie incluse" → "Paiement sécurisé / Stripe" |
+| `app/page.tsx` | FAQ "garantie remboursement" → "réclamation 7j examinée individuellement" |
+| `app/faq/page.tsx` | Idem + référence L221-28 |
+| `app/affiliation/AffiliationClient.tsx` | FAQ affilié : reformulation neutre ("si le Vendeur décide d'accorder un remboursement") |
+| `app/contact/page.tsx` | Sujet "Réclamation" ajouté dans le formulaire |
+
+### CGV Article 4 — Texte officiel
+- **4.1** : L221-28 — accès = renonciation droit de rétractation
+- **4.2** : Réclamations via formulaire de contact, délai 7j, réponse 14j ouvrés
+- **4.3** : Aucun remboursement automatique — décision à la seule appréciation du Vendeur
+
+### Note : contenus pédagogiques non modifiés
+Les mentions de "garantie" et "remboursement" dans `lib/server/programme-content.ts` et `lib/server/exercise-corrections.ts` sont des exemples pédagogiques (techniques de vente enseignées dans la formation) — elles ne constituent pas des engagements commerciaux du Vendeur et ont été conservées intentionnellement.
+
+---
+
+## 13. Email bienvenue + facture PDF après achat (2026-03-28) — commit d01c0d6
+
+### Architecture
+
+**`lib/generate-invoice.tsx`** — Générateur PDF (server-only)
+- Librairie : `@react-pdf/renderer` (ajoutée dans package.json)
+- Format : A4, fond blanc, header orange, logo texte "Comprendre pour Vendre"
+- Données : numéro de facture, date, email client, montant
+- TVA non applicable — art. 293 B du CGI (auto-entrepreneur)
+- Retourne un `Buffer` prêt pour pièce jointe Resend
+
+**`lib/emails/welcome-email.ts`** — Builders HTML emails
+- `buildWelcomeEmailHtml()` : email dark theme #09090b, bouton CTA orange, 3 points programme, footer
+- `buildInternalNotificationHtml()` : notification simple pour l'admin (email, montant, date, session Stripe)
+
+### Flux déclenché par webhook `checkout.session.completed`
+
+```
+handleCheckoutCompleted()
+  → user.paid = true
+  → sendPurchaseEmails() [fire-and-forget, ne bloque pas la réponse webhook]
+      → generateInvoicePDF() → Buffer
+      → Resend : email bienvenue à l'acheteur (pièce jointe PDF)
+      → Resend : notification interne à deneutao@gmail.com
+```
+
+### Numéro de facture
+- Format : `CPV-[ANNÉE]-[NNNN]`
+- Calcul : `count(Payment) + 1` → padStart(4, "0")
+- Exemple : CPV-2026-0001
+
+### Comportement en cas d'erreur
+- Erreur PDF → email bienvenue envoyé sans pièce jointe (pas de crash)
+- Erreur Resend → log console, webhook répond 200 (Stripe ne re-tentera pas pour une erreur email)
+
+### Variables d'environnement requises (déjà configurées)
+- `RESEND_API_KEY`
+- `RESEND_FROM_EMAIL` (ex: `noreply@comprendrepourvendre.com`)
+
+---
+
+## 14. Email admin en variable d'environnement (2026-03-28) — commit 4331110
+
+### Changement
+`deneutao@gmail.com` supprimé du code source et remplacé par des variables d'environnement.
+
+### Variables
+
+| Variable | Contexte | Valeur |
+|---|---|---|
+| `ADMIN_EMAIL` | Server-side (API routes) | `deneutao@gmail.com` |
+| `NEXT_PUBLIC_ADMIN_EMAIL` | Client-side (page contact affichage) | `deneutao@gmail.com` |
+
+**Pourquoi deux variables :** `app/contact/page.tsx` est un client component (`"use client"`). Les variables sans prefix `NEXT_PUBLIC_` ne sont pas accessibles dans le bundle client. `NEXT_PUBLIC_ADMIN_EMAIL` est volontairement publique (l'email est affiché aux visiteurs).
+
+### Fichiers modifiés
+
+| Fichier | Avant | Après |
+|---|---|---|
+| `app/api/contact/route.ts` | `"deneutao@gmail.com"` hardcodé | `process.env.ADMIN_EMAIL ?? "deneutao@gmail.com"` |
+| `app/api/stripe/webhook/route.ts` | `to: "deneutao@gmail.com"` | `to: process.env.ADMIN_EMAIL ?? "..."` |
+| `app/contact/page.tsx` | chaîne littérale | `process.env.NEXT_PUBLIC_ADMIN_EMAIL` |
+
+### Action requise sur Vercel
+Ajouter dans Settings → Environment Variables → Production :
+- `ADMIN_EMAIL` = `deneutao@gmail.com`
+- `NEXT_PUBLIC_ADMIN_EMAIL` = `deneutao@gmail.com`
+
+---
+
+## 15. Email admin non exposé côté client (2026-03-29) — commit dfd8adf
+
+### Problème corrigé
+`NEXT_PUBLIC_ADMIN_EMAIL` exposait l'email admin dans le bundle JS client (visible par n'importe qui via DevTools ou bundle analyzer).
+
+### Solution : découpage Server / Client Component
+
+**`app/contact/page.tsx`** → Server Component (plus de "use client")
+- Lit `process.env.ADMIN_EMAIL` côté serveur au moment du rendu
+- Génère le HTML de la sidebar (email inclus) côté serveur
+- L'email n'est jamais dans le bundle JS — uniquement dans le HTML rendu
+
+**`components/contact/ContactForm.tsx`** → Client Component ("use client")
+- Contient toute la logique interactive : useState, handleSubmit, handleChange, validation, état succès
+- N'a pas accès aux variables d'environnement serveur (correct par design)
+
+### Variables d'environnement après correction
+
+| Variable | Où | Usage |
+|---|---|---|
+| `ADMIN_EMAIL` | Server-side uniquement | API routes + page contact (Server Component) |
+| ~~`NEXT_PUBLIC_ADMIN_EMAIL`~~ | Supprimée | N'existe plus |
+
+### Sur Vercel
+Seule `ADMIN_EMAIL` est nécessaire (supprimer `NEXT_PUBLIC_ADMIN_EMAIL` si déjà ajoutée).
+
+---
+
+## 16. Fix crash /programme — themeColor dans viewport (2026-03-29) — commit f8faf59
+
+### Cause du crash
+`themeColor: '#09090b'` était dans l'export `metadata` de `app/layout.tsx`.
+Next.js 14+ a déplacé `themeColor` vers un export `viewport` séparé.
+Laisser `themeColor` dans `metadata` génère une erreur côté client au runtime → "Application error: client-side exception" sur toutes les pages.
+
+### Fix appliqué
+```typescript
+// app/layout.tsx — avant
+export const metadata: Metadata = {
+  title: "...",
+  description: "...",
+  themeColor: '#09090b',  // ← illégal en Next.js 14+
+}
+
+// app/layout.tsx — après
+export const metadata: Metadata = {
+  title: "...",
+  description: "...",
+}
+
+export const viewport: Viewport = {
+  themeColor: '#09090b',  // ← export séparé requis
+}
+```
+
+### Règle Next.js 14+
+`themeColor`, `colorScheme`, `viewport` (width/initialScale) → doivent être dans `export const viewport: Viewport`, jamais dans `metadata`.
+
+## 17. Fix crash /programme navigation client-side (2026-03-29) — commits 0746cd9, be68429
+
+### Contexte
+Le crash "Application error: client-side exception" survenait uniquement lors d'une **navigation client-side** (clic sur un lien `<Link>`) vers `/programme` pour les utilisateurs connectés et payants. Après un refresh manuel la page fonctionnait.
+
+### Causes identifiées (deux problèmes distincts)
+
+**1. Hydration mismatches framer-motion (commit 0746cd9)**
+
+`motion.li` dans `SlideTabs` (`Navbar.tsx`) manquait de prop `initial` → le serveur rendait sans style inline mais le client ajoutait des styles → mismatch hydration en SSR strict (Server Component pages).
+
+Fix : ajout de `initial={{ left: 0, width: 0, opacity: 0 }}` sur `motion.li`.
+
+`PageTransition` rendait `style="opacity:0"` en SSR (via `initial={{ opacity: 0 }}`) → hydration conflict sur les Server Component pages.
+
+Fix : pattern `mounted` state — `initial={false}` sur `AnimatePresence`, `initial={mounted ? { opacity: 0 } : false}` sur `motion.div`. Sur SSR : aucun style inline. Après mount : animation complète.
+
+`app/contact/page.tsx` wrappait les enfants dans `<PageTransition>` alors que `app/layout.tsx` le fait déjà pour tous → double wrapping AnimatePresence.
+
+Fix : suppression du `<PageTransition>` dans `contact/page.tsx`.
+
+**2. AnimatePresence + redirect serveur (commit be68429)**
+
+`app/programme/page.tsx` appelle `redirect("/formation")` côté serveur pour les utilisateurs payants. Lors d'une navigation via `<Link>`, ce redirect est relayé au router client → double changement de pathname (/ → /programme → /formation) → `AnimatePresence mode="wait"` ne peut pas gérer ce double changement pendant l'exit animation → crash.
+
+Fix : remplacer `<Link href="/programme">` par `<a href="/programme">` dans `app/page.tsx` (2 occurrences : hero CTA + BentoGrid). L'`<a>` force un full page reload, contournant entièrement AnimatePresence.
+
+### Règles retenues
+- Tout `motion.*` doit avoir un `initial` explicite pour garantir la cohérence SSR/client.
+- `PageTransition` ne doit jamais être utilisé dans des pages individuelles — uniquement dans `app/layout.tsx`.
+- Les liens vers des pages qui font un `redirect()` serveur doivent utiliser `<a href>` (pas `<Link>`) pour éviter les conflits AnimatePresence.
+- **JAMAIS utiliser `findUnique`** avec PgBouncer — toujours `findFirst` (règle existante, rappel).
