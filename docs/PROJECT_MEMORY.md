@@ -5617,3 +5617,34 @@ Fix : remplacer `<Link href="/programme">` par `<a href="/programme">` dans `app
 - `PageTransition` ne doit jamais être utilisé dans des pages individuelles — uniquement dans `app/layout.tsx`.
 - Les liens vers des pages qui font un `redirect()` serveur doivent utiliser `<a href>` (pas `<Link>`) pour éviter les conflits AnimatePresence.
 - **JAMAIS utiliser `findUnique`** avec PgBouncer — toujours `findFirst` (règle existante, rappel).
+
+## 18. Audit responsive mobile complet (2026-03-31) — commit 70bf48b
+
+### Fichiers modifiés
+
+| Fichier | Correction |
+|---|---|
+| `app/connexion/page.tsx` | Inputs + bouton `h-10` → `h-11` (44px touch target) |
+| `app/inscription/page.tsx` | Inputs + boutons `h-10` → `h-11` ; "Se connecter" `py-2.5` → `py-3` |
+| `app/mot-de-passe-oublie/page.tsx` | Input + bouton `h-10` → `h-11` |
+| `app/reinitialisation-mdp/page.tsx` | Inputs + bouton `h-10` → `h-11` |
+| `app/page.tsx` | Hero h1 `text-4xl` → `text-3xl` mobile ; sous-titre `text-base` → `text-sm` ; stats `gap-6` → `gap-4` ; countdown boxes `w-14 h-14` → `w-12 h-12` ; avatar formateur `w-24 h-24` → `w-16 h-16` |
+| `components/layout/Navbar.tsx` | Logo mobile `"Comprendre pour Vendre"` → `"CpV"` (évite overflow 360px) |
+| `app/cgv/page.tsx` | Heading `text-4xl` → `text-3xl` mobile ; padding `p-8` → `p-5` mobile |
+| `app/faq/page.tsx` | Heading `text-4xl` → `text-3xl` mobile ; sous-titre `text-lg` → `text-base` |
+| `app/mentions-legales/page.tsx` | Heading `text-4xl` → `text-3xl` mobile ; padding `p-8` → `p-5` mobile |
+| `app/confidentialite/page.tsx` | Heading `text-4xl` → `text-3xl` mobile ; padding `p-8` → `p-5` mobile |
+| `components/pricing/PricingCard.tsx` | Prix `text-5xl` → `text-4xl` mobile |
+| `components/ui/bento-grid.tsx` | `col-span-1` explicite ajouté (base mobile pour les cards `md:col-span-2`) |
+
+### Éléments déjà corrects (non modifiés)
+- Sticky mobile CTA landing page — déjà présent avec `md:hidden`
+- SommaireClient.tsx badges — déjà `flex-wrap`
+- Navbar hamburger mobile — déjà implémenté (drawer complet)
+
+### Règles mobile retenues
+- Touch targets minimum 44px : `h-11` sur tous les inputs et boutons forms
+- Logo mobile court pour éviter overflow : `CpV` (pas "Comprendre pour Vendre")
+- Pattern mobile-first : `text-3xl sm:text-4xl md:text-5xl` pour les grandes headings
+- Padding légal pages : `p-5 sm:p-8 md:p-10` (pas `p-8` fixe)
+- Countdown timer : boxes `w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16` pour tenir sur 375px
