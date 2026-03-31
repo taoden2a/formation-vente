@@ -67,7 +67,7 @@ export function BentoGrid() {
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5">
 
       {/* Grande card gauche — Transformation Avant/Après */}
-      <BentoCard className="md:col-span-2 p-6 sm:p-8" delay={0}>
+      <BentoCard className="col-span-1 md:col-span-2 p-6 sm:p-8" delay={0}>
         <div className="space-y-5 relative z-10">
           <div>
             <p className="text-xs font-semibold tracking-widest text-orange-400/70 uppercase mb-1">
@@ -163,7 +163,7 @@ export function BentoGrid() {
       </BentoCard>
 
       {/* Grande card bas droite — Paiement sécurisé */}
-      <BentoCard className="md:col-span-2 p-5 sm:p-6" delay={0.24}>
+      <BentoCard className="col-span-1 md:col-span-2 p-5 sm:p-6" delay={0.24}>
         <div className="flex flex-col sm:flex-row sm:items-center gap-5 sm:gap-8 relative z-10">
           <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center">
             <ShieldCheck size={24} className="text-orange-400" />

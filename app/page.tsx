@@ -137,7 +137,7 @@ export default function Home() {
             <ScrollReveal delay={0.12} blur duration={0.9}>
               <h1
                 ref={titleRef}
-                className="hero-reveal text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-white text-glow"
+                className="hero-reveal text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight text-white text-glow"
               >
                 La compétence qui transforme une idée en{" "}
                 <span className="hero-gradient-text">revenus</span>.
@@ -145,7 +145,7 @@ export default function Home() {
             </ScrollReveal>
 
             <ScrollReveal delay={0.3} duration={0.8}>
-              <p className="text-base sm:text-lg md:text-xl text-gray-400 font-medium max-w-xl sm:max-w-2xl mx-auto leading-relaxed">
+              <p className="text-sm sm:text-base md:text-lg text-gray-400 font-medium max-w-xl sm:max-w-2xl mx-auto leading-relaxed">
                 Apprends la psychologie réelle de l&apos;achat pour vendre plus
                 sans manipuler et sans scripts artificiels.
               </p>
@@ -170,7 +170,7 @@ export default function Home() {
 
             {/* Stats */}
             <ScrollReveal delay={0.64} duration={0.8}>
-              <div className="flex justify-center items-center gap-6 sm:gap-12 pt-4 sm:pt-8">
+              <div className="flex justify-center items-center gap-4 sm:gap-8 lg:gap-12 pt-4 sm:pt-8">
                 <div className="text-center">
                   <p className="text-2xl sm:text-3xl font-bold text-white tabular-nums">8</p>
                   <p className="text-xs sm:text-sm text-gray-500 mt-0.5">modules</p>
@@ -286,7 +286,7 @@ export default function Home() {
             <ScrollReveal delay={0.15}>
               <div className="glass-card-hover rounded-2xl p-6 sm:p-10 flex flex-col sm:flex-row gap-6 sm:gap-10 items-center sm:items-start">
                 {/* Avatar — TODO: remplacer par <Image src="/photo-formateur.jpg" alt="Tao" width={128} height={128} className="rounded-2xl object-cover" /> */}
-                <div className="flex-shrink-0 w-24 h-24 sm:w-32 sm:h-32 rounded-2xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center text-4xl font-black text-orange-400 select-none">
+                <div className="flex-shrink-0 w-16 h-16 sm:w-24 sm:h-24 rounded-2xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center text-4xl font-black text-orange-400 select-none">
                   T
                 </div>
                 <div className="text-center sm:text-left space-y-4">
@@ -413,7 +413,7 @@ export default function Home() {
             {/* Countdown */}
             <ScrollReveal delay={0.1}>
               <div className="space-y-2">
-                <div className="flex justify-center gap-2 sm:gap-3">
+                <div className="flex justify-center gap-1.5 sm:gap-2.5">
                   {[
                     { val: countdown.d, label: "jours" },
                     { val: countdown.h, label: "heures" },
@@ -421,7 +421,7 @@ export default function Home() {
                     { val: countdown.s, label: "sec" },
                   ].map(({ val, label }, i) => (
                     <div key={i} className="text-center">
-                      <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center">
+                      <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center">
                         <span className="text-xl sm:text-2xl font-bold text-orange-400 tabular-nums">
                           {String(val).padStart(2, "0")}
                         </span>

@@ -55,7 +55,7 @@ export function PricingCard() {
               initial={{ scale: 0.95 }}
               variants={{ hover: { scale: 1.06 } }}
               transition={{ duration: 0.75, ease: 'backInOut' }}
-              className="text-5xl sm:text-6xl font-black text-gray-900 leading-none origin-bottom-left"
+              className="text-4xl sm:text-5xl md:text-6xl font-black text-gray-900 leading-none origin-bottom-left"
             >
               59€
             </motion.span>

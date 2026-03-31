@@ -187,7 +187,7 @@ function InscriptionForm() {
               onBlur={() => setFocusedInput(null)}
               autoComplete="email"
               required
-              className="w-full h-10 bg-white/5 border border-transparent focus:border-orange-500/40 text-white placeholder:text-white/30 text-sm pl-10 pr-3 rounded-lg outline-none transition-all duration-300 focus:bg-white/10"
+              className="w-full h-11 bg-white/5 border border-transparent focus:border-orange-500/40 text-white placeholder:text-white/30 text-sm pl-10 pr-3 rounded-lg outline-none transition-all duration-300 focus:bg-white/10"
             />
             {focusedInput === 'email' && (
               <motion.div layoutId="input-highlight-ins" className="absolute inset-0 bg-orange-500/5 -z-10 rounded-lg" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} />
@@ -208,7 +208,7 @@ function InscriptionForm() {
               onBlur={() => setFocusedInput(null)}
               autoComplete="new-password"
               required
-              className="w-full h-10 bg-white/5 border border-transparent focus:border-orange-500/40 text-white placeholder:text-white/30 text-sm pl-10 pr-10 rounded-lg outline-none transition-all duration-300 focus:bg-white/10"
+              className="w-full h-11 bg-white/5 border border-transparent focus:border-orange-500/40 text-white placeholder:text-white/30 text-sm pl-10 pr-10 rounded-lg outline-none transition-all duration-300 focus:bg-white/10"
             />
             <button type="button" onClick={() => setShowPassword((v) => !v)} tabIndex={-1} className="absolute right-3 text-white/40 hover:text-white transition-colors duration-300">
               {showPassword ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
@@ -232,7 +232,7 @@ function InscriptionForm() {
               onBlur={() => setFocusedInput(null)}
               autoComplete="new-password"
               required
-              className="w-full h-10 bg-white/5 border border-transparent focus:border-orange-500/40 text-white placeholder:text-white/30 text-sm pl-10 pr-10 rounded-lg outline-none transition-all duration-300 focus:bg-white/10"
+              className="w-full h-11 bg-white/5 border border-transparent focus:border-orange-500/40 text-white placeholder:text-white/30 text-sm pl-10 pr-10 rounded-lg outline-none transition-all duration-300 focus:bg-white/10"
             />
             <button type="button" onClick={() => setShowConfirm((v) => !v)} tabIndex={-1} className="absolute right-3 text-white/40 hover:text-white transition-colors duration-300">
               {showConfirm ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
@@ -252,7 +252,7 @@ function InscriptionForm() {
             </p>
             <Link
               href={`/connexion?next=${encodeURIComponent(next)}`}
-              className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-orange-500 hover:bg-orange-400 transition-colors text-white font-medium text-sm"
+              className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-orange-500 hover:bg-orange-400 transition-colors text-white font-medium text-sm"
             >
               Se connecter et continuer
             </Link>
@@ -278,7 +278,7 @@ function InscriptionForm() {
           className="w-full relative group/btn mt-2"
         >
           <div className="absolute inset-0 bg-orange-500/20 rounded-lg blur-lg opacity-0 group-hover/btn:opacity-70 transition-opacity duration-300" />
-          <div className="relative overflow-hidden bg-orange-500 hover:bg-orange-400 text-white font-medium h-10 rounded-lg transition-all duration-300 flex items-center justify-center disabled:opacity-60 disabled:cursor-not-allowed">
+          <div className="relative overflow-hidden bg-orange-500 hover:bg-orange-400 text-white font-medium h-11 rounded-lg transition-all duration-300 flex items-center justify-center disabled:opacity-60 disabled:cursor-not-allowed">
             <motion.div
               className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0"
               animate={{ x: ['-100%', '100%'] }}

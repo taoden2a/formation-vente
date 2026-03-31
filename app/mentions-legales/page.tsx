@@ -75,7 +75,7 @@ export default function MentionsLegalesPage() {
                   <FileTextIcon size={18} className="text-blue-400" />
                   <span className="text-sm font-medium text-blue-300">Informations légales</span>
                 </div>
-                <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
+                <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4">
                   Mentions légales
                 </h1>
                 <p className="text-lg text-gray-400 max-w-xl mx-auto">
@@ -109,7 +109,7 @@ export default function MentionsLegalesPage() {
 
               {/* Content */}
               <ScrollReveal delay={0.1} className="flex-1">
-                <article className="legal-content-card p-8 md:p-10 rounded-2xl">
+                <article className="legal-content-card p-5 sm:p-8 md:p-10 rounded-2xl">
                   <div className="legal-content space-y-12">
                     <section id="editeur">
                       <h2 className="text-xl font-semibold text-white mb-4">1. Éditeur du site</h2>

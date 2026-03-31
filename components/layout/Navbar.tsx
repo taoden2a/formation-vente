@@ -214,7 +214,7 @@ export function Navbar({ authSlot }: { authSlot?: ReactNode }) {
         {/* ── Mobile: full-width bar ─────────────────────────────────────────── */}
         <div className="md:hidden h-14 flex items-center justify-between px-4 bg-[#0a0a0f]/80 backdrop-blur-sm border-b border-white/10 pointer-events-auto">
           <Link href="/" className="text-white font-semibold text-sm tracking-tight">
-            Comprendre pour Vendre
+            CpV
           </Link>
           <div className="flex items-center gap-2">
             {showProgress && progress && (

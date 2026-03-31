@@ -151,10 +151,10 @@ export default function FAQPage() {
                   <HelpCircleIcon size={18} className="text-blue-400" />
                   <span className="text-sm font-medium text-blue-300">Centre d&apos;aide</span>
                 </div>
-                <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
+                <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4">
                   Questions fréquentes
                 </h1>
-                <p className="text-lg text-gray-400 max-w-xl mx-auto">
+                <p className="text-base sm:text-lg text-gray-400 max-w-xl mx-auto">
                   Trouvez rapidement des réponses à vos questions sur la formation, l&apos;accès, le paiement et plus encore.
                 </p>
               </div>

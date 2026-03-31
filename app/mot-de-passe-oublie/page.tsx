@@ -149,7 +149,7 @@ export default function MotDePasseOubliePage() {
                   onBlur={() => setFocusedInput(false)}
                   autoComplete="email"
                   required
-                  className="w-full h-10 bg-white/5 border border-transparent focus:border-orange-500/40 text-white placeholder:text-white/30 text-sm pl-10 pr-3 rounded-lg outline-none transition-all duration-300 focus:bg-white/10"
+                  className="w-full h-11 bg-white/5 border border-transparent focus:border-orange-500/40 text-white placeholder:text-white/30 text-sm pl-10 pr-3 rounded-lg outline-none transition-all duration-300 focus:bg-white/10"
                 />
                 {focusedInput && (
                   <motion.div
@@ -183,7 +183,7 @@ export default function MotDePasseOubliePage() {
               className="w-full relative group/btn"
             >
               <div className="absolute inset-0 bg-orange-500/20 rounded-lg blur-lg opacity-0 group-hover/btn:opacity-70 transition-opacity duration-300" />
-              <div className="relative overflow-hidden bg-orange-500 hover:bg-orange-400 text-white font-medium h-10 rounded-lg transition-all duration-300 flex items-center justify-center disabled:opacity-60 disabled:cursor-not-allowed">
+              <div className="relative overflow-hidden bg-orange-500 hover:bg-orange-400 text-white font-medium h-11 rounded-lg transition-all duration-300 flex items-center justify-center disabled:opacity-60 disabled:cursor-not-allowed">
                 <AnimatePresence mode="wait">
                   {loading ? (
                     <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex items-center gap-2">
