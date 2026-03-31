@@ -5648,3 +5648,38 @@ Fix : remplacer `<Link href="/programme">` par `<a href="/programme">` dans `app
 - Pattern mobile-first : `text-3xl sm:text-4xl md:text-5xl` pour les grandes headings
 - Padding légal pages : `p-5 sm:p-8 md:p-10` (pas `p-8` fixe)
 - Countdown timer : boxes `w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16` pour tenir sur 375px
+
+## 19. Sécurité RLS Supabase — Bloquer accès public API REST (2026-03-31) — commit 4c810ff
+
+### Contexte
+Supabase expose par défaut une API REST publique sur toutes les tables (rôles `anon` et `authenticated`).
+Notre app utilise uniquement Prisma côté serveur — jamais le client Supabase JS.
+Aucune clé Supabase (`NEXT_PUBLIC_SUPABASE_URL`, `SUPABASE_KEY`, etc.) n'est présente dans le code.
+
+### Solution : RLS + Deny All
+
+Fichier créé : `supabase/rls-policies.sql`
+
+Tables sécurisées (16 au total) :
+`users`, `courses`, `modules`, `lessons`, `exercises`, `templates`, `case_studies`,
+`bibliography`, `enrollments`, `progress`, `notes`, `payments`,
+`affiliates`, `affiliate_clicks`, `affiliate_sales`, `password_reset_tokens`
+
+Politique appliquée sur chaque table :
+```sql
+ALTER TABLE public.<table> ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "deny_all_public" ON public.<table>
+  FOR ALL TO anon, authenticated USING (false) WITH CHECK (false);
+```
+
+- `USING (false)` → bloque SELECT, UPDATE, DELETE
+- `WITH CHECK (false)` → bloque INSERT, UPDATE
+- Le rôle `postgres` (utilisé par Prisma via DATABASE_URL) **bypass RLS par défaut** → app non impactée
+
+### Exécution manuelle requise
+`prisma db execute` échoue localement (DIRECT_URL credentials IP-restreints par Supabase).
+**Exécuter manuellement :** Supabase Dashboard → SQL Editor → coller le contenu de `supabase/rls-policies.sql` → Run.
+
+### Vérification post-exécution
+Après exécution : tester connexion + accès /formation en production.
+Prisma (service role) bypass RLS → zéro impact attendu sur l'app.
